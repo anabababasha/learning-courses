@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>المنطق الرقمي والبوابات — المستوى الرابع</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0D0F12; --bg-soft:#15181D; --card:#1A1E25;
+  --copper:#C77B3F; --copper-bright:#E0985A;
+  --cyan:#5FD4D4; --cyan-dim:#3A9999;
+  --amber:#E0A030; --red:#C75050;
+  --white:#F0EDE6; --dim:#8B92A0; --slate:#4B5160;
+  --line:rgba(240,237,230,0.10); --line-strong:rgba(240,237,230,0.20);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg); color:var(--white); font-family:'IBM Plex Sans Arabic',sans-serif; line-height:1.75; overflow-x:hidden;}
+.mono{font-family:'IBM Plex Mono',monospace;letter-spacing:0.02em;}
+@media (prefers-reduced-motion: reduce){*{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}}
+
+.rail-wrap{position:sticky; top:0; z-index:60; width:100%; height:4px; background:var(--bg-soft); border-bottom:1px solid var(--line);}
+.rail-fill{height:100%; width:0%; background:linear-gradient(to left, var(--cyan), var(--copper)); box-shadow:0 0 10px var(--cyan); transition:width 0.08s linear;}
+
+.level-bar{position:sticky; top:4px; z-index:55; background:var(--bg-soft); border-bottom:1px solid var(--line); padding:0.7rem 7vw; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.6rem;}
+.level-bar .lb-crumb{font-size:0.78rem; color:var(--dim); display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;}
+.level-bar .lb-crumb a{color:var(--cyan); text-decoration:none;}
+.level-bar .lb-crumb a:hover{text-decoration:underline;}
+.level-badge{font-family:'IBM Plex Mono',monospace; font-size:0.72rem; background:rgba(95,212,212,0.1); border:1px solid rgba(95,212,212,0.35); color:var(--cyan); padding:0.3rem 0.8rem; border-radius:14px;}
+
+.hero{min-height:84vh; display:flex; flex-direction:column; justify-content:center; padding:6vh 7vw 6vh; border-bottom:1px solid var(--line); position:relative; overflow:hidden;}
+.hero::before{content:''; position:absolute; inset:0; background:radial-gradient(circle at 15% 25%, rgba(95,212,212,0.08), transparent 50%), radial-gradient(circle at 88% 80%, rgba(199,123,63,0.10), transparent 55%); pointer-events:none;}
+.eyebrow{font-size:0.78rem; color:var(--cyan); letter-spacing:0.12em; margin-bottom:1.6rem; display:flex; align-items:center; gap:0.7rem; position:relative; z-index:1;}
+.eyebrow::before{content:''; width:7px;height:7px;border-radius:50%; background:var(--cyan); box-shadow:0 0 0 3px rgba(95,212,212,0.18), 0 0 8px var(--cyan);}
+h1.hero-title{font-size:clamp(2.1rem,5.4vw,4rem); font-weight:700; line-height:1.22; max-width:22ch; position:relative; z-index:1; color:var(--white);}
+h1.hero-title em{font-style:normal; color:var(--copper-bright);}
+.hero-sub{margin-top:1.8rem; font-size:clamp(1rem,1.6vw,1.18rem); color:var(--dim); max-width:48ch; position:relative; z-index:1;}
+.hero-meta{margin-top:2.6rem; display:flex; gap:2rem; flex-wrap:wrap; position:relative; z-index:1;}
+.hero-meta .item{font-size:0.8rem; color:var(--dim); border-right:2px solid var(--line-strong); padding-right:0.85rem;}
+.hero-meta .item b{color:var(--white); font-weight:600; display:block; font-size:0.98rem; margin-bottom:0.15rem; font-family:'IBM Plex Sans Arabic',sans-serif;}
+
+.prereq-note{position:relative; z-index:1; margin-top:2.2rem; background:var(--card); border:1px solid var(--line-strong); border-right:3px solid var(--copper); padding:1.1rem 1.4rem; border-radius:6px; max-width:58ch; font-size:0.92rem; color:var(--dim);}
+.prereq-note a{color:var(--cyan); text-decoration:none; font-weight:600;}
+.prereq-note a:hover{text-decoration:underline;}
+
+.toc{position:relative; z-index:1; margin-top:2.2rem; display:flex; flex-wrap:wrap; gap:0.6rem;}
+.toc a{font-size:0.78rem; color:var(--dim); border:1px solid var(--line-strong); border-radius:20px; padding:0.45rem 1rem; text-decoration:none; transition:all 0.2s ease;}
+.toc a:hover{border-color:var(--cyan); color:var(--white);}
+
+.scroll-cue{position:absolute; bottom:2vh; right:7vw; font-size:0.72rem; color:var(--dim); display:flex; align-items:center; gap:0.5rem; animation:bob 2.2s ease-in-out infinite;}
+@keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(6px);}}
+
+section{padding:5rem 7vw; border-bottom:1px solid var(--line); position:relative; scroll-margin-top:60px;}
+.step-tag{display:flex; align-items:center; gap:0.8rem; font-size:0.78rem; color:var(--copper-bright); letter-spacing:0.1em; margin-bottom:1rem;}
+.step-tag .step-num{width:28px; height:28px; border-radius:50%; border:1px solid var(--copper); display:flex; align-items:center; justify-content:center; font-size:0.82rem; color:var(--copper-bright); flex-shrink:0;}
+.section-head{margin-bottom:3rem; max-width:62ch;}
+.section-title{font-size:clamp(1.5rem,2.8vw,2.1rem); font-weight:700; color:var(--white); line-height:1.35;}
+.section-desc{margin-top:1rem; color:var(--dim); font-size:1.02rem; max-width:56ch;}
+
+.exp-grid{display:grid; grid-template-columns:1fr 1fr; gap:3rem; align-items:start;}
+@media(max-width:860px){.exp-grid{grid-template-columns:1fr;}}
+.exp-text p{margin-bottom:1.1rem; color:var(--dim); font-size:1.02rem;}
+.exp-text strong{color:var(--white); font-weight:600;}
+.exp-text .term{color:var(--cyan); font-weight:600;}
+.analogy-card{background:var(--card); border:1px solid var(--line-strong); border-radius:10px; padding:2rem; text-align:center;}
+.analogy-card .a-label{font-size:0.72rem; color:var(--dim); letter-spacing:0.08em; margin-bottom:1.2rem;}
+.analogy-card svg{width:100%; max-width:320px; height:auto;}
+
+/* ===== gate simulator (shared shell) ===== */
+.gate-wrap{background:var(--card); border:1px solid var(--line-strong); border-radius:12px; padding:2.5rem; margin-top:2rem;}
+.gate-grid{display:grid; grid-template-columns:1.1fr 0.9fr; gap:2.5rem; align-items:center;}
+@media(max-width:860px){.gate-grid{grid-template-columns:1fr;}}
+.gate-svg-wrap{background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:1.5rem; display:flex; justify-content:center;}
+.gate-controls{display:flex; flex-direction:column; gap:1.5rem;}
+.input-toggle-row{display:flex; gap:1rem;}
+.input-toggle{
+  flex:1; text-align:center; padding:1rem; border-radius:8px; cursor:pointer;
+  background:var(--bg-soft); border:1px solid var(--line-strong); transition:all 0.2s ease;
+}
+.input-toggle .it-label{font-size:0.8rem; color:var(--dim); margin-bottom:0.5rem;}
+.input-toggle .it-val{font-family:'IBM Plex Mono',monospace; font-size:1.6rem; font-weight:700; color:var(--white);}
+.input-toggle.on{border-color:var(--cyan); background:rgba(95,212,212,0.08);}
+.input-toggle.on .it-val{color:var(--cyan);}
+.output-display{
+  background:var(--bg); border:2px solid var(--line-strong); border-radius:10px;
+  padding:1.4rem; text-align:center; transition:border-color 0.2s ease;
+}
+.output-display.on{border-color:var(--amber);}
+.output-display .od-label{font-size:0.78rem; color:var(--dim); margin-bottom:0.4rem;}
+.output-display .od-val{font-family:'IBM Plex Mono',monospace; font-size:2rem; font-weight:700; color:var(--white);}
+.output-display.on .od-val{color:var(--amber);}
+
+.truth-table{width:100%; border-collapse:collapse; margin-top:1rem;}
+.truth-table th{
+  font-family:'IBM Plex Mono',monospace; font-size:0.78rem; color:var(--dim);
+  padding:0.6rem; border-bottom:1px solid var(--line-strong); text-align:center;
+}
+.truth-table td{
+  padding:0.7rem; text-align:center; font-family:'IBM Plex Mono',monospace; font-size:0.92rem;
+  color:var(--dim); border-bottom:1px solid var(--line);
+}
+.truth-table tr.current-row td{color:var(--white); background:rgba(95,212,212,0.06);}
+.truth-table tr.current-row td:last-child{color:var(--amber); font-weight:700;}
+
+/* ===== gate type tabs ===== */
+.gate-tabs{display:flex; gap:0.6rem; margin-bottom:2rem; flex-wrap:wrap;}
+.gate-tab{
+  flex:1; min-width:80px; text-align:center; padding:0.8rem; border-radius:8px;
+  background:var(--bg-soft); border:1px solid var(--line-strong); color:var(--dim);
+  cursor:pointer; font-weight:600; font-size:0.92rem; transition:all 0.2s ease;
+}
+.gate-tab.active{border-color:var(--cyan); color:var(--white); background:rgba(95,212,212,0.08);}
+
+/* ===== combinational builder (XOR from gates) ===== */
+.combo-wrap{background:var(--card); border:1px solid var(--line-strong); border-radius:12px; padding:2.5rem; margin-top:2rem;}
+.combo-svg-wrap{background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:1.5rem; display:flex; justify-content:center; margin-bottom:1.5rem;}
+.combo-inputs{display:flex; gap:1rem; justify-content:center;}
+
+/* ===== concept cards ===== */
+.concept-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem;}
+@media(max-width:860px){.concept-grid{grid-template-columns:1fr;}}
+.concept-card{background:var(--card); border:1px solid var(--line-strong); border-radius:8px; padding:1.8rem; transition:border-color 0.25s ease, transform 0.25s ease;}
+.concept-card:hover{border-color:var(--cyan); transform:translateY(-3px);}
+.concept-card .c-sym{font-family:'IBM Plex Mono',monospace; font-size:1.6rem; color:var(--cyan); margin-bottom:1rem; font-weight:600;}
+.concept-card h3{font-size:1.05rem; color:var(--white); margin-bottom:0.4rem; font-weight:600;}
+.concept-card .unit{font-family:'IBM Plex Mono',monospace; font-size:0.76rem; color:var(--dim); margin-bottom:0.9rem;}
+.concept-card p{color:var(--dim); font-size:0.92rem;}
+
+/* ===== symbols & glossary ===== */
+.symbols-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:1.2rem;}
+@media(max-width:760px){.symbols-grid{grid-template-columns:repeat(2,1fr);}}
+.symbol-box{background:var(--card); border:1px solid var(--line-strong); border-radius:8px; padding:1.4rem; text-align:center;}
+.symbol-box svg{width:60px; height:40px; margin-bottom:0.8rem;}
+.symbol-box .s-name{color:var(--white); font-size:0.85rem; font-weight:600;}
+.symbol-box .s-en{color:var(--dim); font-size:0.7rem; font-family:'IBM Plex Mono',monospace; margin-top:0.2rem;}
+
+.glossary-table{width:100%; border-collapse:collapse;}
+.glossary-table th{text-align:right; font-family:'IBM Plex Mono',monospace; font-size:0.72rem; color:var(--dim); padding:0.8rem 0.6rem; border-bottom:1px solid var(--line-strong); letter-spacing:0.05em; font-weight:400;}
+.glossary-table td{padding:1rem 0.6rem; border-bottom:1px solid var(--line); color:var(--dim); vertical-align:top; font-size:0.92rem;}
+.glossary-table td.g-term{color:var(--white); font-weight:600; white-space:nowrap;}
+.glossary-table td.g-sym{font-family:'IBM Plex Mono',monospace; color:var(--cyan);}
+.glossary-table tr:last-child td{border-bottom:none;}
+
+/* ===== quiz ===== */
+.quiz-wrap{background:var(--card); border:1px solid var(--line-strong); border-radius:12px; padding:2.2rem; max-width:700px; margin-top:2.5rem;}
+.quiz-wrap.mini{padding:1.8rem;}
+.quiz-label{font-size:0.74rem; color:var(--cyan); letter-spacing:0.08em; margin-bottom:1.2rem;}
+.quiz-q{display:none;}
+.quiz-q.active{display:block;}
+.quiz-progress{font-size:0.75rem; color:var(--dim); margin-bottom:1.3rem;}
+.quiz-question{font-size:1.08rem; color:var(--white); font-weight:600; margin-bottom:1.4rem; line-height:1.6;}
+.quiz-options{display:flex; flex-direction:column; gap:0.65rem;}
+.quiz-opt{background:var(--bg-soft); border:1px solid var(--line-strong); color:var(--white); padding:0.9rem 1.1rem; border-radius:6px; text-align:right; font-size:0.94rem; cursor:pointer; font-family:inherit; transition:all 0.2s ease;}
+.quiz-opt:hover{border-color:var(--cyan);}
+.quiz-opt.correct{background:rgba(95,212,212,0.12); border-color:var(--cyan); color:var(--white);}
+.quiz-opt.incorrect{background:rgba(199,80,80,0.15); border-color:var(--red);}
+.quiz-opt:disabled{cursor:default;}
+.quiz-feedback{margin-top:1.1rem; padding:0.95rem 1.1rem; border-radius:6px; background:var(--bg-soft); font-size:0.9rem; color:var(--dim); display:none; border-right:3px solid var(--cyan);}
+.quiz-feedback.show{display:block;}
+.quiz-nav{margin-top:1.6rem; display:flex; justify-content:space-between; align-items:center;}
+.quiz-next-btn{background:var(--cyan); color:var(--bg); border:none; padding:0.65rem 1.5rem; border-radius:6px; font-family:inherit; font-weight:700; font-size:0.9rem; cursor:pointer; display:none; transition:background 0.2s ease;}
+.quiz-next-btn:hover{background:var(--cyan-dim);}
+.quiz-next-btn.show{display:inline-block;}
+.quiz-dots{display:flex; gap:0.45rem;}
+.quiz-dot{width:7px; height:7px; border-radius:50%; background:var(--line-strong);}
+.quiz-dot.done{background:var(--cyan);}
+.quiz-dot.current{background:var(--copper-bright);}
+.quiz-result{display:none; text-align:center; padding:0.8rem 0;}
+.quiz-result.show{display:block;}
+.quiz-result .score{font-family:'IBM Plex Mono',monospace; font-size:2.2rem; color:var(--cyan); font-weight:600;}
+.quiz-result .score-label{color:var(--dim); margin-top:0.4rem; font-size:0.92rem;}
+.quiz-result .score-msg{margin-top:0.8rem; color:var(--white); font-size:0.92rem; max-width:40ch; margin-inline:auto;}
+.quiz-restart{margin-top:1.3rem; background:transparent; border:1px solid var(--line-strong); color:var(--white); padding:0.55rem 1.3rem; border-radius:6px; font-family:inherit; cursor:pointer; font-size:0.86rem;}
+.quiz-restart:hover{border-color:var(--cyan);}
+
+#finalExamSection{background:linear-gradient(180deg, rgba(199,123,63,0.04), transparent);}
+.final-badge{display:inline-flex; align-items:center; gap:0.5rem; background:rgba(224,160,48,0.1); border:1px solid rgba(224,160,48,0.35); border-radius:20px; padding:0.4rem 1rem; font-size:0.78rem; color:var(--amber); margin-bottom:1.2rem;}
+
+.completion-card{background:linear-gradient(135deg, rgba(95,212,212,0.08), rgba(199,123,63,0.04)); border:1px solid var(--cyan); border-radius:14px; padding:2.5rem; text-align:center; max-width:560px; margin:2rem auto 0; display:none;}
+.completion-card.show{display:block;}
+.completion-card .cc-icon{font-size:2.2rem; margin-bottom:1rem;}
+.completion-card h3{color:var(--white); font-size:1.3rem; margin-bottom:0.8rem;}
+.completion-card p{color:var(--dim); font-size:0.95rem; margin-bottom:1.6rem;}
+.cc-btn{display:inline-block; background:var(--cyan); color:var(--bg); text-decoration:none; padding:0.85rem 2rem; border-radius:8px; font-weight:700; font-size:0.95rem;}
+.cc-btn:hover{background:var(--cyan-dim);}
+.cc-secondary{display:block; margin-top:1rem; color:var(--dim); font-size:0.85rem; text-decoration:none;}
+.cc-secondary:hover{color:var(--white);}
+
+footer{padding:3.2rem 7vw; text-align:center; color:var(--dim); font-size:0.85rem;}
+button:focus-visible, .quiz-opt:focus-visible, input:focus-visible, a:focus-visible{outline:2px solid var(--cyan); outline-offset:2px;}
+::selection{background:var(--cyan); color:var(--bg);}
+</style>
+</head>
+<body>
+
+<div class="rail-wrap"><div class="rail-fill" id="railFill"></div></div>
+
+<div class="level-bar">
+  <div class="lb-crumb mono">
+    <a href="../">كل الكورسات</a> <span>/</span> <a href="../electricity-fundamentals/">١</a> <span>/</span> <a href="../electricity-level2/">٢</a> <span>/</span> <a href="../electricity-level3/">٣</a> <span>/</span> المستوى الرابع
+  </div>
+  <span class="level-badge mono">المستوى ٤ من ٥</span>
+</div>
+
+<header class="hero">
+  <div class="eyebrow mono">كورس تمهيدي · المستوى الرابع · ١٦ دقيقة قراءة وتجربة</div>
+  <h1 class="hero-title">المنطق الرقمي <em>والبوابات</em></h1>
+  <p class="hero-sub">الترانزستور الذي تعلمته كمفتاح يتحول هنا إلى وحدة بناء للتفكير الرقمي نفسه — هكذا "يفكّر" كل حاسوب وهاتف فعلياً، على مستوى الكهرباء الخام.</p>
+  <div class="hero-meta">
+    <div class="item"><b>٤</b>بوابات منطقية أساسية</div>
+    <div class="item"><b>١</b>محاكاة بوابات تفاعلية حية</div>
+    <div class="item"><b>١</b>تركيب بوابة معقدة (XOR)</div>
+    <div class="item"><b>١٠</b>أسئلة الاختبار النهائي</div>
+  </div>
+  <div class="prereq-note mono">
+    📋 هذا الكورس يبني مباشرة على مفهوم الترانزستور في <a href="../electricity-level3/">المستوى الثالث</a> — إذا لم تكمله بعد، يُفضّل البدء منه أولاً.
+  </div>
+  <nav class="toc">
+    <a href="#switch-to-gate">من المفتاح للبوابة</a>
+    <a href="#basic-gates">البوابات الأساسية</a>
+    <a href="#combo">تركيب بوابة معقدة</a>
+    <a href="#to-computer">من البوابات للحاسوب</a>
+    <a href="#symbols">مرجع الرموز</a>
+    <a href="#glossary">مرجع المصطلحات</a>
+    <a href="#finalExamSection">الاختبار النهائي</a>
+  </nav>
+  <div class="scroll-cue mono">انزل للأسفل ↓</div>
+</header>
+
+<section id="switch-to-gate">
+  <div class="step-tag mono"><span class="step-num">١</span>الانتقال المفهومي</div>
+  <div class="section-head">
+    <h2 class="section-title">من المفتاح إلى البوابة المنطقية</h2>
+    <p class="section-desc">كل ما تحتاجه لفهم المنطق الرقمي موجود فعلاً عندك من المستويات السابقة — فقط بزاوية نظر جديدة.</p>
+  </div>
+  <div class="exp-grid">
+    <div class="exp-text">
+      <p>في المستوى الثالث، رأيت الترانزستور كمفتاح يُتحكم به كهربائياً. الآن، تخيّل أننا لا نهتم بقيمة التيار الفعلية (٣ أمبير أو ٥ أمبير) — نهتم فقط بحالتين: <strong>مرور تيار (نسميها 1)</strong> أو <strong>عدم مروره (نسميها 0)</strong>.</p>
+      <p>هذا التبسيط هو أساس كل الحوسبة الرقمية: <span class="term">البوابة المنطقية (Logic Gate)</span> هي دارة صغيرة من ترانزستورات، تأخذ مدخلاً أو مدخلين (كل منهما 0 أو 1) وتُخرج نتيجة واحدة (0 أو 1) حسب قاعدة منطقية ثابتة.</p>
+      <p>المفاتيح والمقاومات والترانزستورات التي تعلمتها فعلياً موجودة داخل كل بوابة — لكننا الآن نفكر بالنتيجة المنطقية، لا بالتفاصيل الكهربائية الدقيقة.</p>
+    </div>
+    <div class="analogy-card">
+      <div class="a-label mono">تشابه بصري — من مفتاح فردي إلى قرار منطقي</div>
+      <svg viewBox="0 0 300 160" fill="none">
+        <rect x="20" y="50" width="60" height="60" rx="6" fill="#1A1E25" stroke="#4B5160" stroke-width="2"/>
+        <text x="50" y="85" text-anchor="middle" fill="#8B92A0" font-size="11" font-family="IBM Plex Mono, monospace">مفتاح فردي</text>
+        <path d="M90 80 L130 80" stroke="#5FD4D4" stroke-width="2" marker-end="url(#arrow4)"/>
+        <defs><marker id="arrow4" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#5FD4D4"/></marker></defs>
+        <rect x="140" y="40" width="80" height="80" rx="10" fill="#1A1E25" stroke="#5FD4D4" stroke-width="2.5"/>
+        <text x="180" y="75" text-anchor="middle" fill="#5FD4D4" font-size="13" font-family="IBM Plex Mono, monospace" font-weight="600">0 / 1</text>
+        <text x="180" y="95" text-anchor="middle" fill="#8B92A0" font-size="10" font-family="IBM Plex Mono, monospace">بوابة منطقية</text>
+        <text x="180" y="140" text-anchor="middle" fill="#E0985A" font-size="11" font-family="IBM Plex Mono, monospace">نفس الكهرباء، تفكير مختلف</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="quiz-wrap mini" data-quiz="l4q1">
+    <div class="quiz-label mono">اختبار سريع — من المفتاح للبوابة</div>
+    <div class="quiz-progress mono">سؤال ١ من ١</div>
+    <div class="quiz-q active" data-q="0">
+      <div class="quiz-question">ما الفكرة الجوهرية وراء تبسيط الكهرباء إلى 0 و1 فقط؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">الاهتمام بحالتين فقط (مرور تيار أو لا) بدل القيمة الدقيقة للتيار</button>
+        <button class="quiz-opt" data-correct="false">إزالة الترانزستورات تماماً من الدارة</button>
+        <button class="quiz-opt" data-correct="false">رفع الجهد دائماً إلى أعلى قيمة ممكنة</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="quiz-next-btn">عرض النتيجة ←</button>
+      <div class="quiz-dots"></div>
+    </div>
+    <div class="quiz-result">
+      <div class="score">٠/١</div>
+      <div class="score-label">إجابات صحيحة</div>
+      <button class="quiz-restart">أعد المحاولة</button>
+    </div>
+  </div>
+</section>
+
+<section id="basic-gates">
+  <div class="step-tag mono"><span class="step-num">٢</span>محاكاة تفاعلية</div>
+  <div class="section-head">
+    <h2 class="section-title">البوابات الأساسية: NOT، AND، OR</h2>
+    <p class="section-desc">بدّل المدخلات بنفسك وشاهد كيف يتغيّر المخرج وجدول الصحة مباشرة لكل بوابة.</p>
+  </div>
+
+  <div class="gate-wrap">
+    <div class="gate-tabs">
+      <div class="gate-tab active" data-gate="NOT">NOT (عاكس)</div>
+      <div class="gate-tab" data-gate="AND">AND (و)</div>
+      <div class="gate-tab" data-gate="OR">OR (أو)</div>
+    </div>
+
+    <div class="gate-grid">
+      <div class="gate-svg-wrap">
+        <svg id="gateSvg" viewBox="0 0 320 180" fill="none" style="width:100%; max-width:340px;">
+          <!-- dynamically updated by JS -->
+        </svg>
+      </div>
+      <div class="gate-controls">
+        <div class="input-toggle-row" id="gateInputsRow">
+          <div class="input-toggle" id="inputA" data-input="A">
+            <div class="it-label mono">مدخل A</div>
+            <div class="it-val mono">0</div>
+          </div>
+          <div class="input-toggle" id="inputB" data-input="B">
+            <div class="it-label mono">مدخل B</div>
+            <div class="it-val mono">0</div>
+          </div>
+        </div>
+        <div class="output-display" id="outputDisplay">
+          <div class="od-label mono">المخرج</div>
+          <div class="od-val mono" id="outputVal">0</div>
+        </div>
+        <table class="truth-table" id="truthTable">
+          <!-- dynamically updated by JS -->
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="concept-grid" style="margin-top:2.5rem;">
+    <div class="concept-card">
+      <div class="c-sym">¬</div>
+      <h3>NOT</h3>
+      <div class="unit mono">مدخل واحد</div>
+      <p>تعكس القيمة: 0 تصبح 1، و1 تصبح 0. أبسط بوابة ممكنة.</p>
+    </div>
+    <div class="concept-card">
+      <div class="c-sym">∧</div>
+      <h3>AND</h3>
+      <div class="unit mono">مدخلان</div>
+      <p>المخرج 1 فقط إذا كان كلا المدخلين 1 معاً — كمفتاحين متسلسلين.</p>
+    </div>
+    <div class="concept-card">
+      <div class="c-sym">∨</div>
+      <h3>OR</h3>
+      <div class="unit mono">مدخلان</div>
+      <p>المخرج 1 إذا كان أي من المدخلين (أو كلاهما) يساوي 1 — كمفتاحين متوازيين.</p>
+    </div>
+  </div>
+
+  <div class="quiz-wrap mini" data-quiz="l4q2">
+    <div class="quiz-label mono">اختبار سريع — البوابات الأساسية</div>
+    <div class="quiz-progress mono">سؤال ١ من ١</div>
+    <div class="quiz-q active" data-q="0">
+      <div class="quiz-question">في بوابة AND، متى يكون المخرج يساوي 1؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="false">إذا كان أي مدخل واحد فقط يساوي 1</button>
+        <button class="quiz-opt" data-correct="true">فقط إذا كان كلا المدخلين يساويان 1 معاً</button>
+        <button class="quiz-opt" data-correct="false">دائماً بصرف النظر عن المدخلات</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="quiz-next-btn">عرض النتيجة ←</button>
+      <div class="quiz-dots"></div>
+    </div>
+    <div class="quiz-result">
+      <div class="score">٠/١</div>
+      <div class="score-label">إجابات صحيحة</div>
+      <button class="quiz-restart">أعد المحاولة</button>
+    </div>
+  </div>
+</section>
+
+<section id="combo">
+  <div class="step-tag mono"><span class="step-num">٣</span>تركيب متقدّم</div>
+  <div class="section-head">
+    <h2 class="section-title">تركيب بوابة معقدة: XOR من بوابات أساسية</h2>
+    <p class="section-desc">XOR (إما/أو الحصرية) ليست بوابة جديدة من العدم — هي تركيب ذكي من AND، OR، وNOT التي تعلمتها للتو.</p>
+  </div>
+  <div class="exp-grid">
+    <div class="exp-text">
+      <p><span class="term">XOR</span> تُخرج 1 فقط إذا كان المدخلان مختلفين عن بعضهما (أحدهما 1 والآخر 0) — وتُخرج 0 إذا كانا متشابهين (كلاهما 0 أو كلاهما 1).</p>
+      <p>هذا يوضح فكرة جوهرية في الإلكترونيات الرقمية: <strong>البوابات المعقدة كلها مبنية من تركيب البوابات الأساسية الثلاثة فقط</strong> — لا حاجة لاختراع آلية فيزيائية جديدة، فقط ترتيب ذكي لما تعرفه.</p>
+      <p>جرّب المحاكاة: بدّل المدخلين وشاهد كيف تتدفق القيمة عبر البوابات الثلاثة الداخلية لتُنتج النتيجة النهائية.</p>
+    </div>
+  </div>
+
+  <div class="combo-wrap">
+    <div class="combo-svg-wrap">
+      <svg id="comboSvg" viewBox="0 0 380 220" fill="none" style="width:100%; max-width:400px;">
+        <!-- dynamically updated by JS -->
+      </svg>
+    </div>
+    <div class="combo-inputs">
+      <div class="input-toggle" id="comboInputA" data-input="A">
+        <div class="it-label mono">مدخل A</div>
+        <div class="it-val mono">0</div>
+      </div>
+      <div class="input-toggle" id="comboInputB" data-input="B">
+        <div class="it-label mono">مدخل B</div>
+        <div class="it-val mono">0</div>
+      </div>
+      <div class="output-display" id="comboOutputDisplay" style="flex:1;">
+        <div class="od-label mono">مخرج XOR النهائي</div>
+        <div class="od-val mono" id="comboOutputVal">0</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-wrap mini" data-quiz="l4q3">
+    <div class="quiz-label mono">اختبار سريع — تركيب البوابات</div>
+    <div class="quiz-progress mono">سؤال ١ من ١</div>
+    <div class="quiz-q active" data-q="0">
+      <div class="quiz-question">متى تُخرج بوابة XOR قيمة 1؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">فقط إذا كان المدخلان مختلفين عن بعضهما (أحدهما 0 والآخر 1)</button>
+        <button class="quiz-opt" data-correct="false">فقط إذا كان المدخلان متشابهين (كلاهما 0 أو كلاهما 1)</button>
+        <button class="quiz-opt" data-correct="false">دائماً بصرف النظر عن المدخلات</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="quiz-next-btn">عرض النتيجة ←</button>
+      <div class="quiz-dots"></div>
+    </div>
+    <div class="quiz-result">
+      <div class="score">٠/١</div>
+      <div class="score-label">إجابات صحيحة</div>
+      <button class="quiz-restart">أعد المحاولة</button>
+    </div>
+  </div>
+</section>
+
+<section id="to-computer">
+  <div class="step-tag mono"><span class="step-num">٤</span>الربط الختامي</div>
+  <div class="section-head">
+    <h2 class="section-title">من البوابات إلى الحاسوب</h2>
+    <p class="section-desc">الخطوة الأخيرة في هذا المستوى: كيف تتحول هذه البوابات البسيطة إلى معالج حاسوب فعلي.</p>
+  </div>
+  <div class="exp-grid">
+    <div class="exp-text">
+      <p>عندما تُركّب آلاف البوابات معاً، تستطيع بناء دارات تجمع أرقاماً (Adders)، تخزّن قيماً (Flip-Flops وذواكر)، وتقارن قيماً (Comparators).</p>
+      <p>معالج حاسوب حديث يحتوي على <strong>مليارات</strong> من هذه البوابات، كلها مبنية من ترانزستورات صغيرة جداً (نانومترية)، تعمل بسرعة آلاف الملايين من المرات في الثانية.</p>
+      <p>الخط الكامل الذي قطعته في هذا المسار: فرق الجهد (مستوى ١) → الترانزستور كمفتاح (مستوى ٣) → البوابة المنطقية (هذا المستوى) → الحاسوب. كل هذا يبدأ من المبادئ الأساسية نفسها التي تعلمتها من البداية.</p>
+    </div>
+  </div>
+
+  <div class="concept-grid">
+    <div class="concept-card">
+      <div class="c-sym">🔢</div>
+      <h3>الجامع (Adder)</h3>
+      <p>دارة من بوابات XOR وAND تجمع أرقاماً ثنائية — أساس كل عملية حسابية في المعالج.</p>
+    </div>
+    <div class="concept-card">
+      <div class="c-sym">💾</div>
+      <h3>الذاكرة (Flip-Flop)</h3>
+      <p>تركيب بوابات يحتفظ بقيمة (0 أو 1) حتى تغييرها عمداً — أساس كل ذاكرة رقمية.</p>
+    </div>
+    <div class="concept-card">
+      <div class="c-sym">⚙️</div>
+      <h3>المعالج</h3>
+      <p>مليارات البوابات المرتبة بدقة، تنفّذ تعليمات برمجية كسلسلة من عمليات 0 و1.</p>
+    </div>
+  </div>
+</section>
+
+<section id="symbols">
+  <div class="step-tag mono"><span class="step-num">٥</span>مرجع سريع</div>
+  <div class="section-head">
+    <h2 class="section-title">رموز البوابات المنطقية القياسية</h2>
+  </div>
+  <div class="symbols-grid">
+    <div class="symbol-box">
+      <svg viewBox="0 0 60 40"><path d="M10 10 L10 30 L28 30 Q38 20 28 10 Z" fill="none" stroke="#5FD4D4" stroke-width="2"/><circle cx="40" cy="20" r="2.5" fill="none" stroke="#5FD4D4" stroke-width="1.5"/></svg>
+      <div class="s-name">NOT</div>
+      <div class="s-en">Inverter</div>
+    </div>
+    <div class="symbol-box">
+      <svg viewBox="0 0 60 40"><path d="M14 8 L14 32 L26 32 Q44 32 44 20 Q44 8 26 8 Z" fill="none" stroke="#5FD4D4" stroke-width="2"/></svg>
+      <div class="s-name">AND</div>
+      <div class="s-en">AND gate</div>
+    </div>
+    <div class="symbol-box">
+      <svg viewBox="0 0 60 40"><path d="M12 8 Q22 8 30 8 Q44 14 48 20 Q44 26 30 32 Q22 32 12 32 Q18 20 12 8 Z" fill="none" stroke="#5FD4D4" stroke-width="2"/></svg>
+      <div class="s-name">OR</div>
+      <div class="s-en">OR gate</div>
+    </div>
+    <div class="symbol-box">
+      <svg viewBox="0 0 60 40"><path d="M16 8 Q26 8 34 8 Q48 14 52 20 Q48 26 34 32 Q26 32 16 32 Q22 20 16 8 Z" fill="none" stroke="#5FD4D4" stroke-width="2"/><path d="M10 8 Q16 20 10 32" fill="none" stroke="#5FD4D4" stroke-width="2"/></svg>
+      <div class="s-name">XOR</div>
+      <div class="s-en">Exclusive OR</div>
+    </div>
+  </div>
+</section>
+
+<section id="glossary">
+  <div class="step-tag mono"><span class="step-num">٦</span>مرجع للمراجعة</div>
+  <div class="section-head">
+    <h2 class="section-title">مرجع المصطلحات السريع — المستوى الرابع</h2>
+  </div>
+  <table class="glossary-table">
+    <thead><tr><th>المفهوم</th><th>الرمز</th><th>التعريف المختصر</th></tr></thead>
+    <tbody>
+      <tr><td class="g-term">البوابة المنطقية</td><td class="g-sym">—</td><td>دارة من ترانزستورات تأخذ مدخل/مدخلين (0 أو 1) وتُخرج نتيجة منطقية.</td></tr>
+      <tr><td class="g-term">NOT</td><td class="g-sym">¬</td><td>تعكس المدخل الواحد: 0↔1.</td></tr>
+      <tr><td class="g-term">AND</td><td class="g-sym">∧</td><td>المخرج 1 فقط إذا كان كلا المدخلين 1.</td></tr>
+      <tr><td class="g-term">OR</td><td class="g-sym">∨</td><td>المخرج 1 إذا كان أي مدخل (أو كلاهما) يساوي 1.</td></tr>
+      <tr><td class="g-term">XOR</td><td class="g-sym">⊕</td><td>المخرج 1 فقط إذا كان المدخلان مختلفين؛ مبنية من تركيب AND/OR/NOT.</td></tr>
+      <tr><td class="g-term">جدول الصحة</td><td class="g-sym">Truth Table</td><td>جدول يوضح كل تركيبة مدخلات ممكنة والمخرج المقابل لها.</td></tr>
+      <tr><td class="g-term">الجامع</td><td class="g-sym">Adder</td><td>دارة من بوابات تجمع أرقاماً ثنائية.</td></tr>
+      <tr><td class="g-term">Flip-Flop</td><td class="g-sym">—</td><td>دارة تحتفظ بقيمة (0 أو 1) كذاكرة رقمية أساسية.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="finalExamSection" style="border-bottom:none;">
+  <div class="step-tag mono"><span class="step-num">٧</span>الاختبار الشامل</div>
+  <div class="section-head">
+    <span class="final-badge mono">★ الاختبار النهائي — ١٠ أسئلة</span>
+    <h2 class="section-title">اختبر فهمك الكامل للمستوى الرابع</h2>
+    <p class="section-desc">هذا الاختبار يجمع كل مفاهيم هذا المستوى. حاول الإجابة دون الرجوع للأعلى أولاً.</p>
+  </div>
+
+  <div class="quiz-wrap" data-quiz="finalExam">
+    <div class="quiz-progress mono">السؤال ١ من ١٠</div>
+
+    <div class="quiz-q active" data-q="0">
+      <div class="quiz-question">ما الفكرة الجوهرية وراء تبسيط الكهرباء إلى 0 و1 فقط؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">الاهتمام بحالتين فقط (مرور تيار أو لا) بدل القيمة الدقيقة للتيار</button>
+        <button class="quiz-opt" data-correct="false">إزالة الترانزستورات تماماً من الدارة</button>
+        <button class="quiz-opt" data-correct="false">رفع الجهد دائماً إلى أعلى قيمة ممكنة</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="1">
+      <div class="quiz-question">بوابة NOT تأخذ كم مدخلاً؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">مدخلاً واحداً فقط</button>
+        <button class="quiz-opt" data-correct="false">مدخلين دائماً</button>
+        <button class="quiz-opt" data-correct="false">ثلاثة مدخلات على الأقل</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="2">
+      <div class="quiz-question">في بوابة AND، متى يكون المخرج يساوي 1؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="false">إذا كان أي مدخل واحد فقط يساوي 1</button>
+        <button class="quiz-opt" data-correct="true">فقط إذا كان كلا المدخلين يساويان 1 معاً</button>
+        <button class="quiz-opt" data-correct="false">دائماً بصرف النظر عن المدخلات</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="3">
+      <div class="quiz-question">في بوابة OR، متى يكون المخرج يساوي 0؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">فقط إذا كان كلا المدخلين يساويان 0 معاً</button>
+        <button class="quiz-opt" data-correct="false">إذا كان أي مدخل واحد يساوي 1</button>
+        <button class="quiz-opt" data-correct="false">دائماً بصرف النظر عن المدخلات</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="4">
+      <div class="quiz-question">متى تُخرج بوابة XOR قيمة 1؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">فقط إذا كان المدخلان مختلفين عن بعضهما</button>
+        <button class="quiz-opt" data-correct="false">فقط إذا كان المدخلان متشابهين</button>
+        <button class="quiz-opt" data-correct="false">دائماً بصرف النظر عن المدخلات</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="5">
+      <div class="quiz-question">كيف تُبنى بوابة XOR فعلياً؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">بتركيب ذكي من بوابات AND، OR، وNOT الأساسية</button>
+        <button class="quiz-opt" data-correct="false">بآلية فيزيائية مختلفة تماماً عن البوابات الأخرى</button>
+        <button class="quiz-opt" data-correct="false">بدون أي ترانزستورات إطلاقاً</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="6">
+      <div class="quiz-question">ما الذي يوضحه "جدول الصحة" لبوابة منطقية؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">كل تركيبة مدخلات ممكنة والمخرج المقابل لها</button>
+        <button class="quiz-opt" data-correct="false">قيمة الجهد بالفولت لكل مدخل</button>
+        <button class="quiz-opt" data-correct="false">سعر كل نوع من البوابات</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="7">
+      <div class="quiz-question">دارة "الجامع" (Adder) المستخدمة في المعالجات تُبنى أساساً من...</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">تركيب من بوابات XOR وAND</button>
+        <button class="quiz-opt" data-correct="false">مكثفات فقط بدون أي بوابات</button>
+        <button class="quiz-opt" data-correct="false">فيوزات متعددة مرتبطة معاً</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="8">
+      <div class="quiz-question">ما وظيفة دارة "Flip-Flop" في الإلكترونيات الرقمية؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">الاحتفاظ بقيمة (0 أو 1) كذاكرة رقمية أساسية</button>
+        <button class="quiz-opt" data-correct="false">قطع الدارة فوراً عند ارتفاع التيار</button>
+        <button class="quiz-opt" data-correct="false">رفع الجهد إلى مستوى أعلى دائماً</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="9">
+      <div class="quiz-question">ما العلاقة بين الترانزستور (المستوى الثالث) والبوابة المنطقية (هذا المستوى)؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">البوابة المنطقية هي دارة مبنية من عدة ترانزستورات تعمل كمفاتيح</button>
+        <button class="quiz-opt" data-correct="false">لا علاقة بينهما إطلاقاً</button>
+        <button class="quiz-opt" data-correct="false">الترانزستور يُستخدم فقط في الدارات التماثلية لا الرقمية</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-nav">
+      <button class="quiz-next-btn">التالي ←</button>
+      <div class="quiz-dots"></div>
+    </div>
+
+    <div class="quiz-result">
+      <div class="score">٠/١٠</div>
+      <div class="score-label">إجابات صحيحة</div>
+      <div class="score-msg" id="finalMsg"></div>
+      <button class="quiz-restart">أعد المحاولة</button>
+    </div>
+  </div>
+
+  <div class="completion-card" id="completionCard">
+    <div class="cc-icon">🧠</div>
+    <h3>أتممت المستوى الرابع!</h3>
+    <p>فهمت الآن كيف تتحول الكهرباء الخام إلى منطق رقمي يبني الحواسيب. الخطوة الأخيرة في هذا المسار: العودة للتيار المتردد (AC) بعمق أكبر — المحوّلات، المحركات، والتوصيلات المنزلية الحقيقية.</p>
+    <a class="cc-btn" href="../electricity-level5/">الانتقال للمستوى الخامس ←</a>
+    <a class="cc-secondary" href="../electricity-level3/">مراجعة المستوى الثالث مرة أخرى</a>
+  </div>
+</section>
+
+<footer>
+  <p class="mono">مرجع تمهيدي عام — أساس مفاهيمي وعملي، وليس بديلاً عن دورة تأسيسية كاملة في الهندسة الرقمية.</p>
+</footer>
+
+<script>
+const rail = document.getElementById('railFill');
+function updateRail(){
+  const scrolled = window.scrollY;
+  const max = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = Math.min(scrolled / Math.max(max,1), 1) * 100;
+  rail.style.width = pct + '%';
+}
+window.addEventListener('scroll', updateRail, {passive:true});
+updateRail();
+
+// ===== Gate simulator (NOT / AND / OR) =====
+let currentGate = 'NOT';
+let inputs = {A:0, B:0};
+
+const gateInputsRow = document.getElementById('gateInputsRow');
+const inputA = document.getElementById('inputA');
+const inputB = document.getElementById('inputB');
+const outputDisplay = document.getElementById('outputDisplay');
+const outputVal = document.getElementById('outputVal');
+const gateSvg = document.getElementById('gateSvg');
+const truthTable = document.getElementById('truthTable');
+const gateTabs = document.querySelectorAll('.gate-tab');
+
+function computeGate(gate, a, b){
+  if(gate === 'NOT') return a === 0 ? 1 : 0;
+  if(gate === 'AND') return (a===1 && b===1) ? 1 : 0;
+  if(gate === 'OR') return (a===1 || b===1) ? 1 : 0;
+  return 0;
+}
+
+function renderGateSvg(gate, a, b, out){
+  let shapePath, label;
+  if(gate === 'NOT'){
+    shapePath = '<path d="M120 50 L120 130 L190 90 Z" fill="none" stroke="#5FD4D4" stroke-width="3"/><circle cx="200" cy="90" r="6" fill="none" stroke="#5FD4D4" stroke-width="2.5"/>';
+    label = 'NOT';
+  } else if(gate === 'AND'){
+    shapePath = '<path d="M110 50 L110 130 L150 130 Q190 130 190 90 Q190 50 150 50 Z" fill="none" stroke="#5FD4D4" stroke-width="3"/>';
+    label = 'AND';
+  } else {
+    shapePath = '<path d="M100 50 Q120 50 145 50 Q185 60 200 90 Q185 120 145 130 Q120 130 100 130 Q115 90 100 50 Z" fill="none" stroke="#5FD4D4" stroke-width="3"/>';
+    label = 'OR';
+  }
+
+  let wires = '';
+  if(gate === 'NOT'){
+    wires += `<line x1="40" y1="90" x2="120" y2="90" stroke="${a?'#5FD4D4':'#4B5160'}" stroke-width="3"/>`;
+    wires += `<text x="50" y="78" fill="#8B92A0" font-size="11" font-family="IBM Plex Mono, monospace">${a}</text>`;
+  } else {
+    wires += `<line x1="40" y1="65" x2="110" y2="65" stroke="${a?'#5FD4D4':'#4B5160'}" stroke-width="3"/>`;
+    wires += `<line x1="40" y1="115" x2="110" y2="115" stroke="${b?'#5FD4D4':'#4B5160'}" stroke-width="3"/>`;
+    wires += `<text x="50" y="55" fill="#8B92A0" font-size="11" font-family="IBM Plex Mono, monospace">${a}</text>`;
+    wires += `<text x="50" y="130" fill="#8B92A0" font-size="11" font-family="IBM Plex Mono, monospace">${b}</text>`;
+  }
+  const outX = gate === 'NOT' ? 206 : 200;
+  wires += `<line x1="${outX}" y1="90" x2="280" y2="90" stroke="${out?'#E0A030':'#4B5160'}" stroke-width="3"/>`;
+  wires += `<text x="290" y="80" fill="${out?'#E0A030':'#8B92A0'}" font-size="13" font-family="IBM Plex Mono, monospace" font-weight="600">${out}</text>`;
+
+  gateSvg.innerHTML = wires + shapePath + `<text x="155" y="170" text-anchor="middle" fill="#8B92A0" font-size="11" font-family="IBM Plex Mono, monospace">بوابة ${label}</text>`;
+}
+
+function renderTruthTable(gate){
+  let rows = [];
+  if(gate === 'NOT'){
+    rows = [[0,null,computeGate('NOT',0)],[1,null,computeGate('NOT',1)]];
+  } else {
+    rows = [[0,0,computeGate(gate,0,0)],[0,1,computeGate(gate,0,1)],[1,0,computeGate(gate,1,0)],[1,1,computeGate(gate,1,1)]];
+  }
+  let html = '<thead><tr>';
+  html += gate==='NOT' ? '<th>A</th><th>المخرج</th>' : '<th>A</th><th>B</th><th>المخرج</th>';
+  html += '</tr></thead><tbody>';
+  rows.forEach(r=>{
+    const isCurrent = gate==='NOT' ? r[0]===inputs.A : (r[0]===inputs.A && r[1]===inputs.B);
+    html += `<tr class="${isCurrent?'current-row':''}">`;
+    html += gate==='NOT' ? `<td>${r[0]}</td><td>${r[2]}</td>` : `<td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td>`;
+    html += '</tr>';
+  });
+  html += '</tbody>';
+  truthTable.innerHTML = html;
+}
+
+function updateGateDisplay(){
+  gateInputsRow.style.display = currentGate === 'NOT' ? 'flex' : 'flex';
+  inputB.style.display = currentGate === 'NOT' ? 'none' : 'block';
+  const out = computeGate(currentGate, inputs.A, inputs.B);
+  outputVal.textContent = out;
+  outputDisplay.classList.toggle('on', out===1);
+  inputA.classList.toggle('on', inputs.A===1);
+  inputB.classList.toggle('on', inputs.B===1);
+  inputA.querySelector('.it-val').textContent = inputs.A;
+  inputB.querySelector('.it-val').textContent = inputs.B;
+  renderGateSvg(currentGate, inputs.A, inputs.B, out);
+  renderTruthTable(currentGate);
+}
+
+inputA.addEventListener('click', ()=>{ inputs.A = inputs.A===0?1:0; updateGateDisplay(); });
+inputB.addEventListener('click', ()=>{ inputs.B = inputs.B===0?1:0; updateGateDisplay(); });
+gateTabs.forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    gateTabs.forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    currentGate = tab.dataset.gate;
+    updateGateDisplay();
+  });
+});
+updateGateDisplay();
+
+// ===== Combinational XOR builder =====
+let comboInputs = {A:0, B:0};
+const comboInputA = document.getElementById('comboInputA');
+const comboInputB = document.getElementById('comboInputB');
+const comboOutputDisplay = document.getElementById('comboOutputDisplay');
+const comboOutputVal = document.getElementById('comboOutputVal');
+const comboSvg = document.getElementById('comboSvg');
+
+function renderCombo(){
+  const a = comboInputs.A, b = comboInputs.B;
+  const notA = a===0?1:0;
+  const notB = b===0?1:0;
+  const and1 = (a===1 && notB===1) ? 1 : 0; // A AND (NOT B)
+  const and2 = (notA===1 && b===1) ? 1 : 0; // (NOT A) AND B
+  const orOut = (and1===1 || and2===1) ? 1 : 0; // XOR result
+
+  comboInputA.classList.toggle('on', a===1);
+  comboInputB.classList.toggle('on', b===1);
+  comboInputA.querySelector('.it-val').textContent = a;
+  comboInputB.querySelector('.it-val').textContent = b;
+  comboOutputDisplay.classList.toggle('on', orOut===1);
+  comboOutputVal.textContent = orOut;
+
+  const wireColor = v => v ? '#5FD4D4' : '#4B5160';
+  let svg = '';
+  // input wires
+  svg += `<line x1="20" y1="40" x2="80" y2="40" stroke="${wireColor(a)}" stroke-width="3"/><text x="25" y="30" fill="#8B92A0" font-size="10" font-family="IBM Plex Mono, monospace">A=${a}</text>`;
+  svg += `<line x1="20" y1="180" x2="80" y2="180" stroke="${wireColor(b)}" stroke-width="3"/><text x="25" y="170" fill="#8B92A0" font-size="10" font-family="IBM Plex Mono, monospace">B=${b}</text>`;
+  // NOT gates
+  svg += `<path d="M80 70 L80 110 L110 90 Z" fill="none" stroke="#5FD4D4" stroke-width="2"/><circle cx="116" cy="90" r="4" fill="none" stroke="#5FD4D4" stroke-width="1.5"/>`;
+  svg += `<text x="95" y="65" fill="#8B92A0" font-size="9" font-family="IBM Plex Mono, monospace">NOT B</text>`;
+  svg += `<path d="M80 150 L80 190 L110 170 Z" fill="none" stroke="#5FD4D4" stroke-width="2"/><circle cx="116" cy="170" r="4" fill="none" stroke="#5FD4D4" stroke-width="1.5"/>`;
+  svg += `<text x="95" y="200" fill="#8B92A0" font-size="9" font-family="IBM Plex Mono, monospace">NOT A</text>`;
+  // wires to AND gates
+  svg += `<line x1="20" y1="40" x2="150" y2="55" stroke="${wireColor(a)}" stroke-width="2.5"/>`;
+  svg += `<line x1="120" y1="90" x2="150" y2="70" stroke="${wireColor(notB)}" stroke-width="2.5"/>`;
+  svg += `<line x1="120" y1="170" x2="150" y2="135" stroke="${wireColor(notA)}" stroke-width="2.5"/>`;
+  svg += `<line x1="20" y1="180" x2="150" y2="150" stroke="${wireColor(b)}" stroke-width="2.5"/>`;
+  // AND gate 1 (top): A AND NOT-B
+  svg += `<path d="M150 45 L150 80 L165 80 Q185 80 185 62 Q185 45 165 45 Z" fill="none" stroke="${wireColor(and1)}" stroke-width="2.5"/>`;
+  svg += `<text x="167" y="35" fill="#8B92A0" font-size="9" font-family="IBM Plex Mono, monospace">AND=${and1}</text>`;
+  // AND gate 2 (bottom): NOT-A AND B
+  svg += `<path d="M150 125 L150 160 L165 160 Q185 160 185 142 Q185 125 165 125 Z" fill="none" stroke="${wireColor(and2)}" stroke-width="2.5"/>`;
+  svg += `<text x="167" y="195" fill="#8B92A0" font-size="9" font-family="IBM Plex Mono, monospace">AND=${and2}</text>`;
+  // wires to OR gate
+  svg += `<line x1="186" y1="62" x2="230" y2="80" stroke="${wireColor(and1)}" stroke-width="2.5"/>`;
+  svg += `<line x1="186" y1="142" x2="230" y2="125" stroke="${wireColor(and2)}" stroke-width="2.5"/>`;
+  // OR gate (final)
+  svg += `<path d="M230 60 Q245 60 255 60 Q280 68 290 102 Q280 136 255 145 Q245 145 230 145 Q240 102 230 60 Z" fill="none" stroke="${wireColor(orOut)}" stroke-width="3"/>`;
+  svg += `<text x="255" y="50" fill="#8B92A0" font-size="9" font-family="IBM Plex Mono, monospace">OR (XOR النهائي)</text>`;
+  // output wire
+  svg += `<line x1="292" y1="102" x2="350" y2="102" stroke="${wireColor(orOut)}" stroke-width="3"/>`;
+  svg += `<text x="355" y="92" fill="${orOut?'#E0A030':'#8B92A0'}" font-size="14" font-family="IBM Plex Mono, monospace" font-weight="700">${orOut}</text>`;
+
+  comboSvg.innerHTML = svg;
+}
+comboInputA.addEventListener('click', ()=>{ comboInputs.A = comboInputs.A===0?1:0; renderCombo(); });
+comboInputB.addEventListener('click', ()=>{ comboInputs.B = comboInputs.B===0?1:0; renderCombo(); });
+renderCombo();
+
+// ===== Generic quiz engine =====
+const arNums = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+function toArabicNum(n){ return String(n).split('').map(d => arNums[parseInt(d)]).join(''); }
+
+function initQuiz(wrapEl){
+  const questions = Array.from(wrapEl.querySelectorAll('.quiz-q'));
+  const totalQ = questions.length;
+  let current = 0;
+  let score = 0;
+  let answered = new Array(totalQ).fill(false);
+
+  const progressEl = wrapEl.querySelector('.quiz-progress');
+  const nextBtn = wrapEl.querySelector('.quiz-next-btn');
+  const dotsWrap = wrapEl.querySelector('.quiz-dots');
+  const resultEl = wrapEl.querySelector('.quiz-result');
+  const scoreEl = wrapEl.querySelector('.quiz-result .score');
+  const finalMsgEl = wrapEl.querySelector('#finalMsg');
+  const isFinal = wrapEl.dataset.quiz === 'finalExam';
+
+  function buildDots(){
+    dotsWrap.innerHTML = '';
+    for(let i=0;i<totalQ;i++){
+      const d = document.createElement('div');
+      d.className = 'quiz-dot';
+      dotsWrap.appendChild(d);
+    }
+    refreshDots();
+  }
+  function refreshDots(){
+    const dots = dotsWrap.querySelectorAll('.quiz-dot');
+    dots.forEach((d,i)=>{
+      d.classList.remove('done','current');
+      if(answered[i]) d.classList.add('done');
+      if(i===current) d.classList.add('current');
+    });
+  }
+  function showQuestion(idx){
+    questions.forEach(q=>q.classList.remove('active'));
+    questions[idx].classList.add('active');
+    progressEl.textContent = `السؤال ${toArabicNum(idx+1)} من ${toArabicNum(totalQ)}`;
+    nextBtn.classList.remove('show');
+    refreshDots();
+  }
+  function attachOptionHandlers(qEl, qIndex){
+    const opts = qEl.querySelectorAll('.quiz-opt');
+    const feedback = qEl.querySelector('.quiz-feedback');
+    opts.forEach(opt=>{
+      opt.addEventListener('click', ()=>{
+        if(answered[qIndex]) return;
+        answered[qIndex] = true;
+        const isCorrect = opt.dataset.correct === 'true';
+        opts.forEach(o=>{
+          o.disabled = true;
+          if(o.dataset.correct === 'true') o.classList.add('correct');
+          else if(o===opt) o.classList.add('incorrect');
+        });
+        if(isCorrect) score++;
+        feedback.textContent = isCorrect
+          ? 'صحيح. هذا هو جوهر العلاقة بين هذه المفاهيم.'
+          : 'غير دقيق — لاحظ الإجابة المظللة بالسيان وراجع المفهوم المرتبط بها أعلاه.';
+        feedback.classList.add('show');
+        refreshDots();
+        if(qIndex === totalQ-1){ nextBtn.textContent = 'عرض النتيجة ←'; }
+        nextBtn.classList.add('show');
+      });
+    });
+  }
+  questions.forEach((q,i)=>attachOptionHandlers(q,i));
+
+  nextBtn.addEventListener('click', ()=>{
+    if(current === totalQ-1){
+      wrapEl.querySelectorAll('.quiz-q, .quiz-progress, .quiz-nav').forEach(el=>el.style.display='none');
+      scoreEl.textContent = `${toArabicNum(score)}/${toArabicNum(totalQ)}`;
+      if(isFinal && finalMsgEl){
+        let msg = '';
+        if(score === totalQ) msg = 'إتقان كامل! أنت جاهز للمستوى الخامس والأخير.';
+        else if(score >= totalQ*0.7) msg = 'فهم جيد جداً. راجع الأسئلة التي أخطأت فيها بسرعة، ثم انطلق.';
+        else msg = 'يُفضّل مراجعة الأقسام أعلاه مرة أخرى قبل الانتقال للمستوى التالي.';
+        finalMsgEl.textContent = msg;
+      }
+      resultEl.classList.add('show');
+      if(isFinal){ document.getElementById('completionCard').classList.add('show'); }
+    } else {
+      current++;
+      showQuestion(current);
+    }
+  });
+
+  wrapEl.querySelector('.quiz-restart').addEventListener('click', ()=>{
+    current = 0; score = 0; answered = new Array(totalQ).fill(false);
+    questions.forEach(q=>{
+      q.querySelectorAll('.quiz-opt').forEach(o=>{ o.disabled=false; o.classList.remove('correct','incorrect'); });
+      q.querySelector('.quiz-feedback').classList.remove('show');
+    });
+    nextBtn.textContent = totalQ === 1 ? 'عرض النتيجة ←' : 'التالي ←';
+    wrapEl.querySelectorAll('.quiz-q, .quiz-progress, .quiz-nav').forEach(el=>el.style.display='');
+    resultEl.classList.remove('show');
+    if(isFinal){ document.getElementById('completionCard').classList.remove('show'); }
+    showQuestion(0);
+  });
+
+  if(totalQ === 1){ nextBtn.textContent = 'عرض النتيجة ←'; }
+  buildDots();
+  showQuestion(0);
+}
+document.querySelectorAll('[data-quiz]').forEach(initQuiz);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>التيار المتردد في العالم الحقيقي — المستوى الخامس</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0D0F12; --bg-soft:#15181D; --card:#1A1E25;
+  --copper:#C77B3F; --copper-bright:#E0985A;
+  --cyan:#5FD4D4; --cyan-dim:#3A9999;
+  --amber:#E0A030; --red:#C75050;
+  --white:#F0EDE6; --dim:#8B92A0; --slate:#4B5160;
+  --line:rgba(240,237,230,0.10); --line-strong:rgba(240,237,230,0.20);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg); color:var(--white); font-family:'IBM Plex Sans Arabic',sans-serif; line-height:1.75; overflow-x:hidden;}
+.mono{font-family:'IBM Plex Mono',monospace;letter-spacing:0.02em;}
+@media (prefers-reduced-motion: reduce){*{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}}
+
+.rail-wrap{position:sticky; top:0; z-index:60; width:100%; height:4px; background:var(--bg-soft); border-bottom:1px solid var(--line);}
+.rail-fill{height:100%; width:0%; background:linear-gradient(to left, var(--cyan), var(--copper)); box-shadow:0 0 10px var(--cyan); transition:width 0.08s linear;}
+
+.level-bar{position:sticky; top:4px; z-index:55; background:var(--bg-soft); border-bottom:1px solid var(--line); padding:0.7rem 7vw; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.6rem;}
+.level-bar .lb-crumb{font-size:0.78rem; color:var(--dim); display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;}
+.level-bar .lb-crumb a{color:var(--cyan); text-decoration:none;}
+.level-bar .lb-crumb a:hover{text-decoration:underline;}
+.level-badge{font-family:'IBM Plex Mono',monospace; font-size:0.72rem; background:rgba(95,212,212,0.1); border:1px solid rgba(95,212,212,0.35); color:var(--cyan); padding:0.3rem 0.8rem; border-radius:14px;}
+
+.hero{min-height:84vh; display:flex; flex-direction:column; justify-content:center; padding:6vh 7vw 6vh; border-bottom:1px solid var(--line); position:relative; overflow:hidden;}
+.hero::before{content:''; position:absolute; inset:0; background:radial-gradient(circle at 15% 25%, rgba(95,212,212,0.08), transparent 50%), radial-gradient(circle at 88% 80%, rgba(199,123,63,0.10), transparent 55%); pointer-events:none;}
+.eyebrow{font-size:0.78rem; color:var(--cyan); letter-spacing:0.12em; margin-bottom:1.6rem; display:flex; align-items:center; gap:0.7rem; position:relative; z-index:1;}
+.eyebrow::before{content:''; width:7px;height:7px;border-radius:50%; background:var(--cyan); box-shadow:0 0 0 3px rgba(95,212,212,0.18), 0 0 8px var(--cyan);}
+h1.hero-title{font-size:clamp(2.1rem,5.4vw,4rem); font-weight:700; line-height:1.22; max-width:22ch; position:relative; z-index:1; color:var(--white);}
+h1.hero-title em{font-style:normal; color:var(--copper-bright);}
+.hero-sub{margin-top:1.8rem; font-size:clamp(1rem,1.6vw,1.18rem); color:var(--dim); max-width:48ch; position:relative; z-index:1;}
+.hero-meta{margin-top:2.6rem; display:flex; gap:2rem; flex-wrap:wrap; position:relative; z-index:1;}
+.hero-meta .item{font-size:0.8rem; color:var(--dim); border-right:2px solid var(--line-strong); padding-right:0.85rem;}
+.hero-meta .item b{color:var(--white); font-weight:600; display:block; font-size:0.98rem; margin-bottom:0.15rem; font-family:'IBM Plex Sans Arabic',sans-serif;}
+
+.prereq-note{position:relative; z-index:1; margin-top:2.2rem; background:var(--card); border:1px solid var(--line-strong); border-right:3px solid var(--copper); padding:1.1rem 1.4rem; border-radius:6px; max-width:58ch; font-size:0.92rem; color:var(--dim);}
+.prereq-note a{color:var(--cyan); text-decoration:none; font-weight:600;}
+.prereq-note a:hover{text-decoration:underline;}
+
+.toc{position:relative; z-index:1; margin-top:2.2rem; display:flex; flex-wrap:wrap; gap:0.6rem;}
+.toc a{font-size:0.78rem; color:var(--dim); border:1px solid var(--line-strong); border-radius:20px; padding:0.45rem 1rem; text-decoration:none; transition:all 0.2s ease;}
+.toc a:hover{border-color:var(--cyan); color:var(--white);}
+
+.scroll-cue{position:absolute; bottom:2vh; right:7vw; font-size:0.72rem; color:var(--dim); display:flex; align-items:center; gap:0.5rem; animation:bob 2.2s ease-in-out infinite;}
+@keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(6px);}}
+
+section{padding:5rem 7vw; border-bottom:1px solid var(--line); position:relative; scroll-margin-top:60px;}
+.step-tag{display:flex; align-items:center; gap:0.8rem; font-size:0.78rem; color:var(--copper-bright); letter-spacing:0.1em; margin-bottom:1rem;}
+.step-tag .step-num{width:28px; height:28px; border-radius:50%; border:1px solid var(--copper); display:flex; align-items:center; justify-content:center; font-size:0.82rem; color:var(--copper-bright); flex-shrink:0;}
+.section-head{margin-bottom:3rem; max-width:62ch;}
+.section-title{font-size:clamp(1.5rem,2.8vw,2.1rem); font-weight:700; color:var(--white); line-height:1.35;}
+.section-desc{margin-top:1rem; color:var(--dim); font-size:1.02rem; max-width:56ch;}
+
+.exp-grid{display:grid; grid-template-columns:1fr 1fr; gap:3rem; align-items:start;}
+@media(max-width:860px){.exp-grid{grid-template-columns:1fr;}}
+.exp-text p{margin-bottom:1.1rem; color:var(--dim); font-size:1.02rem;}
+.exp-text strong{color:var(--white); font-weight:600;}
+.exp-text .term{color:var(--cyan); font-weight:600;}
+.analogy-card{background:var(--card); border:1px solid var(--line-strong); border-radius:10px; padding:2rem; text-align:center;}
+.analogy-card .a-label{font-size:0.72rem; color:var(--dim); letter-spacing:0.08em; margin-bottom:1.2rem;}
+.analogy-card svg{width:100%; max-width:320px; height:auto;}
+
+/* ===== shared simulator shell ===== */
+.sim-wrap{background:var(--card); border:1px solid var(--line-strong); border-radius:12px; padding:2.5rem; margin-top:2rem;}
+.sim-grid{display:grid; grid-template-columns:1.1fr 0.9fr; gap:2.5rem; align-items:center;}
+@media(max-width:860px){.sim-grid{grid-template-columns:1fr;}}
+.circuit-svg-wrap{background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:1.5rem; display:flex; justify-content:center;}
+.sim-controls{display:flex; flex-direction:column; gap:1.6rem;}
+.ctrl{display:flex; flex-direction:column; gap:0.6rem;}
+.ctrl-label{display:flex; justify-content:space-between; font-size:0.92rem; color:var(--white); font-weight:600;}
+.ctrl-label .val{color:var(--cyan); font-family:'IBM Plex Mono',monospace;}
+input[type="range"]{-webkit-appearance:none; width:100%; height:5px; background:var(--slate); border-radius:3px; outline:none;}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:var(--cyan); cursor:pointer; box-shadow:0 0 8px rgba(95,212,212,0.5);}
+input[type="range"]::-moz-range-thumb{width:18px; height:18px; border-radius:50%; border:none; background:var(--cyan); cursor:pointer;}
+.sim-readout{display:grid; grid-template-columns:1fr 1fr; gap:0.8rem; margin-top:0.5rem;}
+.sim-readout.readout-3{grid-template-columns:repeat(3,1fr);}
+.readout-box{background:var(--bg); border:1px solid var(--line-strong); border-radius:6px; padding:0.9rem; text-align:center;}
+.readout-box .r-label{font-size:0.65rem; color:var(--dim); letter-spacing:0.05em;}
+.readout-box .r-val{font-family:'IBM Plex Mono',monospace; font-size:1.15rem; color:var(--white); margin-top:0.3rem;}
+.sim-formula{margin-top:1rem; text-align:center; font-family:'IBM Plex Mono',monospace; color:var(--copper-bright); font-size:1rem; padding:0.8rem; background:var(--bg); border-radius:6px; border:1px solid var(--line);}
+
+/* ===== motor rotation visual ===== */
+.motor-disc{transform-origin:160px 100px;}
+
+/* ===== wiring diagram ===== */
+.wiring-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:1.4rem;}
+@media(max-width:860px){.wiring-grid{grid-template-columns:1fr;}}
+.wiring-card{background:var(--card); border:1px solid var(--line-strong); border-radius:10px; padding:1.6rem; text-align:center;}
+.wiring-card .wc-dot{width:16px; height:16px; border-radius:50%; margin:0 auto 1rem;}
+.wiring-card h3{color:var(--white); font-size:1.02rem; margin-bottom:0.4rem;}
+.wiring-card .sub{font-size:0.78rem; color:var(--dim); font-family:'IBM Plex Mono',monospace; margin-bottom:0.8rem;}
+.wiring-card p{color:var(--dim); font-size:0.88rem;}
+
+/* ===== concept cards ===== */
+.concept-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem;}
+@media(max-width:860px){.concept-grid{grid-template-columns:1fr;}}
+.concept-card{background:var(--card); border:1px solid var(--line-strong); border-radius:8px; padding:1.8rem; transition:border-color 0.25s ease, transform 0.25s ease;}
+.concept-card:hover{border-color:var(--cyan); transform:translateY(-3px);}
+.concept-card .c-sym{font-family:'IBM Plex Mono',monospace; font-size:1.6rem; color:var(--cyan); margin-bottom:1rem; font-weight:600;}
+.concept-card h3{font-size:1.05rem; color:var(--white); margin-bottom:0.4rem; font-weight:600;}
+.concept-card .unit{font-family:'IBM Plex Mono',monospace; font-size:0.76rem; color:var(--dim); margin-bottom:0.9rem;}
+.concept-card p{color:var(--dim); font-size:0.92rem;}
+
+/* ===== symbols & glossary ===== */
+.symbols-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:1.2rem;}
+@media(max-width:760px){.symbols-grid{grid-template-columns:repeat(2,1fr);}}
+.symbol-box{background:var(--card); border:1px solid var(--line-strong); border-radius:8px; padding:1.4rem; text-align:center;}
+.symbol-box svg{width:60px; height:40px; margin-bottom:0.8rem;}
+.symbol-box .s-name{color:var(--white); font-size:0.85rem; font-weight:600;}
+.symbol-box .s-en{color:var(--dim); font-size:0.7rem; font-family:'IBM Plex Mono',monospace; margin-top:0.2rem;}
+
+.glossary-table{width:100%; border-collapse:collapse;}
+.glossary-table th{text-align:right; font-family:'IBM Plex Mono',monospace; font-size:0.72rem; color:var(--dim); padding:0.8rem 0.6rem; border-bottom:1px solid var(--line-strong); letter-spacing:0.05em; font-weight:400;}
+.glossary-table td{padding:1rem 0.6rem; border-bottom:1px solid var(--line); color:var(--dim); vertical-align:top; font-size:0.92rem;}
+.glossary-table td.g-term{color:var(--white); font-weight:600; white-space:nowrap;}
+.glossary-table td.g-sym{font-family:'IBM Plex Mono',monospace; color:var(--cyan);}
+.glossary-table tr:last-child td{border-bottom:none;}
+
+/* ===== quiz ===== */
+.quiz-wrap{background:var(--card); border:1px solid var(--line-strong); border-radius:12px; padding:2.2rem; max-width:700px; margin-top:2.5rem;}
+.quiz-wrap.mini{padding:1.8rem;}
+.quiz-label{font-size:0.74rem; color:var(--cyan); letter-spacing:0.08em; margin-bottom:1.2rem;}
+.quiz-q{display:none;}
+.quiz-q.active{display:block;}
+.quiz-progress{font-size:0.75rem; color:var(--dim); margin-bottom:1.3rem;}
+.quiz-question{font-size:1.08rem; color:var(--white); font-weight:600; margin-bottom:1.4rem; line-height:1.6;}
+.quiz-options{display:flex; flex-direction:column; gap:0.65rem;}
+.quiz-opt{background:var(--bg-soft); border:1px solid var(--line-strong); color:var(--white); padding:0.9rem 1.1rem; border-radius:6px; text-align:right; font-size:0.94rem; cursor:pointer; font-family:inherit; transition:all 0.2s ease;}
+.quiz-opt:hover{border-color:var(--cyan);}
+.quiz-opt.correct{background:rgba(95,212,212,0.12); border-color:var(--cyan); color:var(--white);}
+.quiz-opt.incorrect{background:rgba(199,80,80,0.15); border-color:var(--red);}
+.quiz-opt:disabled{cursor:default;}
+.quiz-feedback{margin-top:1.1rem; padding:0.95rem 1.1rem; border-radius:6px; background:var(--bg-soft); font-size:0.9rem; color:var(--dim); display:none; border-right:3px solid var(--cyan);}
+.quiz-feedback.show{display:block;}
+.quiz-nav{margin-top:1.6rem; display:flex; justify-content:space-between; align-items:center;}
+.quiz-next-btn{background:var(--cyan); color:var(--bg); border:none; padding:0.65rem 1.5rem; border-radius:6px; font-family:inherit; font-weight:700; font-size:0.9rem; cursor:pointer; display:none; transition:background 0.2s ease;}
+.quiz-next-btn:hover{background:var(--cyan-dim);}
+.quiz-next-btn.show{display:inline-block;}
+.quiz-dots{display:flex; gap:0.45rem;}
+.quiz-dot{width:7px; height:7px; border-radius:50%; background:var(--line-strong);}
+.quiz-dot.done{background:var(--cyan);}
+.quiz-dot.current{background:var(--copper-bright);}
+.quiz-result{display:none; text-align:center; padding:0.8rem 0;}
+.quiz-result.show{display:block;}
+.quiz-result .score{font-family:'IBM Plex Mono',monospace; font-size:2.2rem; color:var(--cyan); font-weight:600;}
+.quiz-result .score-label{color:var(--dim); margin-top:0.4rem; font-size:0.92rem;}
+.quiz-result .score-msg{margin-top:0.8rem; color:var(--white); font-size:0.92rem; max-width:40ch; margin-inline:auto;}
+.quiz-restart{margin-top:1.3rem; background:transparent; border:1px solid var(--line-strong); color:var(--white); padding:0.55rem 1.3rem; border-radius:6px; font-family:inherit; cursor:pointer; font-size:0.86rem;}
+.quiz-restart:hover{border-color:var(--cyan);}
+
+#finalExamSection{background:linear-gradient(180deg, rgba(199,123,63,0.04), transparent);}
+.final-badge{display:inline-flex; align-items:center; gap:0.5rem; background:rgba(224,160,48,0.1); border:1px solid rgba(224,160,48,0.35); border-radius:20px; padding:0.4rem 1rem; font-size:0.78rem; color:var(--amber); margin-bottom:1.2rem;}
+
+.completion-card{background:linear-gradient(135deg, rgba(95,212,212,0.08), rgba(199,123,63,0.04)); border:1px solid var(--cyan); border-radius:14px; padding:2.5rem; text-align:center; max-width:580px; margin:2rem auto 0; display:none;}
+.completion-card.show{display:block;}
+.completion-card .cc-icon{font-size:2.4rem; margin-bottom:1rem;}
+.completion-card h3{color:var(--white); font-size:1.4rem; margin-bottom:0.8rem;}
+.completion-card p{color:var(--dim); font-size:0.95rem; margin-bottom:1.6rem;}
+.cc-btn{display:inline-block; background:var(--cyan); color:var(--bg); text-decoration:none; padding:0.85rem 2rem; border-radius:8px; font-weight:700; font-size:0.95rem;}
+.cc-btn:hover{background:var(--cyan-dim);}
+.cc-secondary{display:block; margin-top:1rem; color:var(--dim); font-size:0.85rem; text-decoration:none;}
+.cc-secondary:hover{color:var(--white);}
+
+footer{padding:3.2rem 7vw; text-align:center; color:var(--dim); font-size:0.85rem;}
+button:focus-visible, .quiz-opt:focus-visible, input:focus-visible, a:focus-visible{outline:2px solid var(--cyan); outline-offset:2px;}
+::selection{background:var(--cyan); color:var(--bg);}
+</style>
+</head>
+<body>
+
+<div class="rail-wrap"><div class="rail-fill" id="railFill"></div></div>
+
+<div class="level-bar">
+  <div class="lb-crumb mono">
+    <a href="../">كل الكورسات</a> <span>/</span> <a href="../electricity-fundamentals/">١</a> <span>/</span> <a href="../electricity-level2/">٢</a> <span>/</span> <a href="../electricity-level3/">٣</a> <span>/</span> <a href="../electricity-level4/">٤</a> <span>/</span> المستوى الخامس
+  </div>
+  <span class="level-badge mono">المستوى ٥ من ٥ — الأخير</span>
+</div>
+
+<header class="hero">
+  <div class="eyebrow mono">كورس تمهيدي · المستوى الخامس والأخير · ١٨ دقيقة قراءة وتجربة</div>
+  <h1 class="hero-title">التيار المتردد <em>في العالم الحقيقي</em></h1>
+  <p class="hero-sub">رجعة لمفهوم AC من المستوى الأول، لكن هذه المرة بعمق حقيقي: كيف يرفع المحوّل الجهد، كيف يدور المحرك، وكيف تُوصَّل الكهرباء في بيتك بالفعل.</p>
+  <div class="hero-meta">
+    <div class="item"><b>٤</b>مفاهيم تطبيقية عميقة</div>
+    <div class="item"><b>٢</b>محاكاتان تفاعليتان حيّتان</div>
+    <div class="item"><b>١</b>مخطط توصيل منزلي</div>
+    <div class="item"><b>١٠</b>أسئلة الاختبار النهائي</div>
+  </div>
+  <div class="prereq-note mono">
+    📋 هذا الكورس يبني على مفهوم AC/DC في <a href="../electricity-fundamentals/">المستوى الأول</a> — مراجعة سريعة لذلك القسم قد تفيد قبل البدء.
+  </div>
+  <nav class="toc">
+    <a href="#transformer">المحوّل</a>
+    <a href="#motor">المحرك الكهربائي</a>
+    <a href="#wiring">التوصيل المنزلي</a>
+    <a href="#rms">القدرة الفعّالة RMS</a>
+    <a href="#symbols">مرجع الرموز</a>
+    <a href="#glossary">مرجع المصطلحات</a>
+    <a href="#finalExamSection">الاختبار النهائي</a>
+  </nav>
+  <div class="scroll-cue mono">انزل للأسفل ↓</div>
+</header>
+
+<section id="transformer">
+  <div class="step-tag mono"><span class="step-num">١</span>مفهوم تطبيقي</div>
+  <div class="section-head">
+    <h2 class="section-title">المحوّل — كيف نرفع وننخفض الجهد بأمان</h2>
+    <p class="section-desc">المحوّل هو السبب الحقيقي وراء استخدام AC في شبكات الكهرباء، كما ذكرنا في المستوى الأول. الآن نرى كيف يعمل فعلياً.</p>
+  </div>
+  <div class="exp-grid">
+    <div class="exp-text">
+      <p><span class="term">المحوّل (Transformer)</span> يتكوّن من ملفّين سلكيين منفصلين كهربائياً، ملتفّين حول قلب حديدي مشترك. عندما يمر تيار متردد في الملف الأول (الابتدائي)، يُنشئ مجالاً مغناطيسياً متغيّراً يُحدث جهداً جديداً في الملف الثاني (الثانوي) — دون أي تلامس مباشر بين الأسلاك.</p>
+      <p>نسبة الجهد بين الملفين تساوي نسبة عدد لفّاتهما. ملف ثانوي بعدد لفّات أكبر من الابتدائي = جهد أعلى (محوّل رافع). والعكس صحيح (محوّل مخفّض).</p>
+      <p>هذا يفسّر لماذا تُنقل الكهرباء بجهد عالٍ جداً عبر الأبراج الكهربائية (لتقليل الفقد)، ثم تُخفَّض تدريجياً حتى تصل لمنزلك بجهد آمن نسبياً.</p>
+    </div>
+  </div>
+
+  <div class="sim-wrap">
+    <div class="sim-grid">
+      <div class="circuit-svg-wrap">
+        <svg viewBox="0 0 320 200" fill="none" style="width:100%; max-width:340px;">
+          <rect x="140" y="30" width="40" height="140" fill="#3a3530" stroke="#4B5160" stroke-width="2" rx="4"/>
+          <g id="primaryCoil">
+            <line x1="100" y1="50" x2="140" y2="50" stroke="#5FD4D4" stroke-width="3"/>
+            <line x1="100" y1="80" x2="140" y2="80" stroke="#5FD4D4" stroke-width="3"/>
+            <line x1="100" y1="110" x2="140" y2="110" stroke="#5FD4D4" stroke-width="3"/>
+            <line x1="100" y1="140" x2="140" y2="140" stroke="#5FD4D4" stroke-width="3"/>
+          </g>
+          <g id="secondaryCoil"></g>
+          <text x="115" y="20" text-anchor="middle" fill="#8B92A0" font-size="10" font-family="IBM Plex Mono, monospace">ابتدائي</text>
+          <text x="230" y="20" text-anchor="middle" fill="#8B92A0" font-size="10" font-family="IBM Plex Mono, monospace">ثانوي</text>
+          <text x="160" y="195" text-anchor="middle" fill="#8B92A0" font-size="9" font-family="IBM Plex Mono, monospace">قلب حديدي مشترك</text>
+        </svg>
+      </div>
+      <div class="sim-controls">
+        <div class="ctrl">
+          <div class="ctrl-label">جهد الملف الابتدائي (V) <span class="val mono" id="primaryVoltVal">100 V</span></div>
+          <input type="range" id="primaryVoltSlider" min="20" max="220" value="100" step="10">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-label">نسبة عدد اللفّات (ثانوي:ابتدائي) <span class="val mono" id="turnsRatioVal">2:1</span></div>
+          <input type="range" id="turnsRatioSlider" min="-5" max="5" value="2" step="1">
+        </div>
+        <div class="sim-readout">
+          <div class="readout-box">
+            <div class="r-label mono">جهد الثانوي</div>
+            <div class="r-val mono" id="secondaryVoltVal">200 V</div>
+          </div>
+          <div class="readout-box">
+            <div class="r-label mono">النوع</div>
+            <div class="r-val mono" id="transformerType" style="font-size:0.95rem;">رافع</div>
+          </div>
+        </div>
+        <div class="sim-formula" id="transformerFormula">V₂ = V₁ × (N₂/N₁) = 100 × 2 = 200V</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-wrap mini" data-quiz="l5q1">
+    <div class="quiz-label mono">اختبار سريع — المحوّل</div>
+    <div class="quiz-progress mono">سؤال ١ من ١</div>
+    <div class="quiz-q active" data-q="0">
+      <div class="quiz-question">لماذا يعمل المحوّل فقط مع التيار المتردد (AC) ولا يعمل مع التيار المستمر (DC) الثابت؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">لأنه يحتاج مجالاً مغناطيسياً متغيّراً باستمرار، وDC الثابت لا يولّد ذلك</button>
+        <button class="quiz-opt" data-correct="false">لأن DC أضعف من AC في كل الحالات</button>
+        <button class="quiz-opt" data-correct="false">المحوّل يعمل بنفس الكفاءة مع كليهما فعلياً</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="quiz-next-btn">عرض النتيجة ←</button>
+      <div class="quiz-dots"></div>
+    </div>
+    <div class="quiz-result">
+      <div class="score">٠/١</div>
+      <div class="score-label">إجابات صحيحة</div>
+      <button class="quiz-restart">أعد المحاولة</button>
+    </div>
+  </div>
+</section>
+
+<section id="motor">
+  <div class="step-tag mono"><span class="step-num">٢</span>مفهوم تطبيقي</div>
+  <div class="section-head">
+    <h2 class="section-title">المحرك الكهربائي — من تيار إلى حركة دورانية</h2>
+    <p class="section-desc">كل شيء من المروحة وحتى السيارة الكهربائية يعتمد على المبدأ نفسه: تيار كهربائي يتحول إلى دوران فعلي.</p>
+  </div>
+  <div class="exp-grid">
+    <div class="exp-text">
+      <p>عندما يمر تيار في سلك موجود داخل مجال مغناطيسي، يتولّد قوة تدفع السلك للحركة (مبدأ القوة المغناطيسية). <span class="term">المحرك الكهربائي (Electric Motor)</span> يستغل هذا المبدأ بترتيب ملفّات دوّارة داخل مجال مغناطيسي ثابت.</p>
+      <p>كلما زاد التيار، زادت القوة الدافعة، وزادت سرعة الدوران (حتى حد معين تحدده تصميم المحرك). هذا يفسر مباشرة لماذا تزيد سرعة مروحة أو محرك عند زيادة الطاقة الداخلة له.</p>
+      <p>جرّب المحاكاة: زد التيار وشاهد سرعة الدوران تتغيّر مباشرة.</p>
+    </div>
+  </div>
+
+  <div class="sim-wrap">
+    <div class="sim-grid">
+      <div class="circuit-svg-wrap">
+        <svg viewBox="0 0 320 200" fill="none" style="width:100%; max-width:340px;">
+          <circle cx="160" cy="100" r="55" fill="none" stroke="#4B5160" stroke-width="3"/>
+          <g class="motor-disc" id="motorDisc">
+            <line x1="160" y1="50" x2="160" y2="150" stroke="#5FD4D4" stroke-width="4"/>
+            <line x1="110" y1="100" x2="210" y2="100" stroke="#E0A030" stroke-width="4"/>
+            <circle cx="160" cy="100" r="6" fill="#8B92A0"/>
+          </g>
+          <text x="160" y="175" text-anchor="middle" fill="#8B92A0" font-size="10" font-family="IBM Plex Mono, monospace">محرك دوّار</text>
+        </svg>
+      </div>
+      <div class="sim-controls">
+        <div class="ctrl">
+          <div class="ctrl-label">التيار الداخل (A) <span class="val mono" id="motorCurrentVal">2 A</span></div>
+          <input type="range" id="motorCurrentSlider" min="0" max="10" value="2" step="0.5">
+        </div>
+        <div class="sim-readout">
+          <div class="readout-box">
+            <div class="r-label mono">سرعة الدوران</div>
+            <div class="r-val mono" id="motorSpeedVal" style="font-size:0.95rem;">منخفضة</div>
+          </div>
+          <div class="readout-box">
+            <div class="r-label mono">الحالة</div>
+            <div class="r-val mono" id="motorStateVal" style="font-size:0.95rem;">يعمل</div>
+          </div>
+        </div>
+        <p style="color:var(--dim); font-size:0.88rem; margin-top:0.5rem;">عند التيار صفر، يتوقف الدوران تماماً — يوضح هذا أن الدوران ناتج مباشرة عن مرور التيار، لا عن أي خاصية أخرى للمحرك.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-wrap mini" data-quiz="l5q2">
+    <div class="quiz-label mono">اختبار سريع — المحرك الكهربائي</div>
+    <div class="quiz-progress mono">سؤال ١ من ١</div>
+    <div class="quiz-q active" data-q="0">
+      <div class="quiz-question">ما المبدأ الأساسي الذي يجعل المحرك الكهربائي يدور؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">تيار في سلك داخل مجال مغناطيسي يولّد قوة تدفعه للحركة</button>
+        <button class="quiz-opt" data-correct="false">حرارة السلك تسبب تمدداً يولّد الدوران</button>
+        <button class="quiz-opt" data-correct="false">المقاومة العالية للسلك تدفعه للدوران</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="quiz-next-btn">عرض النتيجة ←</button>
+      <div class="quiz-dots"></div>
+    </div>
+    <div class="quiz-result">
+      <div class="score">٠/١</div>
+      <div class="score-label">إجابات صحيحة</div>
+      <button class="quiz-restart">أعد المحاولة</button>
+    </div>
+  </div>
+</section>
+
+<section id="wiring">
+  <div class="step-tag mono"><span class="step-num">٣</span>تطبيق منزلي</div>
+  <div class="section-head">
+    <h2 class="section-title">التوصيل المنزلي: الطور، الحياد، والأرضي</h2>
+    <p class="section-desc">الأسلاك الثلاثة التي تراها في كل مقبس كهربائي منزلي — والدور المحدد لكل واحد منها.</p>
+  </div>
+
+  <div class="wiring-grid">
+    <div class="wiring-card">
+      <div class="wc-dot" style="background:#C75050;"></div>
+      <h3>الطور (الفاز)</h3>
+      <div class="sub mono">Live / Hot — السلك الأحمر أو البني عادة</div>
+      <p>يحمل الجهد الفعلي من المصدر. هذا السلك "نشط" دائماً والأخطر في حال لمسه مباشرة.</p>
+    </div>
+    <div class="wiring-card">
+      <div class="wc-dot" style="background:#5FD4D4;"></div>
+      <h3>الحياد</h3>
+      <div class="sub mono">Neutral — السلك الأزرق أو الأسود عادة</div>
+      <p>يكمل الدارة ويعيد التيار للمصدر. جهده قريب من الصفر نسبياً للأرض، لكنه ليس آمناً للمس دائماً.</p>
+    </div>
+    <div class="wiring-card">
+      <div class="wc-dot" style="background:#7C9885;"></div>
+      <h3>الأرضي</h3>
+      <div class="sub mono">Ground / Earth — السلك الأخضر أو العاري</div>
+      <p>لا يحمل تياراً في الحالة الطبيعية — وظيفته فقط تصريف أي تسرّب كهربائي بأمان بعيداً عن جسم المستخدم.</p>
+    </div>
+  </div>
+
+  <p style="color:var(--dim); margin-top:1.5rem; font-size:0.95rem; max-width:62ch;">هذا يفسر لماذا تكون الأجهزة المعدنية (الغسالة، الثلاجة) خطرة جداً بدون توصيل أرضي سليم — أي تسرّب كهربائي للهيكل المعدني سيجد طريقه للمستخدم بدل الأرضي إن لم يكن موصولاً بشكل صحيح.</p>
+
+  <div class="quiz-wrap mini" data-quiz="l5q3">
+    <div class="quiz-label mono">اختبار سريع — التوصيل المنزلي</div>
+    <div class="quiz-progress mono">سؤال ١ من ١</div>
+    <div class="quiz-q active" data-q="0">
+      <div class="quiz-question">ما الوظيفة الأساسية لسلك الأرضي في التوصيل المنزلي؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="false">حمل الجهد الأساسي من المصدر للجهاز</button>
+        <button class="quiz-opt" data-correct="true">تصريف أي تسرّب كهربائي بأمان بعيداً عن المستخدم</button>
+        <button class="quiz-opt" data-correct="false">زيادة سرعة دوران المحركات المتصلة</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="quiz-next-btn">عرض النتيجة ←</button>
+      <div class="quiz-dots"></div>
+    </div>
+    <div class="quiz-result">
+      <div class="score">٠/١</div>
+      <div class="score-label">إجابات صحيحة</div>
+      <button class="quiz-restart">أعد المحاولة</button>
+    </div>
+  </div>
+</section>
+
+<section id="rms">
+  <div class="step-tag mono"><span class="step-num">٤</span>مفهوم دقيق</div>
+  <div class="section-head">
+    <h2 class="section-title">لماذا ٢٢٠ فولت AC ليست كـ٢٢٠ فولت DC؟</h2>
+    <p class="section-desc">آخر مفهوم في هذا المسار الكامل — تفصيل دقيق غالباً يُهمَل، لكنه أساسي لفهم القدرة الفعلية في AC.</p>
+  </div>
+  <div class="exp-grid">
+    <div class="exp-text">
+      <p>تذكّر من المستوى الأول أن AC يتغيّر شكله كموجة جيبية ترتفع وتنخفض باستمرار، بعكس DC الثابت. فإذا كان الجهد يتغيّر باستمرار، فما معنى قول "٢٢٠ فولت" لمصدر AC؟</p>
+      <p>الإجابة هي <span class="term">القيمة الفعّالة (RMS — Root Mean Square)</span>: قيمة DC مكافئة من ناحية تأثير القدرة الفعلية (الحرارة المولّدة مثلاً)، وليست القيمة القصوى للموجة. ٢٢٠ فولت AC تعني أن القيمة الفعّالة لهذه الموجة المتذبذبة تُعادل تأثير ٢٢٠ فولت DC ثابت.</p>
+      <p>القيمة القصوى الفعلية للموجة في حالة ٢٢٠V AC تصل لحوالي ٣١١ فولت في لحظات معينة من الدورة — وهذا تفصيل مهم جداً عند تصميم أي دارة تتعامل مع AC مباشرة.</p>
+    </div>
+  </div>
+
+  <div class="concept-grid">
+    <div class="concept-card">
+      <div class="c-sym">~</div>
+      <h3>القيمة القصوى</h3>
+      <p>أعلى نقطة تصلها الموجة الجيبية خلال دورتها — أكبر من القيمة المعلنة (RMS) بحوالي ١.٤١ مرة.</p>
+    </div>
+    <div class="concept-card">
+      <div class="c-sym">RMS</div>
+      <h3>القيمة الفعّالة</h3>
+      <p>القيمة المكافئة لتأثير DC ثابت من ناحية القدرة — هذا ما يُكتب عادة على لوحات الأجهزة (٢٢٠V).</p>
+    </div>
+    <div class="concept-card">
+      <div class="c-sym">⚡</div>
+      <h3>سبب الفرق</h3>
+      <p>لأن الموجة الجيبية تتغيّر باستمرار، القيمة الفعّالة تأخذ "متوسط تأثير" الموجة الكاملة، لا قيمة لحظية واحدة.</p>
+    </div>
+  </div>
+
+  <div class="quiz-wrap mini" data-quiz="l5q4">
+    <div class="quiz-label mono">اختبار سريع — RMS</div>
+    <div class="quiz-progress mono">سؤال ١ من ١</div>
+    <div class="quiz-q active" data-q="0">
+      <div class="quiz-question">ما معنى "٢٢٠ فولت" عند الإشارة لمصدر تيار متردد (AC)؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">القيمة الفعّالة (RMS) المكافئة لتأثير ٢٢٠ فولت DC ثابت من ناحية القدرة</button>
+        <button class="quiz-opt" data-correct="false">أعلى قيمة لحظية تصلها الموجة في كل الأوقات</button>
+        <button class="quiz-opt" data-correct="false">قيمة ثابتة لا تتغيّر إطلاقاً طوال الزمن</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="quiz-next-btn">عرض النتيجة ←</button>
+      <div class="quiz-dots"></div>
+    </div>
+    <div class="quiz-result">
+      <div class="score">٠/١</div>
+      <div class="score-label">إجابات صحيحة</div>
+      <button class="quiz-restart">أعد المحاولة</button>
+    </div>
+  </div>
+</section>
+
+<section id="symbols">
+  <div class="step-tag mono"><span class="step-num">٥</span>مرجع سريع</div>
+  <div class="section-head">
+    <h2 class="section-title">رموز جديدة ستراها في هذا المستوى</h2>
+  </div>
+  <div class="symbols-grid">
+    <div class="symbol-box">
+      <svg viewBox="0 0 60 40"><circle cx="22" cy="20" r="9" fill="none" stroke="#5FD4D4" stroke-width="2"/><circle cx="38" cy="20" r="9" fill="none" stroke="#5FD4D4" stroke-width="2"/></svg>
+      <div class="s-name">محوّل</div>
+      <div class="s-en">Transformer</div>
+    </div>
+    <div class="symbol-box">
+      <svg viewBox="0 0 60 40"><circle cx="30" cy="20" r="12" fill="none" stroke="#E0A030" stroke-width="2"/><text x="30" y="25" text-anchor="middle" fill="#E0A030" font-size="11" font-family="IBM Plex Mono, monospace">M</text></svg>
+      <div class="s-name">محرك</div>
+      <div class="s-en">Motor</div>
+    </div>
+    <div class="symbol-box">
+      <svg viewBox="0 0 60 40"><line x1="30" y1="6" x2="30" y2="18" stroke="#7C9885" stroke-width="2.5"/><line x1="18" y1="18" x2="42" y2="18" stroke="#7C9885" stroke-width="2.5"/><line x1="22" y1="24" x2="38" y2="24" stroke="#7C9885" stroke-width="2.5"/><line x1="26" y1="30" x2="34" y2="30" stroke="#7C9885" stroke-width="2.5"/></svg>
+      <div class="s-name">أرضي</div>
+      <div class="s-en">Ground / Earth</div>
+    </div>
+    <div class="symbol-box">
+      <svg viewBox="0 0 60 40"><path d="M8 20 Q15 8 22 20 Q29 32 36 20 Q43 8 50 20" stroke="#5FD4D4" stroke-width="2.5" fill="none"/></svg>
+      <div class="s-name">موجة AC</div>
+      <div class="s-en">AC Waveform</div>
+    </div>
+  </div>
+</section>
+
+<section id="glossary">
+  <div class="step-tag mono"><span class="step-num">٦</span>مرجع للمراجعة</div>
+  <div class="section-head">
+    <h2 class="section-title">مرجع المصطلحات السريع — المستوى الخامس</h2>
+  </div>
+  <table class="glossary-table">
+    <thead><tr><th>المفهوم</th><th>الرمز / الوحدة</th><th>التعريف المختصر</th></tr></thead>
+    <tbody>
+      <tr><td class="g-term">المحوّل</td><td class="g-sym">Transformer</td><td>يرفع أو يخفّض جهد AC عبر مجال مغناطيسي مشترك بين ملفّين، بنسبة تساوي نسبة عدد اللفّات.</td></tr>
+      <tr><td class="g-term">المحرك الكهربائي</td><td class="g-sym">Motor</td><td>يحوّل التيار الكهربائي لحركة دورانية عبر مبدأ القوة المغناطيسية على سلك حامل تيار.</td></tr>
+      <tr><td class="g-term">الطور (الفاز)</td><td class="g-sym">Live / Hot</td><td>السلك الذي يحمل الجهد الفعّال من المصدر — الأخطر عند اللمس المباشر.</td></tr>
+      <tr><td class="g-term">الحياد</td><td class="g-sym">Neutral</td><td>يكمل الدارة ويعيد التيار للمصدر؛ جهده قريب من الصفر نسبياً.</td></tr>
+      <tr><td class="g-term">الأرضي</td><td class="g-sym">Ground / Earth</td><td>يصرّف أي تسرّب كهربائي بأمان بعيداً عن المستخدم.</td></tr>
+      <tr><td class="g-term">القيمة الفعّالة</td><td class="g-sym">RMS</td><td>القيمة المكافئة لتأثير DC ثابت من ناحية القدرة الفعلية لموجة AC.</td></tr>
+      <tr><td class="g-term">القيمة القصوى</td><td class="g-sym">Peak Value</td><td>أعلى نقطة تصلها موجة AC، أكبر من RMS بحوالي ١.٤١ مرة.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="finalExamSection" style="border-bottom:none;">
+  <div class="step-tag mono"><span class="step-num">٧</span>الاختبار الشامل والأخير</div>
+  <div class="section-head">
+    <span class="final-badge mono">★ الاختبار النهائي — ١٠ أسئلة</span>
+    <h2 class="section-title">اختبر فهمك الكامل للمستوى الخامس</h2>
+    <p class="section-desc">هذا الاختبار يجمع كل مفاهيم هذا المستوى، وهو الاختبار الأخير في المسار الكامل.</p>
+  </div>
+
+  <div class="quiz-wrap" data-quiz="finalExam">
+    <div class="quiz-progress mono">السؤال ١ من ١٠</div>
+
+    <div class="quiz-q active" data-q="0">
+      <div class="quiz-question">لماذا يعمل المحوّل فقط مع التيار المتردد (AC)؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">لأنه يحتاج مجالاً مغناطيسياً متغيّراً، وDC الثابت لا يولّد ذلك</button>
+        <button class="quiz-opt" data-correct="false">لأن DC أضعف من AC في كل الحالات</button>
+        <button class="quiz-opt" data-correct="false">المحوّل يعمل بنفس الكفاءة مع كليهما فعلياً</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="1">
+      <div class="quiz-question">نسبة الجهد بين الملف الثانوي والابتدائي في المحوّل تساوي...</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">نسبة عدد اللفّات بين الملفين</button>
+        <button class="quiz-opt" data-correct="false">قيمة ثابتة دائماً بصرف النظر عن التصميم</button>
+        <button class="quiz-opt" data-correct="false">مقاومة السلك المستخدم فقط</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="2">
+      <div class="quiz-question">لماذا تُنقل الكهرباء بجهد عالٍ جداً عبر أبراج النقل الكهربائي؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">لتقليل فقد الطاقة خلال النقل لمسافات طويلة</button>
+        <button class="quiz-opt" data-correct="false">لأن الأجهزة المنزلية تحتاج جهداً عالياً مباشرة</button>
+        <button class="quiz-opt" data-correct="false">لا سبب فني محدد، مجرد تقليد متبع</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="3">
+      <div class="quiz-question">ما المبدأ الأساسي الذي يجعل المحرك الكهربائي يدور؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">تيار في سلك داخل مجال مغناطيسي يولّد قوة تدفعه للحركة</button>
+        <button class="quiz-opt" data-correct="false">حرارة السلك تسبب تمدداً يولّد الدوران</button>
+        <button class="quiz-opt" data-correct="false">المقاومة العالية للسلك تدفعه للدوران</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="4">
+      <div class="quiz-question">ماذا يحدث لسرعة دوران المحرك عند زيادة التيار الداخل له؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">تزداد السرعة (حتى حد معين يحدده تصميم المحرك)</button>
+        <button class="quiz-opt" data-correct="false">تقل السرعة دائماً</button>
+        <button class="quiz-opt" data-correct="false">لا تتأثر السرعة بالتيار إطلاقاً</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="5">
+      <div class="quiz-question">ما الوظيفة الأساسية لسلك الأرضي في التوصيل المنزلي؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="false">حمل الجهد الأساسي من المصدر للجهاز</button>
+        <button class="quiz-opt" data-correct="true">تصريف أي تسرّب كهربائي بأمان بعيداً عن المستخدم</button>
+        <button class="quiz-opt" data-correct="false">زيادة سرعة دوران المحركات المتصلة</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="6">
+      <div class="quiz-question">أي سلك في التوصيل المنزلي يحمل الجهد الفعّال من المصدر مباشرة؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">الطور (الفاز/Live)</button>
+        <button class="quiz-opt" data-correct="false">الحياد (Neutral)</button>
+        <button class="quiz-opt" data-correct="false">الأرضي (Ground)</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="7">
+      <div class="quiz-question">ما معنى "٢٢٠ فولت" عند الإشارة لمصدر تيار متردد (AC)؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">القيمة الفعّالة (RMS) المكافئة لتأثير ٢٢٠ فولت DC ثابت من ناحية القدرة</button>
+        <button class="quiz-opt" data-correct="false">أعلى قيمة لحظية تصلها الموجة في كل الأوقات</button>
+        <button class="quiz-opt" data-correct="false">قيمة ثابتة لا تتغيّر إطلاقاً طوال الزمن</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="8">
+      <div class="quiz-question">القيمة القصوى لموجة AC مقارنة بقيمتها الفعّالة (RMS) تكون...</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">أكبر منها (بحوالي ١.٤١ مرة)</button>
+        <button class="quiz-opt" data-correct="false">مساوية لها تماماً دائماً</button>
+        <button class="quiz-opt" data-correct="false">أصغر منها دائماً</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="9">
+      <div class="quiz-question">لماذا تكون الأجهزة المنزلية المعدنية (كالغسالة) خطرة بدون توصيل أرضي سليم؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">لأن أي تسرّب كهربائي للهيكل المعدني قد يجد طريقه للمستخدم بدل الأرضي</button>
+        <button class="quiz-opt" data-correct="false">لأن المعادن تمنع التيار تماماً ولا علاقة لها بالأرضي</button>
+        <button class="quiz-opt" data-correct="false">لا علاقة فعلية بين الأرضي والسلامة في الأجهزة المعدنية</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-nav">
+      <button class="quiz-next-btn">التالي ←</button>
+      <div class="quiz-dots"></div>
+    </div>
+
+    <div class="quiz-result">
+      <div class="score">٠/١٠</div>
+      <div class="score-label">إجابات صحيحة</div>
+      <div class="score-msg" id="finalMsg"></div>
+      <button class="quiz-restart">أعد المحاولة</button>
+    </div>
+  </div>
+
+  <div class="completion-card" id="completionCard">
+    <div class="cc-icon">🏆</div>
+    <h3>أتممت المسار الكامل بكل مستوياته الخمسة!</h3>
+    <p>من فرق الجهد الأساسي، إلى المكوّنات العملية والقياس، إلى أشباه الموصلات وقراءة الدارات، إلى المنطق الرقمي، وحتى التيار المتردد العملي الكامل. هذا أساس شامل ومتكامل في الكهرباء — نظرياً وعملياً.</p>
+    <a class="cc-btn" href="../">العودة لكل الكورسات</a>
+    <a class="cc-secondary" href="../electricity-level4/">مراجعة المستوى الرابع مرة أخرى</a>
+  </div>
+</section>
+
+<footer>
+  <p class="mono">مرجع تمهيدي عام — أساس مفاهيمي وعملي، وليس بديلاً عن دورة تأسيسية كاملة أو إشراف فني مؤهل عند التعامل مع كهرباء AC حقيقية.</p>
+</footer>
+
+<script>
+const rail = document.getElementById('railFill');
+function updateRail(){
+  const scrolled = window.scrollY;
+  const max = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = Math.min(scrolled / Math.max(max,1), 1) * 100;
+  rail.style.width = pct + '%';
+}
+window.addEventListener('scroll', updateRail, {passive:true});
+updateRail();
+
+// ===== Transformer simulator =====
+const primaryVoltSlider = document.getElementById('primaryVoltSlider');
+const turnsRatioSlider = document.getElementById('turnsRatioSlider');
+const primaryVoltVal = document.getElementById('primaryVoltVal');
+const turnsRatioVal = document.getElementById('turnsRatioVal');
+const secondaryVoltVal = document.getElementById('secondaryVoltVal');
+const transformerType = document.getElementById('transformerType');
+const transformerFormula = document.getElementById('transformerFormula');
+const secondaryCoil = document.getElementById('secondaryCoil');
+
+function ratioToMultiplier(sliderVal){
+  // slider -5..5, map to ratio: positive = step-up (N2>N1), negative = step-down
+  if(sliderVal === 0) return 1;
+  if(sliderVal > 0) return sliderVal + 1; // 1->2, 2->3 etc (step up)
+  return 1 / (Math.abs(sliderVal) + 1); // step down
+}
+function ratioLabel(sliderVal){
+  if(sliderVal === 0) return '1:1';
+  if(sliderVal > 0) return `${sliderVal+1}:1`;
+  return `1:${Math.abs(sliderVal)+1}`;
+}
+
+function renderSecondaryCoil(turns){
+  let html = '';
+  const n = Math.min(Math.max(turns,2), 8);
+  const spacing = 110 / n;
+  for(let i=0;i<n;i++){
+    const y = 45 + i*spacing;
+    html += `<line x1="180" y1="${y}" x2="220" y2="${y}" stroke="#E0A030" stroke-width="3"/>`;
+  }
+  secondaryCoil.innerHTML = html;
+}
+
+function updateTransformer(){
+  const v1 = parseFloat(primaryVoltSlider.value);
+  const sliderVal = parseInt(turnsRatioSlider.value);
+  const mult = ratioToMultiplier(sliderVal);
+  const v2 = v1 * mult;
+
+  primaryVoltVal.textContent = v1 + ' V';
+  turnsRatioVal.textContent = ratioLabel(sliderVal);
+  secondaryVoltVal.textContent = v2.toFixed(0) + ' V';
+  transformerType.textContent = mult > 1 ? 'رافع' : (mult < 1 ? 'مخفّض' : 'متعادل');
+
+  const n2approx = sliderVal >= 0 ? (sliderVal+2) : Math.max(2, 8-Math.abs(sliderVal));
+  renderSecondaryCoil(n2approx);
+
+  if(sliderVal === 0){
+    transformerFormula.textContent = `V₂ = V₁ × 1 = ${v1}V (لا تغيير)`;
+  } else if(sliderVal > 0){
+    transformerFormula.textContent = `V₂ = V₁ × (${sliderVal+1}/1) = ${v1} × ${sliderVal+1} = ${v2.toFixed(0)}V`;
+  } else {
+    transformerFormula.textContent = `V₂ = V₁ × (1/${Math.abs(sliderVal)+1}) = ${v1} ÷ ${Math.abs(sliderVal)+1} = ${v2.toFixed(0)}V`;
+  }
+}
+primaryVoltSlider.addEventListener('input', updateTransformer);
+turnsRatioSlider.addEventListener('input', updateTransformer);
+updateTransformer();
+
+// ===== Motor simulator =====
+const motorCurrentSlider = document.getElementById('motorCurrentSlider');
+const motorCurrentVal = document.getElementById('motorCurrentVal');
+const motorSpeedVal = document.getElementById('motorSpeedVal');
+const motorStateVal = document.getElementById('motorStateVal');
+const motorDisc = document.getElementById('motorDisc');
+let motorRotation = 0;
+let motorSpeed = 0;
+let motorAnimFrame = null;
+
+function updateMotor(){
+  const current = parseFloat(motorCurrentSlider.value);
+  motorCurrentVal.textContent = current + ' A';
+  motorSpeed = current * 8; // degrees per frame-ish scaling
+
+  if(current <= 0){
+    motorSpeedVal.textContent = 'متوقف';
+    motorStateVal.textContent = 'متوقف';
+  } else if(current < 3){
+    motorSpeedVal.textContent = 'منخفضة';
+    motorStateVal.textContent = 'يعمل';
+  } else if(current < 7){
+    motorSpeedVal.textContent = 'متوسطة';
+    motorStateVal.textContent = 'يعمل';
+  } else {
+    motorSpeedVal.textContent = 'عالية';
+    motorStateVal.textContent = 'يعمل';
+  }
+}
+function animateMotor(){
+  motorRotation = (motorRotation + motorSpeed*0.15) % 360;
+  motorDisc.setAttribute('transform', `rotate(${motorRotation} 160 100)`);
+  motorAnimFrame = requestAnimationFrame(animateMotor);
+}
+motorCurrentSlider.addEventListener('input', updateMotor);
+updateMotor();
+animateMotor();
+
+// ===== Generic quiz engine =====
+const arNums = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+function toArabicNum(n){ return String(n).split('').map(d => arNums[parseInt(d)]).join(''); }
+
+function initQuiz(wrapEl){
+  const questions = Array.from(wrapEl.querySelectorAll('.quiz-q'));
+  const totalQ = questions.length;
+  let current = 0;
+  let score = 0;
+  let answered = new Array(totalQ).fill(false);
+
+  const progressEl = wrapEl.querySelector('.quiz-progress');
+  const nextBtn = wrapEl.querySelector('.quiz-next-btn');
+  const dotsWrap = wrapEl.querySelector('.quiz-dots');
+  const resultEl = wrapEl.querySelector('.quiz-result');
+  const scoreEl = wrapEl.querySelector('.quiz-result .score');
+  const finalMsgEl = wrapEl.querySelector('#finalMsg');
+  const isFinal = wrapEl.dataset.quiz === 'finalExam';
+
+  function buildDots(){
+    dotsWrap.innerHTML = '';
+    for(let i=0;i<totalQ;i++){
+      const d = document.createElement('div');
+      d.className = 'quiz-dot';
+      dotsWrap.appendChild(d);
+    }
+    refreshDots();
+  }
+  function refreshDots(){
+    const dots = dotsWrap.querySelectorAll('.quiz-dot');
+    dots.forEach((d,i)=>{
+      d.classList.remove('done','current');
+      if(answered[i]) d.classList.add('done');
+      if(i===current) d.classList.add('current');
+    });
+  }
+  function showQuestion(idx){
+    questions.forEach(q=>q.classList.remove('active'));
+    questions[idx].classList.add('active');
+    progressEl.textContent = `السؤال ${toArabicNum(idx+1)} من ${toArabicNum(totalQ)}`;
+    nextBtn.classList.remove('show');
+    refreshDots();
+  }
+  function attachOptionHandlers(qEl, qIndex){
+    const opts = qEl.querySelectorAll('.quiz-opt');
+    const feedback = qEl.querySelector('.quiz-feedback');
+    opts.forEach(opt=>{
+      opt.addEventListener('click', ()=>{
+        if(answered[qIndex]) return;
+        answered[qIndex] = true;
+        const isCorrect = opt.dataset.correct === 'true';
+        opts.forEach(o=>{
+          o.disabled = true;
+          if(o.dataset.correct === 'true') o.classList.add('correct');
+          else if(o===opt) o.classList.add('incorrect');
+        });
+        if(isCorrect) score++;
+        feedback.textContent = isCorrect
+          ? 'صحيح. هذا هو جوهر العلاقة بين هذه المفاهيم.'
+          : 'غير دقيق — لاحظ الإجابة المظللة بالسيان وراجع المفهوم المرتبط بها أعلاه.';
+        feedback.classList.add('show');
+        refreshDots();
+        if(qIndex === totalQ-1){ nextBtn.textContent = 'عرض النتيجة ←'; }
+        nextBtn.classList.add('show');
+      });
+    });
+  }
+  questions.forEach((q,i)=>attachOptionHandlers(q,i));
+
+  nextBtn.addEventListener('click', ()=>{
+    if(current === totalQ-1){
+      wrapEl.querySelectorAll('.quiz-q, .quiz-progress, .quiz-nav').forEach(el=>el.style.display='none');
+      scoreEl.textContent = `${toArabicNum(score)}/${toArabicNum(totalQ)}`;
+      if(isFinal && finalMsgEl){
+        let msg = '';
+        if(score === totalQ) msg = 'إتقان كامل! أتممت المسار الكامل بنجاح تام.';
+        else if(score >= totalQ*0.7) msg = 'فهم جيد جداً. راجع الأسئلة التي أخطأت فيها بسرعة.';
+        else msg = 'يُفضّل مراجعة الأقسام أعلاه مرة أخرى لإتمام المسار بثقة.';
+        finalMsgEl.textContent = msg;
+      }
+      resultEl.classList.add('show');
+      if(isFinal){ document.getElementById('completionCard').classList.add('show'); }
+    } else {
+      current++;
+      showQuestion(current);
+    }
+  });
+
+  wrapEl.querySelector('.quiz-restart').addEventListener('click', ()=>{
+    current = 0; score = 0; answered = new Array(totalQ).fill(false);
+    questions.forEach(q=>{
+      q.querySelectorAll('.quiz-opt').forEach(o=>{ o.disabled=false; o.classList.remove('correct','incorrect'); });
+      q.querySelector('.quiz-feedback').classList.remove('show');
+    });
+    nextBtn.textContent = totalQ === 1 ? 'عرض النتيجة ←' : 'التالي ←';
+    wrapEl.querySelectorAll('.quiz-q, .quiz-progress, .quiz-nav').forEach(el=>el.style.display='');
+    resultEl.classList.remove('show');
+    if(isFinal){ document.getElementById('completionCard').classList.remove('show'); }
+    showQuestion(0);
+  });
+
+  if(totalQ === 1){ nextBtn.textContent = 'عرض النتيجة ←'; }
+  buildDots();
+  showQuestion(0);
+}
+document.querySelectorAll('[data-quiz]').forEach(initQuiz);
+</script>
+
+</body>
+</html>
