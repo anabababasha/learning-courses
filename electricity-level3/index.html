@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>أشباه الموصلات وقراءة الدارات — المستوى الثالث</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0D0F12;
+  --bg-soft:#15181D;
+  --card:#1A1E25;
+  --copper:#C77B3F;
+  --copper-bright:#E0985A;
+  --cyan:#5FD4D4;
+  --cyan-dim:#3A9999;
+  --amber:#E0A030;
+  --red:#C75050;
+  --white:#F0EDE6;
+  --dim:#8B92A0;
+  --slate:#4B5160;
+  --line:rgba(240,237,230,0.10);
+  --line-strong:rgba(240,237,230,0.20);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--white);
+  font-family:'IBM Plex Sans Arabic',sans-serif;
+  line-height:1.75;
+  overflow-x:hidden;
+}
+.mono{font-family:'IBM Plex Mono',monospace;letter-spacing:0.02em;}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+}
+
+.rail-wrap{position:sticky; top:0; z-index:60; width:100%; height:4px; background:var(--bg-soft); border-bottom:1px solid var(--line);}
+.rail-fill{height:100%; width:0%; background:linear-gradient(to left, var(--cyan), var(--copper)); box-shadow:0 0 10px var(--cyan); transition:width 0.08s linear;}
+
+.level-bar{
+  position:sticky; top:4px; z-index:55; background:var(--bg-soft); border-bottom:1px solid var(--line);
+  padding:0.7rem 7vw; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.6rem;
+}
+.level-bar .lb-crumb{font-size:0.78rem; color:var(--dim); display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;}
+.level-bar .lb-crumb a{color:var(--cyan); text-decoration:none;}
+.level-bar .lb-crumb a:hover{text-decoration:underline;}
+.level-badge{
+  font-family:'IBM Plex Mono',monospace; font-size:0.72rem;
+  background:rgba(95,212,212,0.1); border:1px solid rgba(95,212,212,0.35);
+  color:var(--cyan); padding:0.3rem 0.8rem; border-radius:14px;
+}
+
+.hero{
+  min-height:84vh; display:flex; flex-direction:column; justify-content:center;
+  padding:6vh 7vw 6vh; border-bottom:1px solid var(--line); position:relative; overflow:hidden;
+}
+.hero::before{
+  content:''; position:absolute; inset:0;
+  background:
+    radial-gradient(circle at 15% 25%, rgba(95,212,212,0.08), transparent 50%),
+    radial-gradient(circle at 88% 80%, rgba(199,123,63,0.10), transparent 55%);
+  pointer-events:none;
+}
+.eyebrow{
+  font-size:0.78rem; color:var(--cyan); letter-spacing:0.12em; margin-bottom:1.6rem;
+  display:flex; align-items:center; gap:0.7rem; position:relative; z-index:1;
+}
+.eyebrow::before{
+  content:''; width:7px;height:7px;border-radius:50%; background:var(--cyan);
+  box-shadow:0 0 0 3px rgba(95,212,212,0.18), 0 0 8px var(--cyan);
+}
+h1.hero-title{
+  font-size:clamp(2.1rem,5.4vw,4rem); font-weight:700; line-height:1.22; max-width:22ch;
+  position:relative; z-index:1; color:var(--white);
+}
+h1.hero-title em{font-style:normal; color:var(--copper-bright);}
+.hero-sub{margin-top:1.8rem; font-size:clamp(1rem,1.6vw,1.18rem); color:var(--dim); max-width:48ch; position:relative; z-index:1;}
+.hero-meta{margin-top:2.6rem; display:flex; gap:2rem; flex-wrap:wrap; position:relative; z-index:1;}
+.hero-meta .item{font-size:0.8rem; color:var(--dim); border-right:2px solid var(--line-strong); padding-right:0.85rem;}
+.hero-meta .item b{color:var(--white); font-weight:600; display:block; font-size:0.98rem; margin-bottom:0.15rem; font-family:'IBM Plex Sans Arabic',sans-serif;}
+
+.prereq-note{
+  position:relative; z-index:1; margin-top:2.2rem;
+  background:var(--card); border:1px solid var(--line-strong); border-right:3px solid var(--copper);
+  padding:1.1rem 1.4rem; border-radius:6px; max-width:58ch; font-size:0.92rem; color:var(--dim);
+}
+.prereq-note a{color:var(--cyan); text-decoration:none; font-weight:600;}
+.prereq-note a:hover{text-decoration:underline;}
+
+.toc{position:relative; z-index:1; margin-top:2.2rem; display:flex; flex-wrap:wrap; gap:0.6rem;}
+.toc a{font-size:0.78rem; color:var(--dim); border:1px solid var(--line-strong); border-radius:20px; padding:0.45rem 1rem; text-decoration:none; transition:all 0.2s ease;}
+.toc a:hover{border-color:var(--cyan); color:var(--white);}
+
+.scroll-cue{position:absolute; bottom:2vh; right:7vw; font-size:0.72rem; color:var(--dim); display:flex; align-items:center; gap:0.5rem; animation:bob 2.2s ease-in-out infinite;}
+@keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(6px);}}
+
+section{padding:5rem 7vw; border-bottom:1px solid var(--line); position:relative; scroll-margin-top:60px;}
+.step-tag{display:flex; align-items:center; gap:0.8rem; font-size:0.78rem; color:var(--copper-bright); letter-spacing:0.1em; margin-bottom:1rem;}
+.step-tag .step-num{width:28px; height:28px; border-radius:50%; border:1px solid var(--copper); display:flex; align-items:center; justify-content:center; font-size:0.82rem; color:var(--copper-bright); flex-shrink:0;}
+.section-head{margin-bottom:3rem; max-width:62ch;}
+.section-title{font-size:clamp(1.5rem,2.8vw,2.1rem); font-weight:700; color:var(--white); line-height:1.35;}
+.section-desc{margin-top:1rem; color:var(--dim); font-size:1.02rem; max-width:56ch;}
+
+.exp-grid{display:grid; grid-template-columns:1fr 1fr; gap:3rem; align-items:start;}
+@media(max-width:860px){.exp-grid{grid-template-columns:1fr;}}
+.exp-text p{margin-bottom:1.1rem; color:var(--dim); font-size:1.02rem;}
+.exp-text strong{color:var(--white); font-weight:600;}
+.exp-text .term{color:var(--cyan); font-weight:600;}
+
+/* ===== interactive sim shells (shared) ===== */
+.sim-wrap{background:var(--card); border:1px solid var(--line-strong); border-radius:12px; padding:2.5rem; margin-top:2rem;}
+.sim-grid{display:grid; grid-template-columns:1.1fr 0.9fr; gap:2.5rem; align-items:center;}
+@media(max-width:860px){.sim-grid{grid-template-columns:1fr;}}
+.circuit-svg-wrap{background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:1.5rem; display:flex; justify-content:center;}
+.sim-controls{display:flex; flex-direction:column; gap:1.6rem;}
+.ctrl{display:flex; flex-direction:column; gap:0.6rem;}
+.ctrl-label{display:flex; justify-content:space-between; font-size:0.92rem; color:var(--white); font-weight:600;}
+.ctrl-label .val{color:var(--cyan); font-family:'IBM Plex Mono',monospace;}
+input[type="range"]{-webkit-appearance:none; width:100%; height:5px; background:var(--slate); border-radius:3px; outline:none;}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:var(--cyan); cursor:pointer; box-shadow:0 0 8px rgba(95,212,212,0.5);}
+input[type="range"]::-moz-range-thumb{width:18px; height:18px; border-radius:50%; border:none; background:var(--cyan); cursor:pointer;}
+.sim-btns{display:flex; gap:0.8rem;}
+.sim-btn{flex:1; background:var(--bg-soft); border:1px solid var(--line-strong); color:var(--white); padding:0.75rem 1rem; border-radius:6px; font-family:inherit; font-weight:600; font-size:0.9rem; cursor:pointer; transition:all 0.2s ease;}
+.sim-btn:hover{border-color:var(--cyan);}
+.sim-btn.active-dir{border-color:var(--cyan); color:var(--cyan); background:rgba(95,212,212,0.08);}
+.sim-readout{display:grid; grid-template-columns:1fr 1fr; gap:0.8rem; margin-top:0.5rem;}
+.readout-box{background:var(--bg); border:1px solid var(--line-strong); border-radius:6px; padding:0.9rem; text-align:center;}
+.readout-box .r-label{font-size:0.65rem; color:var(--dim); letter-spacing:0.05em;}
+.readout-box .r-val{font-family:'IBM Plex Mono',monospace; font-size:1.15rem; color:var(--white); margin-top:0.3rem;}
+
+/* ===== fuse simulator ===== */
+.fuse-status{
+  text-align:center; padding:1rem; border-radius:8px; margin-top:0.5rem;
+  font-family:'IBM Plex Mono',monospace; font-size:0.95rem; border:1px solid var(--line-strong);
+  background:var(--bg);
+}
+.fuse-status.ok{color:var(--cyan); border-color:var(--cyan);}
+.fuse-status.blown{color:var(--red); border-color:var(--red);}
+
+/* ===== component cards grid ===== */
+.concept-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem;}
+@media(max-width:860px){.concept-grid{grid-template-columns:1fr;}}
+.concept-card{background:var(--card); border:1px solid var(--line-strong); border-radius:8px; padding:1.8rem; transition:border-color 0.25s ease, transform 0.25s ease;}
+.concept-card:hover{border-color:var(--cyan); transform:translateY(-3px);}
+.concept-card .c-sym{font-family:'IBM Plex Mono',monospace; font-size:1.6rem; color:var(--cyan); margin-bottom:1rem; font-weight:600;}
+.concept-card h3{font-size:1.05rem; color:var(--white); margin-bottom:0.4rem; font-weight:600;}
+.concept-card .unit{font-family:'IBM Plex Mono',monospace; font-size:0.76rem; color:var(--dim); margin-bottom:0.9rem;}
+.concept-card p{color:var(--dim); font-size:0.92rem;}
+
+/* ===== circuit reading walkthrough ===== */
+.walkthrough-wrap{background:var(--card); border:1px solid var(--line-strong); border-radius:12px; padding:2.5rem; margin-top:2rem;}
+.walkthrough-grid{display:grid; grid-template-columns:1.2fr 0.8fr; gap:2.5rem; align-items:start;}
+@media(max-width:860px){.walkthrough-grid{grid-template-columns:1fr;}}
+.wt-svg-wrap{background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:1.5rem; display:flex; justify-content:center;}
+.wt-steps{display:flex; flex-direction:column; gap:0.7rem;}
+.wt-step-btn{
+  text-align:right; background:var(--bg-soft); border:1px solid var(--line-strong); color:var(--dim);
+  padding:0.9rem 1.1rem; border-radius:8px; cursor:pointer; font-family:inherit; font-size:0.9rem;
+  transition:all 0.2s ease;
+}
+.wt-step-btn.active{border-color:var(--cyan); color:var(--white); background:rgba(95,212,212,0.08);}
+.wt-step-btn .wsb-num{color:var(--copper-bright); font-family:'IBM Plex Mono',monospace; margin-left:0.5rem;}
+.wt-explain{
+  margin-top:1.5rem; background:var(--bg); border:1px solid var(--line-strong); border-right:3px solid var(--cyan);
+  border-radius:6px; padding:1.2rem; font-size:0.92rem; color:var(--dim); min-height:70px;
+}
+.wt-explain b{color:var(--white);}
+.wt-nav-btns{display:flex; gap:0.6rem; margin-top:1.2rem;}
+.wt-nav-btn{
+  flex:1; background:var(--bg-soft); border:1px solid var(--line-strong); color:var(--white);
+  padding:0.7rem; border-radius:6px; font-family:inherit; cursor:pointer; font-size:0.85rem;
+}
+.wt-nav-btn:hover{border-color:var(--cyan);}
+.wt-nav-btn:disabled{opacity:0.35; cursor:default;}
+
+/* ===== symbols & glossary (shared pattern) ===== */
+.symbols-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:1.2rem;}
+@media(max-width:760px){.symbols-grid{grid-template-columns:repeat(2,1fr);}}
+.symbol-box{background:var(--card); border:1px solid var(--line-strong); border-radius:8px; padding:1.4rem; text-align:center;}
+.symbol-box svg{width:60px; height:40px; margin-bottom:0.8rem;}
+.symbol-box .s-name{color:var(--white); font-size:0.85rem; font-weight:600;}
+.symbol-box .s-en{color:var(--dim); font-size:0.7rem; font-family:'IBM Plex Mono',monospace; margin-top:0.2rem;}
+
+.glossary-table{width:100%; border-collapse:collapse;}
+.glossary-table th{text-align:right; font-family:'IBM Plex Mono',monospace; font-size:0.72rem; color:var(--dim); padding:0.8rem 0.6rem; border-bottom:1px solid var(--line-strong); letter-spacing:0.05em; font-weight:400;}
+.glossary-table td{padding:1rem 0.6rem; border-bottom:1px solid var(--line); color:var(--dim); vertical-align:top; font-size:0.92rem;}
+.glossary-table td.g-term{color:var(--white); font-weight:600; white-space:nowrap;}
+.glossary-table td.g-sym{font-family:'IBM Plex Mono',monospace; color:var(--cyan);}
+.glossary-table tr:last-child td{border-bottom:none;}
+
+/* ===== quiz blocks (shared pattern) ===== */
+.quiz-wrap{background:var(--card); border:1px solid var(--line-strong); border-radius:12px; padding:2.2rem; max-width:700px; margin-top:2.5rem;}
+.quiz-wrap.mini{padding:1.8rem;}
+.quiz-label{font-size:0.74rem; color:var(--cyan); letter-spacing:0.08em; margin-bottom:1.2rem;}
+.quiz-q{display:none;}
+.quiz-q.active{display:block;}
+.quiz-progress{font-size:0.75rem; color:var(--dim); margin-bottom:1.3rem;}
+.quiz-question{font-size:1.08rem; color:var(--white); font-weight:600; margin-bottom:1.4rem; line-height:1.6;}
+.quiz-options{display:flex; flex-direction:column; gap:0.65rem;}
+.quiz-opt{background:var(--bg-soft); border:1px solid var(--line-strong); color:var(--white); padding:0.9rem 1.1rem; border-radius:6px; text-align:right; font-size:0.94rem; cursor:pointer; font-family:inherit; transition:all 0.2s ease;}
+.quiz-opt:hover{border-color:var(--cyan);}
+.quiz-opt.correct{background:rgba(95,212,212,0.12); border-color:var(--cyan); color:var(--white);}
+.quiz-opt.incorrect{background:rgba(199,80,80,0.15); border-color:var(--red);}
+.quiz-opt:disabled{cursor:default;}
+.quiz-feedback{margin-top:1.1rem; padding:0.95rem 1.1rem; border-radius:6px; background:var(--bg-soft); font-size:0.9rem; color:var(--dim); display:none; border-right:3px solid var(--cyan);}
+.quiz-feedback.show{display:block;}
+.quiz-nav{margin-top:1.6rem; display:flex; justify-content:space-between; align-items:center;}
+.quiz-next-btn{background:var(--cyan); color:var(--bg); border:none; padding:0.65rem 1.5rem; border-radius:6px; font-family:inherit; font-weight:700; font-size:0.9rem; cursor:pointer; display:none; transition:background 0.2s ease;}
+.quiz-next-btn:hover{background:var(--cyan-dim);}
+.quiz-next-btn.show{display:inline-block;}
+.quiz-dots{display:flex; gap:0.45rem;}
+.quiz-dot{width:7px; height:7px; border-radius:50%; background:var(--line-strong);}
+.quiz-dot.done{background:var(--cyan);}
+.quiz-dot.current{background:var(--copper-bright);}
+.quiz-result{display:none; text-align:center; padding:0.8rem 0;}
+.quiz-result.show{display:block;}
+.quiz-result .score{font-family:'IBM Plex Mono',monospace; font-size:2.2rem; color:var(--cyan); font-weight:600;}
+.quiz-result .score-label{color:var(--dim); margin-top:0.4rem; font-size:0.92rem;}
+.quiz-result .score-msg{margin-top:0.8rem; color:var(--white); font-size:0.92rem; max-width:40ch; margin-inline:auto;}
+.quiz-restart{margin-top:1.3rem; background:transparent; border:1px solid var(--line-strong); color:var(--white); padding:0.55rem 1.3rem; border-radius:6px; font-family:inherit; cursor:pointer; font-size:0.86rem;}
+.quiz-restart:hover{border-color:var(--cyan);}
+
+#finalExamSection{background:linear-gradient(180deg, rgba(199,123,63,0.04), transparent);}
+.final-badge{display:inline-flex; align-items:center; gap:0.5rem; background:rgba(224,160,48,0.1); border:1px solid rgba(224,160,48,0.35); border-radius:20px; padding:0.4rem 1rem; font-size:0.78rem; color:var(--amber); margin-bottom:1.2rem;}
+
+.completion-card{
+  background:linear-gradient(135deg, rgba(95,212,212,0.08), rgba(199,123,63,0.04));
+  border:1px solid var(--cyan); border-radius:14px; padding:2.5rem; text-align:center; max-width:560px; margin:2rem auto 0;
+  display:none;
+}
+.completion-card.show{display:block;}
+.completion-card .cc-icon{font-size:2.2rem; margin-bottom:1rem;}
+.completion-card h3{color:var(--white); font-size:1.3rem; margin-bottom:0.8rem;}
+.completion-card p{color:var(--dim); font-size:0.95rem; margin-bottom:1.6rem;}
+.cc-btn{display:inline-block; background:var(--cyan); color:var(--bg); text-decoration:none; padding:0.85rem 2rem; border-radius:8px; font-weight:700; font-size:0.95rem;}
+.cc-btn:hover{background:var(--cyan-dim);}
+.cc-secondary{display:block; margin-top:1rem; color:var(--dim); font-size:0.85rem; text-decoration:none;}
+.cc-secondary:hover{color:var(--white);}
+
+footer{padding:3.2rem 7vw; text-align:center; color:var(--dim); font-size:0.85rem;}
+
+button:focus-visible, .quiz-opt:focus-visible, input:focus-visible, a:focus-visible{outline:2px solid var(--cyan); outline-offset:2px;}
+::selection{background:var(--cyan); color:var(--bg);}
+</style>
+</head>
+<body>
+
+<div class="rail-wrap"><div class="rail-fill" id="railFill"></div></div>
+
+<div class="level-bar">
+  <div class="lb-crumb mono">
+    <a href="../">كل الكورسات</a> <span>/</span> <a href="../electricity-fundamentals/">المستوى ١</a> <span>/</span> <a href="../electricity-level2/">المستوى ٢</a> <span>/</span> المستوى الثالث
+  </div>
+  <span class="level-badge mono">المستوى ٣ من ٣</span>
+</div>
+
+<header class="hero">
+  <div class="eyebrow mono">كورس تمهيدي · المستوى الثالث · ٢٠ دقيقة قراءة وتجربة</div>
+  <h1 class="hero-title">أشباه الموصلات <em>وقراءة الدارات</em></h1>
+  <p class="hero-sub">آخر خطوة قبل الانطلاق الفعلي: مكوّنات تتحكم بالتيار ذكياً (لا تعيقه فقط)، وكيف تقرأ دارة حقيقية كاملة من الصفر خطوة بخطوة.</p>
+  <div class="hero-meta">
+    <div class="item"><b>٣</b>مكوّنات جديدة</div>
+    <div class="item"><b>٣</b>محاكاتان تفاعليتان حيّتان</div>
+    <div class="item"><b>١</b>قراءة دارة كاملة تفاعلية</div>
+    <div class="item"><b>١٠</b>أسئلة الاختبار النهائي</div>
+  </div>
+  <div class="prereq-note mono">
+    📋 هذا الكورس يفترض أنك أتممت <a href="../electricity-fundamentals/">المستوى الأول</a> و<a href="../electricity-level2/">المستوى الثاني</a> — إذا لم تكملهما بعد، يُفضّل البدء منهما أولاً.
+  </div>
+  <nav class="toc">
+    <a href="#diode">الديود</a>
+    <a href="#transistor">الترانزستور</a>
+    <a href="#fuse">الفيوز والحماية</a>
+    <a href="#reading">قراءة دارة كاملة</a>
+    <a href="#symbols">مرجع الرموز</a>
+    <a href="#glossary">مرجع المصطلحات</a>
+    <a href="#finalExamSection">الاختبار النهائي</a>
+  </nav>
+  <div class="scroll-cue mono">انزل للأسفل ↓</div>
+</header>
+
+<section id="diode">
+  <div class="step-tag mono"><span class="step-num">١</span>مكوّن جديد</div>
+  <div class="section-head">
+    <h2 class="section-title">الديود — بوابة تسمح بالتيار باتجاه واحد فقط</h2>
+    <p class="section-desc">أول مكوّن "ذكي" في هذا الكورس — لا يعيق التيار بقدر ثابت كالمقاومة، بل يقرر اتجاهه.</p>
+  </div>
+  <div class="exp-grid">
+    <div class="exp-text">
+      <p><span class="term">الديود (Diode)</span> يسمح للتيار بالعبور في اتجاه واحد فقط، ويمنعه تقريباً تماماً في الاتجاه المعاكس. هذا يجعله أساس كل تحويل من تيار متردد (AC) إلى تيار مستمر (DC) — وهو ما يحدث داخل كل شاحن هاتف تستخدمه.</p>
+      <p><span class="term">LED</span> هو نوع خاص من الديود يصدر ضوءاً عند مرور التيار في الاتجاه الصحيح فقط — هذا يفسر لماذا تتوقف بعض الأجهزة عن العمل لو وضعت البطارية بشكل معكوس.</p>
+      <p>جرّب المحاكاة: غيّر اتجاه التيار وشاهد متى يضيء LED ومتى لا يستجيب إطلاقاً.</p>
+    </div>
+    <div class="analogy-card" style="background:var(--card); border:1px solid var(--line-strong); border-radius:10px; padding:2rem; text-align:center;">
+      <div class="a-label mono" style="font-size:0.72rem; color:var(--dim); letter-spacing:0.08em; margin-bottom:1.2rem;">تشابه بصري — بوابة دوّارة بمسار واحد</div>
+      <svg viewBox="0 0 280 140" fill="none">
+        <rect x="20" y="55" width="240" height="30" rx="15" fill="#1A1E25" stroke="#4B5160" stroke-width="2"/>
+        <path d="M130 55 L150 70 L130 85 Z" fill="#5FD4D4" opacity="0.7"/>
+        <line x1="150" y1="55" x2="150" y2="85" stroke="#5FD4D4" stroke-width="3"/>
+        <circle cx="0" cy="0" r="5" fill="#5FD4D4">
+          <animateMotion dur="2s" repeatCount="indefinite" path="M35 70 L255 70"/>
+        </circle>
+        <text x="140" y="115" text-anchor="middle" fill="#E0985A" font-size="11" font-family="IBM Plex Mono, monospace">يعبر بسهولة باتجاه واحد فقط</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="sim-wrap">
+    <div class="sim-grid">
+      <div class="circuit-svg-wrap">
+        <svg viewBox="0 0 320 200" fill="none" style="width:100%; max-width:340px;">
+          <path id="diodeWirePath" d="M50 160 L50 60 L120 60 L120 100 L200 100 L200 60 L270 60 L270 160 L50 160" stroke="#4B5160" stroke-width="4" fill="none" stroke-linejoin="round"/>
+          <g>
+            <rect x="30" y="135" width="40" height="55" fill="none" stroke="#C77B3F" stroke-width="3" rx="3" id="diodeBatteryRect"/>
+            <line x1="40" y1="148" x2="60" y2="148" stroke="#E0985A" stroke-width="3"/>
+            <line x1="45" y1="175" x2="55" y2="175" stroke="#E0985A" stroke-width="3"/>
+            <text x="50" y="200" text-anchor="middle" fill="#8B92A0" font-size="10" font-family="IBM Plex Mono, monospace">بطارية</text>
+          </g>
+          <g id="diodeSymbolGroup">
+            <path d="M120 60 L150 60 L150 45 L170 60 L150 75 L150 60" fill="#5FD4D4" opacity="0.5"/>
+            <line x1="170" y1="45" x2="170" y2="75" stroke="#5FD4D4" stroke-width="3"/>
+            <line x1="170" y1="60" x2="200" y2="60" stroke="#4B5160" stroke-width="4"/>
+            <text x="160" y="30" text-anchor="middle" fill="#8B92A0" font-size="10" font-family="IBM Plex Mono, monospace">ديود</text>
+          </g>
+          <circle id="diodeBulbGlow" cx="200" cy="100" r="22" fill="#E0A030" opacity="0.1"/>
+          <circle id="diodeBulbCircle" cx="200" cy="100" r="14" fill="none" stroke="#8B92A0" stroke-width="2.5"/>
+          <text x="200" y="135" text-anchor="middle" fill="#8B92A0" font-size="10" font-family="IBM Plex Mono, monospace">LED</text>
+          <circle r="4" fill="#5FD4D4" id="diodeDot1" opacity="0">
+            <animateMotion id="diodeAnimFwd" dur="2.5s" repeatCount="indefinite" path="M50 160 L50 60 L120 60 L150 60 L170 60 L200 60 L200 100 L200 60 L270 60 L270 160 L50 160"/>
+          </circle>
+        </svg>
+      </div>
+      <div class="sim-controls">
+        <div class="sim-btns">
+          <button class="sim-btn active-dir" id="diodeFwdBtn">اتجاه أمامي (صحيح) →</button>
+          <button class="sim-btn" id="diodeRevBtn">اتجاه عكسي ←</button>
+        </div>
+        <div class="sim-readout">
+          <div class="readout-box">
+            <div class="r-label mono">حالة LED</div>
+            <div class="r-val mono" id="diodeLedState" style="font-size:0.95rem;">مضاء</div>
+          </div>
+          <div class="readout-box">
+            <div class="r-label mono">التيار يعبر؟</div>
+            <div class="r-val mono" id="diodeCurrentState" style="font-size:0.95rem;">نعم</div>
+          </div>
+        </div>
+        <p style="color:var(--dim); font-size:0.88rem; margin-top:0.5rem;">في الاتجاه الأمامي يعبر التيار ويضيء LED. في الاتجاه العكسي، الديود يمنع التيار تماماً تقريباً — لاحظ توقف الحركة بالكامل.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-wrap mini" data-quiz="l3q1">
+    <div class="quiz-label mono">اختبار سريع — الديود</div>
+    <div class="quiz-progress mono">سؤال ١ من ١</div>
+    <div class="quiz-q active" data-q="0">
+      <div class="quiz-question">لماذا لا يعمل بعض الأجهزة إذا وضعت بطاريتها بشكل معكوس؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">لأن الديودات داخل الدارة تمنع التيار في الاتجاه المعكوس</button>
+        <button class="quiz-opt" data-correct="false">لأن البطارية تفرغ شحنتها فوراً عند العكس</button>
+        <button class="quiz-opt" data-correct="false">لأن المقاومة تتغيّر تبعاً لاتجاه التوصيل</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="quiz-next-btn">عرض النتيجة ←</button>
+      <div class="quiz-dots"></div>
+    </div>
+    <div class="quiz-result">
+      <div class="score">٠/١</div>
+      <div class="score-label">إجابات صحيحة</div>
+      <button class="quiz-restart">أعد المحاولة</button>
+    </div>
+  </div>
+</section>
+
+<section id="transistor">
+  <div class="step-tag mono"><span class="step-num">٢</span>مكوّن جديد</div>
+  <div class="section-head">
+    <h2 class="section-title">الترانزستور — المفتاح الذي يتحكم به التيار نفسه</h2>
+    <p class="section-desc">المكوّن الذي بُنيت عليه كل الإلكترونيات الحديثة — من الحاسوب إلى الهاتف.</p>
+  </div>
+  <div class="exp-grid">
+    <div class="exp-text">
+      <p><span class="term">الترانزستور (Transistor)</span> له ثلاثة أطراف: المجمّع، الباعث، والقاعدة. تيار صغير جداً في طرف القاعدة "يفتح" مساراً لتيار أكبر بكثير بين الطرفين الآخرين.</p>
+      <p>هذا يشبه الريليه الذي تعلمته في المستوى الثاني — تيار صغير يتحكم بتيار أكبر — لكن الفرق الجوهري: الترانزستور لا يحتوي أجزاءً متحركة، يعمل بسرعة هائلة، وبإمكانه أيضاً تكبير الإشارات لا فقط تشغيلها/إيقافها.</p>
+      <p>كل معالج حاسوب يحتوي على مليارات الترانزستورات تعمل كمفاتيح فائقة السرعة (تشغيل/إيقاف) لتمثيل البتّات الرقمية صفر وواحد.</p>
+    </div>
+    <div class="analogy-card" style="background:var(--card); border:1px solid var(--line-strong); border-radius:10px; padding:2rem; text-align:center;">
+      <div class="a-label mono" style="font-size:0.72rem; color:var(--dim); letter-spacing:0.08em; margin-bottom:1.2rem;">تشابه بصري — صنبور ماء يُتحكم به بإصبع خفيف</div>
+      <svg viewBox="0 0 280 160" fill="none">
+        <rect x="100" y="20" width="20" height="60" fill="#4B5160" rx="4"/>
+        <text x="65" y="50" text-anchor="middle" fill="#8B92A0" font-size="10" font-family="IBM Plex Mono, monospace">إصبع خفيف</text>
+        <path d="M90 50 L100 50" stroke="#5FD4D4" stroke-width="2" marker-end="url(#arrowB)"/>
+        <rect x="60" y="90" width="160" height="35" rx="17" fill="#1A1E25" stroke="#4B5160" stroke-width="2"/>
+        <circle cx="0" cy="0" r="6" fill="#5FD4D4" id="transAnalogyDot">
+          <animateMotion dur="1.6s" repeatCount="indefinite" path="M75 107 L205 107"/>
+        </circle>
+        <text x="140" y="148" text-anchor="middle" fill="#E0985A" font-size="11" font-family="IBM Plex Mono, monospace">تيار صغير يتحكم بتيار كبير</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="sim-wrap">
+    <div class="sim-grid">
+      <div class="circuit-svg-wrap">
+        <svg viewBox="0 0 320 200" fill="none" style="width:100%; max-width:340px;">
+          <rect x="130" y="60" width="60" height="80" rx="4" fill="none" stroke="#5FD4D4" stroke-width="2.5"/>
+          <text x="160" y="105" text-anchor="middle" fill="#5FD4D4" font-size="11" font-family="IBM Plex Mono, monospace">ترانزستور</text>
+          <line x1="100" y1="100" x2="130" y2="100" stroke="#E0A030" stroke-width="3"/>
+          <text x="90" y="95" text-anchor="middle" fill="#8B92A0" font-size="9" font-family="IBM Plex Mono, monospace">قاعدة</text>
+          <line x1="50" y1="40" x2="190" y2="40" stroke="#4B5160" stroke-width="3"/>
+          <line x1="50" y1="40" x2="50" y2="170" stroke="#4B5160" stroke-width="3"/>
+          <line x1="270" y1="40" x2="270" y2="170" stroke="#4B5160" stroke-width="3"/>
+          <line x1="190" y1="40" x2="270" y2="40" stroke="#4B5160" stroke-width="3"/>
+          <line x1="50" y1="170" x2="270" y2="170" stroke="#4B5160" stroke-width="3"/>
+          <line x1="160" y1="40" x2="160" y2="60" stroke="#4B5160" stroke-width="3"/>
+          <line x1="160" y1="140" x2="160" y2="170" stroke="#4B5160" stroke-width="3"/>
+          <circle id="transBulbGlow" cx="230" cy="40" r="20" fill="#E0A030" opacity="0.1"/>
+          <circle id="transBulbCircle" cx="230" cy="40" r="13" fill="none" stroke="#8B92A0" stroke-width="2.5"/>
+          <text x="230" y="20" text-anchor="middle" fill="#8B92A0" font-size="9" font-family="IBM Plex Mono, monospace">مصباح (دارة كبيرة)</text>
+          <circle r="3.5" fill="#E0A030" id="transBaseDot" opacity="0">
+            <animateMotion id="transBaseAnim" dur="1.3s" repeatCount="indefinite" path="M100 100 L130 100"/>
+          </circle>
+          <circle r="4" fill="#5FD4D4" id="transMainDot" opacity="0">
+            <animateMotion id="transMainAnim" dur="2.2s" repeatCount="indefinite" path="M160 170 L50 170 L50 40 L160 40 L160 60"/>
+          </circle>
+        </svg>
+      </div>
+      <div class="sim-controls">
+        <div class="ctrl">
+          <div class="ctrl-label">تيار القاعدة (صغير) <span class="val mono" id="baseCurrentVal">0%</span></div>
+          <input type="range" id="baseCurrentSlider" min="0" max="100" value="0" step="5">
+        </div>
+        <div class="sim-readout">
+          <div class="readout-box">
+            <div class="r-label mono">حالة الدارة الكبيرة</div>
+            <div class="r-val mono" id="transMainState" style="font-size:0.95rem;">مغلقة</div>
+          </div>
+          <div class="readout-box">
+            <div class="r-label mono">المصباح</div>
+            <div class="r-val mono" id="transBulbState" style="font-size:0.95rem;">منطفئ</div>
+          </div>
+        </div>
+        <p style="color:var(--dim); font-size:0.88rem; margin-top:0.5rem;">حرّك المؤشر تدريجياً — لاحظ أن المصباح يستجيب فوراً مع زيادة تيار القاعدة الصغير جداً، رغم أن الدارة الرئيسية تحمل تياراً أكبر بكثير.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-wrap mini" data-quiz="l3q2">
+    <div class="quiz-label mono">اختبار سريع — الترانزستور</div>
+    <div class="quiz-progress mono">سؤال ١ من ١</div>
+    <div class="quiz-q active" data-q="0">
+      <div class="quiz-question">ما الفرق الجوهري بين الترانزستور والريليه رغم أن كلاهما "تيار صغير يتحكم بتيار كبير"؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">الترانزستور بلا أجزاء متحركة وأسرع بكثير، ويقدر على تكبير الإشارة أيضاً</button>
+        <button class="quiz-opt" data-correct="false">لا فرق حقيقي بينهما إطلاقاً</button>
+        <button class="quiz-opt" data-correct="false">الريليه أسرع من الترانزستور دائماً</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="quiz-next-btn">عرض النتيجة ←</button>
+      <div class="quiz-dots"></div>
+    </div>
+    <div class="quiz-result">
+      <div class="score">٠/١</div>
+      <div class="score-label">إجابات صحيحة</div>
+      <button class="quiz-restart">أعد المحاولة</button>
+    </div>
+  </div>
+</section>
+
+<section id="fuse">
+  <div class="step-tag mono"><span class="step-num">٣</span>مكوّن حماية</div>
+  <div class="section-head">
+    <h2 class="section-title">الفيوز — يحترق هو لينقذ الباقي</h2>
+    <p class="section-desc">أبسط مكوّن في هذا الكورس، ومع ذلك من أهمها للسلامة الكهربائية.</p>
+  </div>
+  <div class="exp-grid">
+    <div class="exp-text">
+      <p><span class="term">الفيوز (Fuse)</span> هو سلك رقيق مصمم عمداً ليكون أضعف نقطة في الدارة. عندما يتجاوز التيار حداً معيناً (محدداً بالأمبير)، يسخن السلك بسرعة حتى ينصهر ويقطع الدارة تماماً.</p>
+      <p>هذا "ضعف مقصود" — الفيوز يضحي بنفسه ليحمي بقية الدارة الأغلى والأهم (الأسلاك، الأجهزة، وفي النهاية المستخدم) من تيار زائد قد يسبب حريقاً أو تلفاً جسيماً.</p>
+      <p>جرّب المحاكاة: زد التيار تدريجياً وشاهد متى "يحترق" الفيوز ويقطع الدارة فوراً.</p>
+    </div>
+    <div class="analogy-card" style="background:var(--card); border:1px solid var(--line-strong); border-radius:10px; padding:2rem; text-align:center;">
+      <div class="a-label mono" style="font-size:0.72rem; color:var(--dim); letter-spacing:0.08em; margin-bottom:1.2rem;">تشابه بصري — حلقة ضعيفة مقصودة في السلسلة</div>
+      <svg viewBox="0 0 280 120" fill="none">
+        <line x1="20" y1="60" x2="120" y2="60" stroke="#4B5160" stroke-width="5"/>
+        <rect x="120" y="48" width="40" height="24" rx="3" fill="#15181D" stroke="#E0A030" stroke-width="2"/>
+        <line x1="125" y1="60" x2="155" y2="60" stroke="#E0A030" stroke-width="2"/>
+        <line x1="160" y1="60" x2="260" y2="60" stroke="#4B5160" stroke-width="5"/>
+        <text x="140" y="90" text-anchor="middle" fill="#E0985A" font-size="11" font-family="IBM Plex Mono, monospace">أضعف نقطة، عمداً</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="sim-wrap">
+    <div class="sim-grid">
+      <div class="circuit-svg-wrap">
+        <svg viewBox="0 0 320 180" fill="none" style="width:100%; max-width:340px;">
+          <path id="fuseWirePath" d="M40 140 L40 50 L130 50 L190 50 L280 50 L280 140 L40 140" stroke="#4B5160" stroke-width="4" fill="none" stroke-linejoin="round"/>
+          <rect id="fuseRect" x="130" y="35" width="60" height="30" rx="4" fill="#15181D" stroke="#E0A030" stroke-width="2.5"/>
+          <line id="fuseLine" x1="135" y1="50" x2="185" y2="50" stroke="#E0A030" stroke-width="3"/>
+          <text x="160" y="20" text-anchor="middle" fill="#8B92A0" font-size="10" font-family="IBM Plex Mono, monospace" id="fuseLabel">فيوز سليم</text>
+          <circle r="4" fill="#5FD4D4" id="fuseDot1" opacity="1">
+            <animateMotion id="fuseAnim1" dur="2.5s" repeatCount="indefinite" path="M40 140 L40 50 L130 50 L190 50 L280 50 L280 140 L40 140"/>
+          </circle>
+        </svg>
+      </div>
+      <div class="sim-controls">
+        <div class="ctrl">
+          <div class="ctrl-label">التيار الفعلي (A) <span class="val mono" id="fuseCurrentVal">2 A</span></div>
+          <input type="range" id="fuseCurrentSlider" min="0" max="20" value="2" step="1">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-label">حد الفيوز المسموح (A) <span class="val mono" id="fuseRatingVal">10 A</span></div>
+          <input type="range" id="fuseRatingSlider" min="5" max="15" value="10" step="1">
+        </div>
+        <div class="fuse-status ok mono" id="fuseStatusBox">الفيوز سليم — التيار ضمن الحد المسموح</div>
+        <button class="sim-btn" id="fuseResetBtn" style="margin-top:0.5rem;">استبدال الفيوز (إعادة ضبط) ↺</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-wrap mini" data-quiz="l3q3">
+    <div class="quiz-label mono">اختبار سريع — الفيوز</div>
+    <div class="quiz-progress mono">سؤال ١ من ١</div>
+    <div class="quiz-q active" data-q="0">
+      <div class="quiz-question">لماذا يُصمَّم الفيوز ليكون "أضعف نقطة" في الدارة عمداً؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">ليحترق هو بدل أن تتلف الأسلاك أو الأجهزة الأهم أو يحدث حريق</button>
+        <button class="quiz-opt" data-correct="false">لأنه أرخص من بقية المكوّنات فقط</button>
+        <button class="quiz-opt" data-correct="false">لزيادة قوة الدارة عند الحاجة</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="quiz-next-btn">عرض النتيجة ←</button>
+      <div class="quiz-dots"></div>
+    </div>
+    <div class="quiz-result">
+      <div class="score">٠/١</div>
+      <div class="score-label">إجابات صحيحة</div>
+      <button class="quiz-restart">أعد المحاولة</button>
+    </div>
+  </div>
+</section>
+
+<section id="reading">
+  <div class="step-tag mono"><span class="step-num">٤</span>تطبيق شامل</div>
+  <div class="section-head">
+    <h2 class="section-title">قراءة دارة كاملة من الصفر</h2>
+    <p class="section-desc">الآن نجمع كل شيء: بطارية، مفتاح، مقاومة، LED. اضغط على كل خطوة لتتبّع المسار وفهم وظيفة كل مكوّن.</p>
+  </div>
+
+  <div class="walkthrough-wrap">
+    <div class="walkthrough-grid">
+      <div class="wt-svg-wrap">
+        <svg viewBox="0 0 360 260" fill="none" style="width:100%; max-width:380px;">
+          <path d="M60 220 L60 60 L140 60 L140 40 L220 40 L220 60 L300 60 L300 220 L60 220" stroke="#4B5160" stroke-width="4" fill="none" stroke-linejoin="round"/>
+          <!-- battery -->
+          <g id="wtBattery">
+            <rect x="40" y="190" width="40" height="55" fill="none" stroke="#C77B3F" stroke-width="3" rx="3"/>
+            <line x1="50" y1="203" x2="70" y2="203" stroke="#E0985A" stroke-width="3"/>
+            <line x1="55" y1="230" x2="65" y2="230" stroke="#E0985A" stroke-width="3"/>
+            <text x="60" y="260" text-anchor="middle" fill="#8B92A0" font-size="9" font-family="IBM Plex Mono, monospace">١. بطارية</text>
+          </g>
+          <!-- switch -->
+          <g id="wtSwitch">
+            <line x1="60" y1="60" x2="90" y2="60" stroke="#4B5160" stroke-width="4"/>
+            <line x1="90" y1="60" x2="115" y2="40" stroke="#E0A030" stroke-width="3"/>
+            <circle cx="90" cy="60" r="3" fill="#E0A030"/>
+            <circle cx="120" cy="60" r="3" fill="#8B92A0"/>
+            <text x="95" y="25" text-anchor="middle" fill="#8B92A0" font-size="9" font-family="IBM Plex Mono, monospace">٢. مفتاح</text>
+          </g>
+          <!-- resistor -->
+          <g id="wtResistor">
+            <path d="M140 40 L150 28 L160 52 L170 28 L180 52 L190 28 L200 52 L220 40" stroke="#E0A030" stroke-width="4" fill="none" stroke-linejoin="round"/>
+            <text x="180" y="15" text-anchor="middle" fill="#8B92A0" font-size="9" font-family="IBM Plex Mono, monospace">٣. مقاومة</text>
+          </g>
+          <!-- LED -->
+          <g id="wtLED">
+            <circle cx="300" cy="120" r="16" fill="none" stroke="#5FD4D4" stroke-width="2.5"/>
+            <path d="M292 112 L308 128 M308 112 L292 128" stroke="#5FD4D4" stroke-width="2"/>
+            <text x="300" y="155" text-anchor="middle" fill="#8B92A0" font-size="9" font-family="IBM Plex Mono, monospace">٤. LED</text>
+          </g>
+          <circle id="wtTravelDot" r="5" fill="#5FD4D4" opacity="0"/>
+        </svg>
+      </div>
+      <div>
+        <div class="wt-steps">
+          <button class="wt-step-btn active" data-step="0"><span class="wsb-num">١</span>البطارية تخلق فرق الجهد</button>
+          <button class="wt-step-btn" data-step="1"><span class="wsb-num">٢</span>المفتاح يقرر إغلاق المسار</button>
+          <button class="wt-step-btn" data-step="2"><span class="wsb-num">٣</span>المقاومة تحدّ من شدة التيار</button>
+          <button class="wt-step-btn" data-step="3"><span class="wsb-num">٤</span>الديود (LED) يسمح بالعبور ويضيء</button>
+        </div>
+        <div class="wt-explain mono" id="wtExplainBox">
+          <b>الخطوة ١:</b> البطارية تخلق فرق جهد بين قطبيها. هذا هو "الدافع" الذي يجعل أي شيء يتحرك في الدارة أساساً — بدون هذا الفرق، لا يوجد سبب للتيار ليتحرك.
+        </div>
+        <div class="wt-nav-btns">
+          <button class="wt-nav-btn" id="wtPrevBtn" disabled>← السابق</button>
+          <button class="wt-nav-btn" id="wtNextBtn">التالي →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="concept-grid" style="margin-top:2.5rem;">
+    <div class="concept-card">
+      <div class="c-sym">⚡</div>
+      <h3>الترتيب يهم</h3>
+      <p>كل مكوّن في موقعه له دور محدد — تبديل ترتيب المفتاح والمقاومة لا يغيّر النتيجة هنا، لكن اتجاه الديود يغيّرها جذرياً.</p>
+    </div>
+    <div class="concept-card">
+      <div class="c-sym">🔍</div>
+      <h3>اقرأ المسار لا الرموز فقط</h3>
+      <p>القراءة الجيدة لدارة تعني تتبّع مسار التيار المحتمل من القطب الموجب وحتى السالب، مكوّناً تلو الآخر.</p>
+    </div>
+    <div class="concept-card">
+      <div class="c-sym">🧩</div>
+      <h3>كل دارة معقدة = تركيب من هذه الأساسيات</h3>
+      <p>أي دارة كبيرة تراها مستقبلاً هي في النهاية تركيب من نفس المكوّنات التي تعلمتها في المستويات الثلاثة.</p>
+    </div>
+  </div>
+</section>
+
+<section id="symbols">
+  <div class="step-tag mono"><span class="step-num">٥</span>مرجع سريع</div>
+  <div class="section-head">
+    <h2 class="section-title">رموز جديدة ستراها في هذا المستوى</h2>
+  </div>
+  <div class="symbols-grid">
+    <div class="symbol-box">
+      <svg viewBox="0 0 60 40"><path d="M14 20 L24 20 L24 12 L36 20 L24 28 L24 20" fill="#5FD4D4" opacity="0.6"/><line x1="36" y1="12" x2="36" y2="28" stroke="#5FD4D4" stroke-width="2.5"/><line x1="36" y1="20" x2="46" y2="20" stroke="#6B7280" stroke-width="2.5"/><line x1="4" y1="20" x2="14" y2="20" stroke="#6B7280" stroke-width="2.5"/></svg>
+      <div class="s-name">ديود</div>
+      <div class="s-en">Diode</div>
+    </div>
+    <div class="symbol-box">
+      <svg viewBox="0 0 60 40"><circle cx="30" cy="20" r="12" fill="none" stroke="#5FD4D4" stroke-width="2"/><path d="M22 12 L22 28 M22 16 L30 12 M22 24 L30 28" stroke="#5FD4D4" stroke-width="2" fill="none"/></svg>
+      <div class="s-name">ترانزستور</div>
+      <div class="s-en">Transistor</div>
+    </div>
+    <div class="symbol-box">
+      <svg viewBox="0 0 60 40"><rect x="18" y="14" width="24" height="12" rx="2" fill="none" stroke="#E0A030" stroke-width="2"/><line x1="20" y1="20" x2="40" y2="20" stroke="#E0A030" stroke-width="1.5"/><line x1="4" y1="20" x2="18" y2="20" stroke="#6B7280" stroke-width="2"/><line x1="42" y1="20" x2="56" y2="20" stroke="#6B7280" stroke-width="2"/></svg>
+      <div class="s-name">فيوز</div>
+      <div class="s-en">Fuse</div>
+    </div>
+    <div class="symbol-box">
+      <svg viewBox="0 0 60 40"><circle cx="30" cy="20" r="11" fill="none" stroke="#5FD4D4" stroke-width="2"/><path d="M22 12 L38 28 M38 12 L22 28" stroke="#5FD4D4" stroke-width="1.8"/><path d="M33 7 L36 4 M37 9 L40 6" stroke="#5FD4D4" stroke-width="1.3"/></svg>
+      <div class="s-name">LED</div>
+      <div class="s-en">Light-Emitting Diode</div>
+    </div>
+  </div>
+</section>
+
+<section id="glossary">
+  <div class="step-tag mono"><span class="step-num">٦</span>مرجع للمراجعة</div>
+  <div class="section-head">
+    <h2 class="section-title">مرجع المصطلحات السريع — المستوى الثالث</h2>
+  </div>
+  <table class="glossary-table">
+    <thead>
+      <tr><th>المفهوم</th><th>الرمز / الوحدة</th><th>التعريف المختصر</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="g-term">الديود</td><td class="g-sym">—</td><td>يسمح بمرور التيار باتجاه واحد فقط، يمنعه في الاتجاه المعكوس.</td></tr>
+      <tr><td class="g-term">LED</td><td class="g-sym">—</td><td>ديود يصدر ضوءاً عند مرور التيار في الاتجاه الصحيح.</td></tr>
+      <tr><td class="g-term">الترانزستور</td><td class="g-sym">—</td><td>مكوّن بثلاثة أطراف، تيار صغير في القاعدة يتحكم بتيار أكبر بين الطرفين الآخرين.</td></tr>
+      <tr><td class="g-term">الفيوز</td><td class="g-sym">A — أمبير</td><td>سلك ضعيف مقصود، ينصهر ويقطع الدارة عند تجاوز التيار حداً معيناً.</td></tr>
+      <tr><td class="g-term">قراءة الدارة</td><td class="g-sym">—</td><td>تتبّع مسار التيار المحتمل من القطب الموجب للسالب، مكوّناً تلو الآخر.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="finalExamSection" style="border-bottom:none;">
+  <div class="step-tag mono"><span class="step-num">٧</span>الاختبار الشامل</div>
+  <div class="section-head">
+    <span class="final-badge mono">★ الاختبار النهائي — ١٠ أسئلة</span>
+    <h2 class="section-title">اختبر فهمك الكامل للمستوى الثالث</h2>
+    <p class="section-desc">هذا الاختبار يجمع كل مفاهيم هذا المستوى. حاول الإجابة دون الرجوع للأعلى أولاً.</p>
+  </div>
+
+  <div class="quiz-wrap" data-quiz="finalExam">
+    <div class="quiz-progress mono">السؤال ١ من ١٠</div>
+
+    <div class="quiz-q active" data-q="0">
+      <div class="quiz-question">ما وظيفة الديود الأساسية في أي دارة؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">السماح بمرور التيار باتجاه واحد فقط</button>
+        <button class="quiz-opt" data-correct="false">تخزين الشحنة الكهربائية مؤقتاً</button>
+        <button class="quiz-opt" data-correct="false">قطع الدارة عند ارتفاع التيار</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="1">
+      <div class="quiz-question">لماذا قد لا يعمل جهاز إذا وضعت بطاريته بشكل معكوس؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">لأن الديودات داخل الدارة تمنع التيار في الاتجاه المعكوس</button>
+        <button class="quiz-opt" data-correct="false">لأن البطارية تفرغ شحنتها فوراً</button>
+        <button class="quiz-opt" data-correct="false">لأن المقاومة تنعدم تماماً عند العكس</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="2">
+      <div class="quiz-question">كم طرفاً يملك الترانزستور النموذجي؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="false">طرفان فقط</button>
+        <button class="quiz-opt" data-correct="true">ثلاثة أطراف: المجمّع، الباعث، والقاعدة</button>
+        <button class="quiz-opt" data-correct="false">أربعة أطراف</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="3">
+      <div class="quiz-question">ما الفرق الجوهري بين الترانزستور والريليه؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">الترانزستور بلا أجزاء متحركة وأسرع بكثير، ويقدر على تكبير الإشارة أيضاً</button>
+        <button class="quiz-opt" data-correct="false">لا فرق حقيقي بينهما إطلاقاً</button>
+        <button class="quiz-opt" data-correct="false">الريليه أسرع من الترانزستور دائماً</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="4">
+      <div class="quiz-question">لماذا تحتوي معالجات الحاسوب على مليارات الترانزستورات؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">لأنها تعمل كمفاتيح فائقة السرعة تمثّل البتّات الرقمية صفر وواحد</button>
+        <button class="quiz-opt" data-correct="false">فقط لزيادة وزن المعالج</button>
+        <button class="quiz-opt" data-correct="false">لتخزين الطاقة الكهربائية مباشرة</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="5">
+      <div class="quiz-question">لماذا يُصمَّم الفيوز ليكون "أضعف نقطة" في الدارة عمداً؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">ليحترق هو بدل أن تتلف الأسلاك أو الأجهزة الأهم أو يحدث حريق</button>
+        <button class="quiz-opt" data-correct="false">لأنه أرخص من بقية المكوّنات فقط</button>
+        <button class="quiz-opt" data-correct="false">لزيادة قوة الدارة عند الحاجة</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="6">
+      <div class="quiz-question">ماذا يحدث عندما يتجاوز التيار الحد المسموح به للفيوز؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">ينصهر سلك الفيوز ويقطع الدارة تماماً</button>
+        <button class="quiz-opt" data-correct="false">يزيد الفيوز مقاومته تلقائياً دون أن ينقطع</button>
+        <button class="quiz-opt" data-correct="false">لا يحدث أي تغيير في الفيوز</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="7">
+      <div class="quiz-question">عند قراءة دارة كاملة، ما الطريقة الصحيحة لفهمها؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">تتبّع مسار التيار المحتمل من القطب الموجب وحتى السالب، مكوّناً تلو الآخر</button>
+        <button class="quiz-opt" data-correct="false">حفظ شكل كل رمز دون فهم وظيفته</button>
+        <button class="quiz-opt" data-correct="false">النظر فقط إلى أكبر مكوّن في الدارة</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="8">
+      <div class="quiz-question">في دارة بها بطارية، مفتاح، مقاومة، وLED بالترتيب — ماذا يحدث لو عُكس اتجاه LED فقط؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">لن يضيء LED، لأن الديود يمنع التيار في الاتجاه المعكوس</button>
+        <button class="quiz-opt" data-correct="false">لا فرق، سيضيء بنفس السطوع</button>
+        <button class="quiz-opt" data-correct="false">ستحترق المقاومة فوراً</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="9">
+      <div class="quiz-question">أي عبارة تلخّص فكرة "كل دارة معقدة" بشكل صحيح؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">هي في النهاية تركيب من المكوّنات الأساسية نفسها التي تمت دراستها في المستويات الثلاثة</button>
+        <button class="quiz-opt" data-correct="false">كل دارة معقدة تحتاج قوانين فيزياء مختلفة تماماً</button>
+        <button class="quiz-opt" data-correct="false">الدارات المعقدة لا علاقة لها بالمكوّنات البسيطة إطلاقاً</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-nav">
+      <button class="quiz-next-btn">التالي ←</button>
+      <div class="quiz-dots"></div>
+    </div>
+
+    <div class="quiz-result">
+      <div class="score">٠/١٠</div>
+      <div class="score-label">إجابات صحيحة</div>
+      <div class="score-msg" id="finalMsg"></div>
+      <button class="quiz-restart">أعد المحاولة</button>
+    </div>
+  </div>
+
+  <div class="completion-card" id="completionCard">
+    <div class="cc-icon">🏁</div>
+    <h3>أتممت المسار الكامل — المستويات الثلاثة!</h3>
+    <p>من فرق الجهد الأساسي وحتى قراءة دارة كاملة بمكوّناتها الذكية. هذا أساس متكامل وكافٍ تماماً للبدء بتجارب فعلية على لوحة تجارب (breadboard) بثقة وأمان.</p>
+    <a class="cc-btn" href="../">العودة لكل الكورسات</a>
+    <a class="cc-secondary" href="../electricity-level2/">مراجعة المستوى الثاني مرة أخرى</a>
+  </div>
+</section>
+
+<footer>
+  <p class="mono">مرجع تمهيدي عام — أساس مفاهيمي وعملي، وليس بديلاً عن دورة تأسيسية كاملة أو إشراف مدرّب عند التعامل مع كهرباء حقيقية.</p>
+</footer>
+
+<script>
+const rail = document.getElementById('railFill');
+function updateRail(){
+  const scrolled = window.scrollY;
+  const max = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = Math.min(scrolled / Math.max(max,1), 1) * 100;
+  rail.style.width = pct + '%';
+}
+window.addEventListener('scroll', updateRail, {passive:true});
+updateRail();
+
+// ===== Diode simulator =====
+const diodeFwdBtn = document.getElementById('diodeFwdBtn');
+const diodeRevBtn = document.getElementById('diodeRevBtn');
+const diodeLedState = document.getElementById('diodeLedState');
+const diodeCurrentState = document.getElementById('diodeCurrentState');
+const diodeBulbGlow = document.getElementById('diodeBulbGlow');
+const diodeBulbCircle = document.getElementById('diodeBulbCircle');
+const diodeDot1 = document.getElementById('diodeDot1');
+
+function setDiodeDirection(forward){
+  diodeFwdBtn.classList.toggle('active-dir', forward);
+  diodeRevBtn.classList.toggle('active-dir', !forward);
+  if(forward){
+    diodeLedState.textContent = 'مضاء';
+    diodeCurrentState.textContent = 'نعم';
+    diodeBulbGlow.setAttribute('opacity','0.6');
+    diodeBulbCircle.setAttribute('stroke','#E0A030');
+    diodeDot1.setAttribute('opacity','1');
+  } else {
+    diodeLedState.textContent = 'منطفئ';
+    diodeCurrentState.textContent = 'لا — ممنوع';
+    diodeBulbGlow.setAttribute('opacity','0.05');
+    diodeBulbCircle.setAttribute('stroke','#8B92A0');
+    diodeDot1.setAttribute('opacity','0');
+  }
+}
+diodeFwdBtn.addEventListener('click', ()=>setDiodeDirection(true));
+diodeRevBtn.addEventListener('click', ()=>setDiodeDirection(false));
+setDiodeDirection(true);
+
+// ===== Transistor simulator =====
+const baseCurrentSlider = document.getElementById('baseCurrentSlider');
+const baseCurrentVal = document.getElementById('baseCurrentVal');
+const transMainState = document.getElementById('transMainState');
+const transBulbState = document.getElementById('transBulbState');
+const transBulbGlow = document.getElementById('transBulbGlow');
+const transBulbCircle = document.getElementById('transBulbCircle');
+const transBaseDot = document.getElementById('transBaseDot');
+const transMainDot = document.getElementById('transMainDot');
+const transBaseAnim = document.getElementById('transBaseAnim');
+const transMainAnim = document.getElementById('transMainAnim');
+
+function updateTransistor(){
+  const val = parseFloat(baseCurrentSlider.value);
+  baseCurrentVal.textContent = val + '%';
+  const open = val > 5;
+  transMainState.textContent = open ? 'مفتوحة (التيار يعبر)' : 'مغلقة';
+  transBulbState.textContent = open ? 'مضاء' : 'منطفئ';
+  transBulbGlow.setAttribute('opacity', open ? (0.15 + (val/100)*0.6).toFixed(2) : '0.05');
+  transBulbCircle.setAttribute('stroke', open ? '#E0A030' : '#8B92A0');
+  transBaseDot.setAttribute('opacity', val > 0 ? '1' : '0');
+  transMainDot.setAttribute('opacity', open ? '1' : '0');
+  const baseDur = Math.max(0.4, 1.6 - (val/100)*1.1);
+  transBaseAnim.setAttribute('dur', baseDur.toFixed(2)+'s');
+  const mainDur = Math.max(0.6, 2.6 - (val/100)*1.8);
+  transMainAnim.setAttribute('dur', mainDur.toFixed(2)+'s');
+}
+baseCurrentSlider.addEventListener('input', updateTransistor);
+updateTransistor();
+
+// ===== Fuse simulator =====
+const fuseCurrentSlider = document.getElementById('fuseCurrentSlider');
+const fuseRatingSlider = document.getElementById('fuseRatingSlider');
+const fuseCurrentVal = document.getElementById('fuseCurrentVal');
+const fuseRatingVal = document.getElementById('fuseRatingVal');
+const fuseStatusBox = document.getElementById('fuseStatusBox');
+const fuseRect = document.getElementById('fuseRect');
+const fuseLine = document.getElementById('fuseLine');
+const fuseLabel = document.getElementById('fuseLabel');
+const fuseDot1 = document.getElementById('fuseDot1');
+const fuseResetBtn = document.getElementById('fuseResetBtn');
+let fuseBlown = false;
+
+function updateFuse(){
+  const current = parseFloat(fuseCurrentSlider.value);
+  const rating = parseFloat(fuseRatingSlider.value);
+  fuseCurrentVal.textContent = current + ' A';
+  fuseRatingVal.textContent = rating + ' A';
+
+  if(!fuseBlown && current > rating){
+    fuseBlown = true;
+  }
+
+  if(fuseBlown){
+    fuseStatusBox.textContent = 'الفيوز احترق! الدارة مقطوعة تماماً.';
+    fuseStatusBox.classList.remove('ok'); fuseStatusBox.classList.add('blown');
+    fuseLine.setAttribute('stroke','#C75050');
+    fuseLine.setAttribute('stroke-dasharray','4,6');
+    fuseRect.setAttribute('stroke','#C75050');
+    fuseLabel.textContent = 'فيوز محترق ✕';
+    fuseLabel.setAttribute('fill','#C75050');
+    fuseDot1.setAttribute('opacity','0');
+    fuseCurrentSlider.disabled = true;
+  } else {
+    fuseStatusBox.textContent = 'الفيوز سليم — التيار ضمن الحد المسموح';
+    fuseStatusBox.classList.add('ok'); fuseStatusBox.classList.remove('blown');
+    fuseLine.setAttribute('stroke','#E0A030');
+    fuseLine.removeAttribute('stroke-dasharray');
+    fuseRect.setAttribute('stroke','#E0A030');
+    fuseLabel.textContent = 'فيوز سليم';
+    fuseLabel.setAttribute('fill','#8B92A0');
+    fuseDot1.setAttribute('opacity','1');
+    const dur = Math.max(0.6, 3.2 - (current/20)*2.4);
+    document.getElementById('fuseAnim1').setAttribute('dur', dur.toFixed(2)+'s');
+  }
+}
+fuseCurrentSlider.addEventListener('input', updateFuse);
+fuseRatingSlider.addEventListener('input', updateFuse);
+fuseResetBtn.addEventListener('click', ()=>{
+  fuseBlown = false;
+  fuseCurrentSlider.disabled = false;
+  fuseCurrentSlider.value = 2;
+  updateFuse();
+});
+updateFuse();
+
+// ===== Circuit reading walkthrough =====
+const wtSteps = [
+  {
+    text: '<b>الخطوة ١:</b> البطارية تخلق فرق جهد بين قطبيها. هذا هو "الدافع" الذي يجعل أي شيء يتحرك في الدارة أساساً — بدون هذا الفرق، لا يوجد سبب للتيار ليتحرك.',
+    path: 'M60 220 L60 60'
+  },
+  {
+    text: '<b>الخطوة ٢:</b> المفتاح يقرر إن كان المسار مغلقاً أم مفتوحاً. إذا كان مفتوحاً (غير موصول)، يتوقف كل شيء هنا — لا فائدة من أي مكوّن آخر بعده.',
+    path: 'M60 60 L140 60 L140 40'
+  },
+  {
+    text: '<b>الخطوة ٣:</b> المقاومة تحدّ من شدة التيار العابر، لحماية LED من تيار أعلى من قدرته على التحمّل — بدون هذه المقاومة قد يحترق LED فوراً.',
+    path: 'M140 40 L220 40 L220 60'
+  },
+  {
+    text: '<b>الخطوة ٤:</b> الديود (LED) يفحص الاتجاه. بما أن التيار قادم بالاتجاه الصحيح، يعبر ويصدر ضوءاً — ثم يكمل المسار للعودة إلى القطب السالب للبطارية.',
+    path: 'M220 60 L300 60 L300 220 L60 220'
+  }
+];
+let wtCurrent = 0;
+const wtStepBtns = document.querySelectorAll('.wt-step-btn');
+const wtExplainBox = document.getElementById('wtExplainBox');
+const wtPrevBtn = document.getElementById('wtPrevBtn');
+const wtNextBtn = document.getElementById('wtNextBtn');
+const wtTravelDot = document.getElementById('wtTravelDot');
+
+function showWtStep(idx){
+  wtCurrent = idx;
+  wtStepBtns.forEach((b,i)=>b.classList.toggle('active', i===idx));
+  wtExplainBox.innerHTML = wtSteps[idx].text;
+  wtPrevBtn.disabled = idx === 0;
+  wtNextBtn.disabled = idx === wtSteps.length-1;
+  wtNextBtn.textContent = idx === wtSteps.length-1 ? 'اكتمل المسار ✓' : 'التالي →';
+
+  wtTravelDot.setAttribute('opacity','1');
+  const oldAnim = wtTravelDot.querySelector('animateMotion');
+  if(oldAnim) oldAnim.remove();
+  const anim = document.createElementNS('http://www.w3.org/2000/svg','animateMotion');
+  anim.setAttribute('dur','1.4s');
+  anim.setAttribute('fill','freeze');
+  anim.setAttribute('path', wtSteps[idx].path);
+  wtTravelDot.appendChild(anim);
+}
+wtStepBtns.forEach(btn=>{
+  btn.addEventListener('click', ()=>showWtStep(parseInt(btn.dataset.step)));
+});
+wtPrevBtn.addEventListener('click', ()=>{ if(wtCurrent>0) showWtStep(wtCurrent-1); });
+wtNextBtn.addEventListener('click', ()=>{ if(wtCurrent<wtSteps.length-1) showWtStep(wtCurrent+1); });
+showWtStep(0);
+
+// ===== Generic quiz engine =====
+const arNums = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+function toArabicNum(n){ return String(n).split('').map(d => arNums[parseInt(d)]).join(''); }
+
+function initQuiz(wrapEl){
+  const questions = Array.from(wrapEl.querySelectorAll('.quiz-q'));
+  const totalQ = questions.length;
+  let current = 0;
+  let score = 0;
+  let answered = new Array(totalQ).fill(false);
+
+  const progressEl = wrapEl.querySelector('.quiz-progress');
+  const nextBtn = wrapEl.querySelector('.quiz-next-btn');
+  const dotsWrap = wrapEl.querySelector('.quiz-dots');
+  const resultEl = wrapEl.querySelector('.quiz-result');
+  const scoreEl = wrapEl.querySelector('.quiz-result .score');
+  const finalMsgEl = wrapEl.querySelector('#finalMsg');
+  const isFinal = wrapEl.dataset.quiz === 'finalExam';
+
+  function buildDots(){
+    dotsWrap.innerHTML = '';
+    for(let i=0;i<totalQ;i++){
+      const d = document.createElement('div');
+      d.className = 'quiz-dot';
+      dotsWrap.appendChild(d);
+    }
+    refreshDots();
+  }
+  function refreshDots(){
+    const dots = dotsWrap.querySelectorAll('.quiz-dot');
+    dots.forEach((d,i)=>{
+      d.classList.remove('done','current');
+      if(answered[i]) d.classList.add('done');
+      if(i===current) d.classList.add('current');
+    });
+  }
+  function showQuestion(idx){
+    questions.forEach(q=>q.classList.remove('active'));
+    questions[idx].classList.add('active');
+    progressEl.textContent = `السؤال ${toArabicNum(idx+1)} من ${toArabicNum(totalQ)}`;
+    nextBtn.classList.remove('show');
+    refreshDots();
+  }
+  function attachOptionHandlers(qEl, qIndex){
+    const opts = qEl.querySelectorAll('.quiz-opt');
+    const feedback = qEl.querySelector('.quiz-feedback');
+    opts.forEach(opt=>{
+      opt.addEventListener('click', ()=>{
+        if(answered[qIndex]) return;
+        answered[qIndex] = true;
+        const isCorrect = opt.dataset.correct === 'true';
+        opts.forEach(o=>{
+          o.disabled = true;
+          if(o.dataset.correct === 'true') o.classList.add('correct');
+          else if(o===opt) o.classList.add('incorrect');
+        });
+        if(isCorrect) score++;
+        feedback.textContent = isCorrect
+          ? 'صحيح. هذا هو جوهر العلاقة بين هذه المفاهيم.'
+          : 'غير دقيق — لاحظ الإجابة المظللة بالسيان وراجع المفهوم المرتبط بها أعلاه.';
+        feedback.classList.add('show');
+        refreshDots();
+        if(qIndex === totalQ-1){ nextBtn.textContent = 'عرض النتيجة ←'; }
+        nextBtn.classList.add('show');
+      });
+    });
+  }
+  questions.forEach((q,i)=>attachOptionHandlers(q,i));
+
+  nextBtn.addEventListener('click', ()=>{
+    if(current === totalQ-1){
+      wrapEl.querySelectorAll('.quiz-q, .quiz-progress, .quiz-nav').forEach(el=>el.style.display='none');
+      scoreEl.textContent = `${toArabicNum(score)}/${toArabicNum(totalQ)}`;
+      if(isFinal && finalMsgEl){
+        let msg = '';
+        if(score === totalQ) msg = 'إتقان كامل! أنت جاهز لتجارب عملية حقيقية بأمان وثقة.';
+        else if(score >= totalQ*0.7) msg = 'فهم جيد جداً. راجع الأسئلة التي أخطأت فيها بسرعة، ثم انطلق.';
+        else msg = 'يُفضّل مراجعة الأقسام أعلاه مرة أخرى قبل تجارب عملية حقيقية.';
+        finalMsgEl.textContent = msg;
+      }
+      resultEl.classList.add('show');
+      if(isFinal){ document.getElementById('completionCard').classList.add('show'); }
+    } else {
+      current++;
+      showQuestion(current);
+    }
+  });
+
+  wrapEl.querySelector('.quiz-restart').addEventListener('click', ()=>{
+    current = 0; score = 0; answered = new Array(totalQ).fill(false);
+    questions.forEach(q=>{
+      q.querySelectorAll('.quiz-opt').forEach(o=>{ o.disabled=false; o.classList.remove('correct','incorrect'); });
+      q.querySelector('.quiz-feedback').classList.remove('show');
+    });
+    nextBtn.textContent = totalQ === 1 ? 'عرض النتيجة ←' : 'التالي ←';
+    wrapEl.querySelectorAll('.quiz-q, .quiz-progress, .quiz-nav').forEach(el=>el.style.display='');
+    resultEl.classList.remove('show');
+    if(isFinal){ document.getElementById('completionCard').classList.remove('show'); }
+    showQuestion(0);
+  });
+
+  if(totalQ === 1){ nextBtn.textContent = 'عرض النتيجة ←'; }
+  buildDots();
+  showQuestion(0);
+}
+document.querySelectorAll('[data-quiz]').forEach(initQuiz);
+</script>
+
+</body>
+</html>
