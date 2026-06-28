@@ -22,32 +22,57 @@ body{
 .mono{font-family:'IBM Plex Mono',monospace;}
 h1{font-size:clamp(1.8rem,4vw,2.6rem); margin-bottom:0.6rem; text-align:center;}
 .sub{color:var(--dim); margin-bottom:3.5rem; text-align:center; max-width:50ch;}
-.list{display:flex; flex-direction:column; gap:1rem; width:100%; max-width:600px;}
+.track-group{
+  width:100%; max-width:600px;
+  border:1px solid var(--line); border-radius:12px;
+  overflow:hidden; margin-bottom:1.2rem;
+}
+.track-head{
+  padding:1rem 1.6rem; background:rgba(95,212,212,0.05);
+  border-bottom:1px solid var(--line);
+  font-size:0.78rem; color:var(--cyan); letter-spacing:0.05em;
+}
 .course-link{
   display:flex; justify-content:space-between; align-items:center;
-  background:var(--card); border:1px solid var(--line); border-radius:10px;
+  background:var(--card);
   padding:1.4rem 1.6rem; text-decoration:none; color:var(--white);
-  transition:border-color 0.2s ease, transform 0.2s ease;
+  transition:background 0.2s ease;
+  border-bottom:1px solid var(--line);
 }
-.course-link:hover{border-color:var(--cyan); transform:translateX(-4px);}
-.course-link .ctitle{font-size:1.05rem; font-weight:600;}
+.track-group .course-link:last-child{border-bottom:none;}
+.course-link:hover{background:#1f2530;}
+.course-link .ctitle{font-size:1.05rem; font-weight:600; display:flex; align-items:center; gap:0.6rem;}
+.course-link .clevel{
+  font-size:0.68rem; font-family:'IBM Plex Mono',monospace; color:var(--copper);
+  border:1px solid rgba(199,123,63,0.4); border-radius:10px; padding:0.15rem 0.6rem;
+}
 .course-link .ctag{color:var(--dim); font-size:0.85rem; margin-top:0.3rem;}
-.course-link .arrow{color:var(--copper); font-size:1.2rem;}
-footer{margin-top:3rem; color:var(--dim); font-size:0.8rem; text-align:center;}
+.course-link .arrow{color:var(--copper); font-size:1.2rem; flex-shrink:0; margin-right:1rem;}
+footer{margin-top:2rem; color:var(--dim); font-size:0.8rem; text-align:center;}
 </style>
 </head>
 <body>
   <h1>كورسات تعليمية تفاعلية</h1>
   <p class="sub mono">مجموعة كورسات قصيرة وتفاعلية، تفتح مباشرة من المتصفح دون أي تثبيت.</p>
-  <div class="list">
+
+  <div class="track-group">
+    <div class="track-head mono">مسار الكهرباء — مستويان متتاليان</div>
     <a class="course-link" href="electricity-fundamentals/">
       <div>
-        <div class="ctitle">مبادئ الكهرباء الأولية</div>
+        <div class="ctitle">مبادئ الكهرباء الأولية <span class="clevel">المستوى ١</span></div>
         <div class="ctag mono">8 مفاهيم · محاكاة تفاعلية · 10 أسئلة اختبار نهائي</div>
       </div>
       <span class="arrow">←</span>
     </a>
+    <a class="course-link" href="electricity-level2/">
+      <div>
+        <div class="ctitle">مكوّنات الدارة والقياس العملي <span class="clevel">المستوى ٢</span></div>
+        <div class="ctag mono">5 مكوّنات ومهارات · محاكاتان حيّتان · 10 أسئلة اختبار نهائي</div>
+      </div>
+      <span class="arrow">←</span>
+    </a>
   </div>
-  <footer class="mono">يُضاف هنا كل كورس جديد فور رفعه.</footer>
+
+  <footer class="mono">يُضاف هنا كل كورس أو مستوى جديد فور رفعه.</footer>
 </body>
 </html>

@@ -53,6 +53,27 @@ body{
   transition:width 0.08s linear;
 }
 
+/* ===== level nav bar ===== */
+.level-bar{
+  position:sticky; top:4px; z-index:55;
+  background:var(--bg-soft);
+  border-bottom:1px solid var(--line);
+  padding:0.7rem 7vw;
+  display:flex; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; gap:0.6rem;
+}
+.level-bar .lb-crumb{
+  font-size:0.78rem; color:var(--dim);
+  display:flex; align-items:center; gap:0.5rem;
+}
+.level-bar .lb-crumb a{color:var(--cyan); text-decoration:none;}
+.level-bar .lb-crumb a:hover{text-decoration:underline;}
+.level-badge{
+  font-family:'IBM Plex Mono',monospace; font-size:0.72rem;
+  background:rgba(95,212,212,0.1); border:1px solid rgba(95,212,212,0.35);
+  color:var(--cyan); padding:0.3rem 0.8rem; border-radius:14px;
+}
+
 /* ===== hero ===== */
 .hero{
   min-height:88vh;
@@ -351,6 +372,27 @@ input[type="range"]::-moz-range-thumb{
 }
 .quiz-restart:hover{border-color:var(--cyan);}
 
+/* ===== completion / next-step CTA ===== */
+.completion-card{
+  background:linear-gradient(135deg, rgba(95,212,212,0.08), rgba(199,123,63,0.04));
+  border:1px solid var(--cyan); border-radius:14px;
+  padding:2.5rem; text-align:center; max-width:560px; margin:2rem auto 0;
+  display:none;
+}
+.completion-card.show{display:block;}
+.completion-card .cc-icon{font-size:2.2rem; margin-bottom:1rem;}
+.completion-card h3{color:var(--white); font-size:1.3rem; margin-bottom:0.8rem;}
+.completion-card p{color:var(--dim); font-size:0.95rem; margin-bottom:1.6rem;}
+.cc-btn{
+  display:inline-block; background:var(--cyan); color:var(--bg); text-decoration:none;
+  padding:0.85rem 2rem; border-radius:8px; font-weight:700; font-size:0.95rem;
+}
+.cc-btn:hover{background:var(--cyan-dim);}
+.cc-secondary{
+  display:block; margin-top:1rem; color:var(--dim); font-size:0.85rem; text-decoration:none;
+}
+.cc-secondary:hover{color:var(--white);}
+
 /* final exam visual distinction */
 #finalExamSection{
   background:linear-gradient(180deg, rgba(199,123,63,0.04), transparent);
@@ -371,6 +413,13 @@ button:focus-visible, .quiz-opt:focus-visible, input:focus-visible, a:focus-visi
 <body>
 
 <div class="rail-wrap"><div class="rail-fill" id="railFill"></div></div>
+
+<div class="level-bar">
+  <div class="lb-crumb mono">
+    <a href="../">كل الكورسات</a>
+  </div>
+  <span class="level-badge mono">المستوى ١ من ٢</span>
+</div>
 
 <header class="hero">
   <div class="eyebrow mono">كورس تمهيدي موسّع · ٢٢ دقيقة قراءة وتجربة</div>
@@ -1159,6 +1208,14 @@ button:focus-visible, .quiz-opt:focus-visible, input:focus-visible, a:focus-visi
       <button class="quiz-restart">أعد المحاولة</button>
     </div>
   </div>
+
+  <div class="completion-card" id="completionCard">
+    <div class="cc-icon">🎓</div>
+    <h3>أتممت المستوى الأول!</h3>
+    <p>فهمت الآن الجهد والتيار والمقاومة والقدرة وأنواع التيار والموصلات والسلامة الكهربائية. الخطوة التالية الطبيعية: التعامل مع المكوّنات الحقيقية وتعلّم القياس العملي بالمالتيميتر.</p>
+    <a class="cc-btn" href="../electricity-level2/">الانتقال للمستوى الثاني ←</a>
+    <a class="cc-secondary" href="../">العودة لكل الكورسات</a>
+  </div>
 </section>
 
 <footer>
@@ -1302,6 +1359,9 @@ function initQuiz(wrapEl){
         finalMsgEl.textContent = msg;
       }
       resultEl.classList.add('show');
+      if(isFinal){
+        document.getElementById('completionCard').classList.add('show');
+      }
     } else {
       current++;
       showQuestion(current);
@@ -1317,6 +1377,7 @@ function initQuiz(wrapEl){
     nextBtn.textContent = totalQ === 1 ? 'عرض النتيجة ←' : 'التالي ←';
     wrapEl.querySelectorAll('.quiz-q, .quiz-progress, .quiz-nav').forEach(el=>el.style.display='');
     resultEl.classList.remove('show');
+    if(isFinal){ document.getElementById('completionCard').classList.remove('show'); }
     showQuestion(0);
   });
 
