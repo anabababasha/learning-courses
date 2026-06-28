@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مبادئ الكهرباء الأولية — كورس تفاعلي موسّع</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0D0F12;
+  --bg-soft:#15181D;
+  --card:#1A1E25;
+  --copper:#C77B3F;
+  --copper-bright:#E0985A;
+  --cyan:#5FD4D4;
+  --cyan-dim:#3A9999;
+  --amber:#E0A030;
+  --red:#C75050;
+  --white:#F0EDE6;
+  --dim:#8B92A0;
+  --slate:#4B5160;
+  --line:rgba(240,237,230,0.10);
+  --line-strong:rgba(240,237,230,0.20);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--white);
+  font-family:'IBM Plex Sans Arabic',sans-serif;
+  line-height:1.75;
+  overflow-x:hidden;
+}
+.mono{font-family:'IBM Plex Mono',monospace;letter-spacing:0.02em;}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+}
+
+/* ===== progress rail ===== */
+.rail-wrap{
+  position:sticky; top:0; z-index:60;
+  width:100%; height:4px;
+  background:var(--bg-soft);
+  border-bottom:1px solid var(--line);
+}
+.rail-fill{
+  height:100%; width:0%;
+  background:linear-gradient(to left, var(--cyan), var(--copper));
+  box-shadow:0 0 10px var(--cyan);
+  transition:width 0.08s linear;
+}
+
+/* ===== hero ===== */
+.hero{
+  min-height:88vh;
+  display:flex; flex-direction:column; justify-content:center;
+  padding:8vh 7vw 6vh;
+  border-bottom:1px solid var(--line);
+  position:relative;
+  overflow:hidden;
+}
+.hero::before{
+  content:'';
+  position:absolute; inset:0;
+  background:
+    radial-gradient(circle at 15% 25%, rgba(95,212,212,0.08), transparent 50%),
+    radial-gradient(circle at 88% 80%, rgba(199,123,63,0.10), transparent 55%);
+  pointer-events:none;
+}
+.eyebrow{
+  font-size:0.78rem; color:var(--cyan);
+  letter-spacing:0.12em; margin-bottom:1.6rem;
+  display:flex; align-items:center; gap:0.7rem;
+  position:relative; z-index:1;
+}
+.eyebrow::before{
+  content:''; width:7px;height:7px;border-radius:50%;
+  background:var(--cyan); box-shadow:0 0 0 3px rgba(95,212,212,0.18), 0 0 8px var(--cyan);
+}
+h1.hero-title{
+  font-size:clamp(2.2rem,5.6vw,4.2rem);
+  font-weight:700; line-height:1.22; max-width:20ch;
+  position:relative; z-index:1; color:var(--white);
+}
+h1.hero-title em{font-style:normal; color:var(--copper-bright);}
+.hero-sub{
+  margin-top:1.8rem; font-size:clamp(1rem,1.6vw,1.18rem);
+  color:var(--dim); max-width:48ch; position:relative; z-index:1;
+}
+.hero-meta{margin-top:2.6rem; display:flex; gap:2rem; flex-wrap:wrap; position:relative; z-index:1;}
+.hero-meta .item{
+  font-size:0.8rem; color:var(--dim);
+  border-right:2px solid var(--line-strong); padding-right:0.85rem;
+}
+.hero-meta .item b{color:var(--white); font-weight:600; display:block; font-size:0.98rem; margin-bottom:0.15rem; font-family:'IBM Plex Sans Arabic',sans-serif;}
+
+/* ===== table of contents ===== */
+.toc{
+  position:relative; z-index:1;
+  margin-top:2.8rem;
+  display:flex; flex-wrap:wrap; gap:0.6rem;
+}
+.toc a{
+  font-size:0.78rem; color:var(--dim);
+  border:1px solid var(--line-strong); border-radius:20px;
+  padding:0.45rem 1rem; text-decoration:none;
+  transition:all 0.2s ease;
+}
+.toc a:hover{border-color:var(--cyan); color:var(--white);}
+
+.scroll-cue{
+  position:absolute; bottom:2.2rem; right:7vw;
+  font-size:0.72rem; color:var(--dim);
+  display:flex; align-items:center; gap:0.5rem;
+  animation:bob 2.2s ease-in-out infinite;
+}
+@keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(6px);}}
+
+/* ===== part divider ===== */
+.part-divider{
+  padding:3.5rem 7vw 1rem;
+  display:flex; align-items:center; gap:1.2rem;
+}
+.part-divider .pd-line{flex:1; height:1px; background:var(--line-strong);}
+.part-divider .pd-label{
+  font-size:0.85rem; color:var(--copper-bright); white-space:nowrap;
+  letter-spacing:0.08em;
+}
+
+/* ===== section shell ===== */
+section{padding:5rem 7vw; border-bottom:1px solid var(--line); position:relative; scroll-margin-top:30px;}
+.step-tag{
+  display:flex; align-items:center; gap:0.8rem;
+  font-size:0.78rem; color:var(--copper-bright);
+  letter-spacing:0.1em; margin-bottom:1rem;
+}
+.step-tag .step-num{
+  width:28px; height:28px; border-radius:50%;
+  border:1px solid var(--copper); display:flex; align-items:center; justify-content:center;
+  font-size:0.82rem; color:var(--copper-bright); flex-shrink:0;
+}
+.section-head{margin-bottom:3rem; max-width:62ch;}
+.section-title{font-size:clamp(1.5rem,2.8vw,2.1rem); font-weight:700; color:var(--white); line-height:1.35;}
+.section-desc{margin-top:1rem; color:var(--dim); font-size:1.02rem; max-width:56ch;}
+
+/* ===== analogy / explanation grid ===== */
+.exp-grid{display:grid; grid-template-columns:1fr 1fr; gap:3rem; align-items:start;}
+@media(max-width:860px){.exp-grid{grid-template-columns:1fr;}}
+.exp-text p{margin-bottom:1.1rem; color:var(--dim); font-size:1.02rem;}
+.exp-text strong{color:var(--white); font-weight:600;}
+.exp-text .term{color:var(--cyan); font-weight:600;}
+
+.analogy-card{
+  background:var(--card); border:1px solid var(--line-strong);
+  border-radius:10px; padding:2rem; text-align:center;
+}
+.analogy-card .a-label{font-size:0.72rem; color:var(--dim); letter-spacing:0.08em; margin-bottom:1.2rem;}
+.analogy-card svg{width:100%; max-width:320px; height:auto;}
+
+/* ===== Ohm's law live simulator ===== */
+.sim-wrap{
+  background:var(--card); border:1px solid var(--line-strong);
+  border-radius:12px; padding:2.5rem; margin-top:2rem;
+}
+.sim-grid{display:grid; grid-template-columns:1.1fr 0.9fr; gap:2.5rem; align-items:center;}
+@media(max-width:860px){.sim-grid{grid-template-columns:1fr;}}
+.circuit-svg-wrap{
+  background:var(--bg); border:1px solid var(--line); border-radius:8px;
+  padding:1.5rem; display:flex; justify-content:center;
+}
+.sim-controls{display:flex; flex-direction:column; gap:1.8rem;}
+.ctrl{display:flex; flex-direction:column; gap:0.6rem;}
+.ctrl-label{display:flex; justify-content:space-between; font-size:0.92rem; color:var(--white); font-weight:600;}
+.ctrl-label .val{color:var(--cyan); font-family:'IBM Plex Mono',monospace;}
+input[type="range"]{
+  -webkit-appearance:none; width:100%; height:5px;
+  background:var(--slate); border-radius:3px; outline:none;
+}
+input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+  background:var(--cyan); cursor:pointer; box-shadow:0 0 8px rgba(95,212,212,0.5);
+}
+input[type="range"]::-moz-range-thumb{
+  width:18px; height:18px; border-radius:50%; border:none;
+  background:var(--cyan); cursor:pointer;
+}
+.sim-readout{display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.8rem; margin-top:0.5rem;}
+.sim-readout.readout-4{grid-template-columns:repeat(4,1fr);}
+.readout-box{
+  background:var(--bg); border:1px solid var(--line-strong); border-radius:6px;
+  padding:0.9rem; text-align:center;
+}
+.readout-box .r-label{font-size:0.65rem; color:var(--dim); letter-spacing:0.05em;}
+.readout-box .r-val{font-family:'IBM Plex Mono',monospace; font-size:1.2rem; color:var(--white); margin-top:0.3rem;}
+.sim-formula{
+  margin-top:1rem; text-align:center; font-family:'IBM Plex Mono',monospace;
+  color:var(--copper-bright); font-size:1.05rem; padding:0.8rem;
+  background:var(--bg); border-radius:6px; border:1px solid var(--line);
+}
+
+/* ===== concept cards grid ===== */
+.concept-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem;}
+@media(max-width:860px){.concept-grid{grid-template-columns:1fr;}}
+.concept-grid.cols-4{grid-template-columns:repeat(4,1fr);}
+@media(max-width:980px){.concept-grid.cols-4{grid-template-columns:repeat(2,1fr);}}
+.concept-card{
+  background:var(--card); border:1px solid var(--line-strong); border-radius:8px;
+  padding:1.8rem; transition:border-color 0.25s ease, transform 0.25s ease;
+}
+.concept-card:hover{border-color:var(--cyan); transform:translateY(-3px);}
+.concept-card .c-sym{
+  font-family:'IBM Plex Mono',monospace; font-size:1.6rem; color:var(--cyan);
+  margin-bottom:1rem; font-weight:600;
+}
+.concept-card h3{font-size:1.05rem; color:var(--white); margin-bottom:0.4rem; font-weight:600;}
+.concept-card .unit{font-family:'IBM Plex Mono',monospace; font-size:0.76rem; color:var(--dim); margin-bottom:0.9rem;}
+.concept-card p{color:var(--dim); font-size:0.92rem;}
+
+/* ===== circuit types comparison ===== */
+.circuit-compare{display:grid; grid-template-columns:1fr 1fr; gap:1.8rem;}
+@media(max-width:860px){.circuit-compare{grid-template-columns:1fr;}}
+.circuit-type-card{
+  background:var(--card); border:1px solid var(--line-strong); border-radius:10px; padding:1.8rem;
+}
+.circuit-type-card h3{color:var(--white); margin-bottom:0.3rem; font-size:1.12rem;}
+.circuit-type-card .sub{color:var(--dim); font-size:0.85rem; margin-bottom:1.2rem; font-family:'IBM Plex Mono',monospace;}
+.circuit-type-card svg{width:100%; height:auto; margin-bottom:1.2rem;}
+.circuit-type-card p{color:var(--dim); font-size:0.92rem;}
+
+/* ===== symbols reference ===== */
+.symbols-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:1.2rem;}
+@media(max-width:760px){.symbols-grid{grid-template-columns:repeat(2,1fr);}}
+.symbol-box{
+  background:var(--card); border:1px solid var(--line-strong); border-radius:8px;
+  padding:1.4rem; text-align:center;
+}
+.symbol-box svg{width:60px; height:40px; margin-bottom:0.8rem;}
+.symbol-box .s-name{color:var(--white); font-size:0.85rem; font-weight:600;}
+.symbol-box .s-en{color:var(--dim); font-size:0.7rem; font-family:'IBM Plex Mono',monospace; margin-top:0.2rem;}
+
+/* ===== AC/DC wave compare ===== */
+.wave-compare{display:grid; grid-template-columns:1fr 1fr; gap:1.8rem;}
+@media(max-width:860px){.wave-compare{grid-template-columns:1fr;}}
+.wave-card{background:var(--card); border:1px solid var(--line-strong); border-radius:10px; padding:1.8rem;}
+.wave-card h3{color:var(--white); font-size:1.1rem; margin-bottom:0.3rem;}
+.wave-card .sub{color:var(--dim); font-size:0.85rem; margin-bottom:1.2rem; font-family:'IBM Plex Mono',monospace;}
+.wave-card svg{width:100%; height:auto; margin-bottom:1rem;}
+.wave-card p{color:var(--dim); font-size:0.92rem;}
+.wave-card ul{margin-top:0.8rem; padding-right:1.2rem; color:var(--dim); font-size:0.9rem;}
+.wave-card ul li{margin-bottom:0.4rem;}
+
+/* ===== conductors/insulators ===== */
+.material-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:1.6rem;}
+@media(max-width:860px){.material-grid{grid-template-columns:1fr;}}
+.material-card{
+  border-radius:10px; padding:1.8rem; border:1px solid var(--line-strong);
+}
+.material-card.conductor{background:linear-gradient(135deg, rgba(95,212,212,0.08), rgba(95,212,212,0.02));}
+.material-card.insulator{background:linear-gradient(135deg, rgba(199,123,63,0.08), rgba(199,123,63,0.02));}
+.material-card h3{font-size:1.1rem; margin-bottom:0.3rem; color:var(--white);}
+.material-card .sub{font-size:0.8rem; font-family:'IBM Plex Mono',monospace; color:var(--dim); margin-bottom:1rem;}
+.material-tags{display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:1rem;}
+.material-tag{
+  font-size:0.82rem; padding:0.4rem 0.9rem; border-radius:16px;
+  background:var(--bg); border:1px solid var(--line-strong); color:var(--dim);
+}
+.material-card p{color:var(--dim); font-size:0.92rem;}
+
+/* ===== safety section ===== */
+.safety-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:1.4rem;}
+@media(max-width:860px){.safety-grid{grid-template-columns:1fr;}}
+.safety-card{
+  background:linear-gradient(135deg, rgba(199,80,80,0.08), rgba(199,80,80,0.02));
+  border:1px solid rgba(199,80,80,0.3); border-radius:10px; padding:1.6rem;
+  display:flex; gap:1rem; align-items:flex-start;
+}
+.safety-card .s-icon{
+  width:32px; height:32px; border-radius:50%; background:rgba(199,80,80,0.15);
+  border:1px solid var(--red); display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; color:var(--red); font-family:'IBM Plex Mono',monospace; font-size:0.85rem; font-weight:600;
+}
+.safety-card h4{color:var(--white); font-size:0.98rem; margin-bottom:0.4rem;}
+.safety-card p{color:var(--dim); font-size:0.9rem;}
+
+/* ===== glossary ===== */
+.glossary-table{width:100%; border-collapse:collapse;}
+.glossary-table th{
+  text-align:right; font-family:'IBM Plex Mono',monospace; font-size:0.72rem;
+  color:var(--dim); padding:0.8rem 0.6rem; border-bottom:1px solid var(--line-strong);
+  letter-spacing:0.05em; font-weight:400;
+}
+.glossary-table td{
+  padding:1rem 0.6rem; border-bottom:1px solid var(--line); color:var(--dim);
+  vertical-align:top; font-size:0.92rem;
+}
+.glossary-table td.g-term{color:var(--white); font-weight:600; white-space:nowrap;}
+.glossary-table td.g-sym{font-family:'IBM Plex Mono',monospace; color:var(--cyan);}
+.glossary-table tr:last-child td{border-bottom:none;}
+
+/* ===== quiz blocks (mini + final) ===== */
+.quiz-wrap{
+  background:var(--card); border:1px solid var(--line-strong); border-radius:12px;
+  padding:2.2rem; max-width:700px; margin-top:2.5rem;
+}
+.quiz-wrap.mini{padding:1.8rem;}
+.quiz-label{
+  font-size:0.74rem; color:var(--cyan); letter-spacing:0.08em; margin-bottom:1.2rem;
+}
+.quiz-q{display:none;}
+.quiz-q.active{display:block;}
+.quiz-progress{font-size:0.75rem; color:var(--dim); margin-bottom:1.3rem;}
+.quiz-question{font-size:1.08rem; color:var(--white); font-weight:600; margin-bottom:1.4rem; line-height:1.6;}
+.quiz-options{display:flex; flex-direction:column; gap:0.65rem;}
+.quiz-opt{
+  background:var(--bg-soft); border:1px solid var(--line-strong); color:var(--white);
+  padding:0.9rem 1.1rem; border-radius:6px; text-align:right; font-size:0.94rem;
+  cursor:pointer; font-family:inherit; transition:all 0.2s ease;
+}
+.quiz-opt:hover{border-color:var(--cyan);}
+.quiz-opt.correct{background:rgba(95,212,212,0.12); border-color:var(--cyan); color:var(--white);}
+.quiz-opt.incorrect{background:rgba(199,80,80,0.15); border-color:var(--red);}
+.quiz-opt:disabled{cursor:default;}
+.quiz-feedback{
+  margin-top:1.1rem; padding:0.95rem 1.1rem; border-radius:6px; background:var(--bg-soft);
+  font-size:0.9rem; color:var(--dim); display:none; border-right:3px solid var(--cyan);
+}
+.quiz-feedback.show{display:block;}
+.quiz-nav{margin-top:1.6rem; display:flex; justify-content:space-between; align-items:center;}
+.quiz-next-btn{
+  background:var(--cyan); color:var(--bg); border:none; padding:0.65rem 1.5rem;
+  border-radius:6px; font-family:inherit; font-weight:700; font-size:0.9rem;
+  cursor:pointer; display:none; transition:background 0.2s ease;
+}
+.quiz-next-btn:hover{background:var(--cyan-dim);}
+.quiz-next-btn.show{display:inline-block;}
+.quiz-dots{display:flex; gap:0.45rem;}
+.quiz-dot{width:7px; height:7px; border-radius:50%; background:var(--line-strong);}
+.quiz-dot.done{background:var(--cyan);}
+.quiz-dot.current{background:var(--copper-bright);}
+.quiz-result{display:none; text-align:center; padding:0.8rem 0;}
+.quiz-result.show{display:block;}
+.quiz-result .score{font-family:'IBM Plex Mono',monospace; font-size:2.2rem; color:var(--cyan); font-weight:600;}
+.quiz-result .score-label{color:var(--dim); margin-top:0.4rem; font-size:0.92rem;}
+.quiz-result .score-msg{margin-top:0.8rem; color:var(--white); font-size:0.92rem; max-width:40ch; margin-inline:auto;}
+.quiz-restart{
+  margin-top:1.3rem; background:transparent; border:1px solid var(--line-strong); color:var(--white);
+  padding:0.55rem 1.3rem; border-radius:6px; font-family:inherit; cursor:pointer; font-size:0.86rem;
+}
+.quiz-restart:hover{border-color:var(--cyan);}
+
+/* final exam visual distinction */
+#finalExamSection{
+  background:linear-gradient(180deg, rgba(199,123,63,0.04), transparent);
+}
+.final-badge{
+  display:inline-flex; align-items:center; gap:0.5rem;
+  background:rgba(224,160,48,0.1); border:1px solid rgba(224,160,48,0.35);
+  border-radius:20px; padding:0.4rem 1rem; font-size:0.78rem; color:var(--amber);
+  margin-bottom:1.2rem;
+}
+
+footer{padding:3.2rem 7vw; text-align:center; color:var(--dim); font-size:0.85rem;}
+
+button:focus-visible, .quiz-opt:focus-visible, input:focus-visible, a:focus-visible{outline:2px solid var(--cyan); outline-offset:2px;}
+::selection{background:var(--cyan); color:var(--bg);}
+</style>
+</head>
+<body>
+
+<div class="rail-wrap"><div class="rail-fill" id="railFill"></div></div>
+
+<header class="hero">
+  <div class="eyebrow mono">كورس تمهيدي موسّع · ٢٢ دقيقة قراءة وتجربة</div>
+  <h1 class="hero-title">مبادئ الكهرباء <em>الأولية</em></h1>
+  <p class="hero-sub">من الصفر إلى الأساس الكامل الذي يحتاجه كل من يريد بدء دراسة الكهرباء بشكل حقيقي. تفاعلي بالكامل، مع محاكاة حية لقانون أوم، واختبار بعد كل قسم.</p>
+  <div class="hero-meta">
+    <div class="item"><b>٨</b>مفاهيم أساسية</div>
+    <div class="item"><b>١</b>محاكاة تفاعلية حية</div>
+    <div class="item"><b>٦</b>اختبارات قصيرة</div>
+    <div class="item"><b>١٠</b>أسئلة الاختبار النهائي</div>
+  </div>
+  <nav class="toc">
+    <a href="#step1">الجهد</a>
+    <a href="#step2">التيار</a>
+    <a href="#step3">المقاومة</a>
+    <a href="#step4">قانون أوم</a>
+    <a href="#power">القدرة الكهربائية</a>
+    <a href="#acdc">التيار المستمر والمتردد</a>
+    <a href="#materials">الموصلات والعوازل</a>
+    <a href="#circuits">أنواع الدارات</a>
+    <a href="#safety">السلامة الكهربائية</a>
+    <a href="#glossary">مرجع المصطلحات</a>
+    <a href="#finalExamSection">الاختبار النهائي</a>
+  </nav>
+  <div class="scroll-cue mono">انزل للأسفل ↓</div>
+</header>
+
+<div class="part-divider">
+  <span class="pd-label mono">الجزء الأول — المفاهيم الأساسية الأربعة</span>
+  <div class="pd-line"></div>
+</div>
+
+<section id="step1">
+  <div class="step-tag mono"><span class="step-num">١</span>المفهوم الأول</div>
+  <div class="section-head">
+    <h2 class="section-title">الفرق في الجهد — القوة التي تدفع الكهرباء</h2>
+    <p class="section-desc">قبل أن نتكلم عن أي شيء آخر، يجب أن نفهم ما الذي "يجعل" الكهرباء تتحرك أصلاً.</p>
+  </div>
+  <div class="exp-grid">
+    <div class="exp-text">
+      <p>تخيل أنبوب ماء بين خزانين. الماء لا يتحرك من نفسه — يتحرك فقط إذا كان أحد الخزانين أعلى من الآخر. هذا الفرق في الارتفاع هو ما يدفع الماء.</p>
+      <p>في الكهرباء، <span class="term">الجهد (Voltage)</span> هو هذا "الفرق في الارتفاع" — لكن للشحنات الكهربائية بدل الماء. وحدته <strong>الفولت (V)</strong>. البطارية لا "تحتوي" على كهرباء جاهزة، هي تخلق فرق جهد بين قطبيها يدفع الشحنات للتحرك إذا وُجد مسار لها.</p>
+      <p>كلما زاد الفرق في الجهد، زادت "القوة الدافعة" — تماماً كخزان أعلى يدفع الماء بقوة أكبر.</p>
+    </div>
+    <div class="analogy-card">
+      <div class="a-label mono">تشابه بصري — الماء والجهد</div>
+      <svg viewBox="0 0 320 220" fill="none">
+        <rect x="20" y="20" width="80" height="100" rx="4" fill="#1A1E25" stroke="#4B5160" stroke-width="2"/>
+        <rect x="24" y="40" width="72" height="76" fill="#5FD4D4" opacity="0.35"/>
+        <text x="60" y="14" text-anchor="middle" fill="#8B92A0" font-size="11" font-family="IBM Plex Mono, monospace">خزان مرتفع</text>
+        <rect x="220" y="100" width="80" height="100" rx="4" fill="#1A1E25" stroke="#4B5160" stroke-width="2"/>
+        <rect x="224" y="170" width="72" height="26" fill="#5FD4D4" opacity="0.35"/>
+        <text x="260" y="94" text-anchor="middle" fill="#8B92A0" font-size="11" font-family="IBM Plex Mono, monospace">خزان منخفض</text>
+        <path d="M100 90 L220 150" stroke="#C77B3F" stroke-width="6" stroke-linecap="round"/>
+        <circle cx="0" cy="0" r="4" fill="#5FD4D4">
+          <animateMotion dur="1.8s" repeatCount="indefinite" path="M100 90 L220 150"/>
+        </circle>
+        <circle cx="0" cy="0" r="4" fill="#5FD4D4" opacity="0.6">
+          <animateMotion dur="1.8s" begin="0.6s" repeatCount="indefinite" path="M100 90 L220 150"/>
+        </circle>
+        <text x="160" y="205" text-anchor="middle" fill="#E0985A" font-size="12" font-family="IBM Plex Mono, monospace">فرق الارتفاع = فرق الجهد</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="quiz-wrap mini" data-quiz="q1">
+    <div class="quiz-label mono">اختبار سريع — الجهد</div>
+    <div class="quiz-progress mono">سؤال ١ من ١</div>
+    <div class="quiz-q active" data-q="0">
+      <div class="quiz-question">في تشابه الخزانين، ما الذي يمثله "فرق الارتفاع" بين الخزانين؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">فرق الجهد بين قطبي البطارية</button>
+        <button class="quiz-opt" data-correct="false">شدة التيار</button>
+        <button class="quiz-opt" data-correct="false">قيمة المقاومة</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="quiz-next-btn">عرض النتيجة ←</button>
+      <div class="quiz-dots"></div>
+    </div>
+    <div class="quiz-result">
+      <div class="score">٠/١</div>
+      <div class="score-label">إجابات صحيحة</div>
+      <button class="quiz-restart">أعد المحاولة</button>
+    </div>
+  </div>
+</section>
+
+<section id="step2">
+  <div class="step-tag mono"><span class="step-num">٢</span>المفهوم الثاني</div>
+  <div class="section-head">
+    <h2 class="section-title">شدة التيار — كمية الشحنة المتحركة</h2>
+    <p class="section-desc">إذا كان الجهد هو "القوة الدافعة"، فالتيار هو "كمية الجريان" الناتجة عنها.</p>
+  </div>
+  <div class="exp-grid">
+    <div class="exp-text">
+      <p>بالعودة لتشابه الماء: <span class="term">التيار الكهربائي (Current)</span> يشبه كمية الماء التي تعبر الأنبوب في كل ثانية — أي معدل تدفق الشحنات الكهربائية. وحدته <strong>الأمبير (A)</strong>.</p>
+      <p>التيار لا يساوي الجهد. الجهد هو "السبب"، والتيار هو "النتيجة" — جهد عالٍ بدون مسار مغلق (كهرباء ساكنة، أو سلك مقطوع) ينتج تياراً صفرياً تماماً.</p>
+      <p>هذا هو الفرق الذي يخلط فيه أغلب المبتدئين: شحنة كهرباء ساكنة في جسدك قد تصل لآلاف الفولتات، لكنها بلا خطر تقريباً لأن التيار الناتج ضعيف جداً ولحظي.</p>
+    </div>
+    <div class="analogy-card">
+      <div class="a-label mono">تشابه بصري — معدل تدفق الماء</div>
+      <svg viewBox="0 0 320 160" fill="none">
+        <rect x="20" y="60" width="280" height="40" rx="20" fill="#1A1E25" stroke="#4B5160" stroke-width="2"/>
+        <circle cx="0" cy="0" r="6" fill="#5FD4D4">
+          <animateMotion dur="1.4s" repeatCount="indefinite" path="M35 80 L290 80"/>
+        </circle>
+        <circle cx="0" cy="0" r="6" fill="#5FD4D4" opacity="0.7">
+          <animateMotion dur="1.4s" begin="0.35s" repeatCount="indefinite" path="M35 80 L290 80"/>
+        </circle>
+        <circle cx="0" cy="0" r="6" fill="#5FD4D4" opacity="0.45">
+          <animateMotion dur="1.4s" begin="0.7s" repeatCount="indefinite" path="M35 80 L290 80"/>
+        </circle>
+        <circle cx="0" cy="0" r="6" fill="#5FD4D4" opacity="0.25">
+          <animateMotion dur="1.4s" begin="1.05s" repeatCount="indefinite" path="M35 80 L290 80"/>
+        </circle>
+        <text x="160" y="135" text-anchor="middle" fill="#E0985A" font-size="12" font-family="IBM Plex Mono, monospace">عدد النقاط العابرة/ثانية = شدة التيار</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="quiz-wrap mini" data-quiz="q2">
+    <div class="quiz-label mono">اختبار سريع — التيار</div>
+    <div class="quiz-progress mono">سؤال ١ من ١</div>
+    <div class="quiz-q active" data-q="0">
+      <div class="quiz-question">سلك مقطوع تماماً، لكن البطارية المتصلة به بجهد عالٍ وفعّالة. ما قيمة التيار؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="false">عالٍ جداً بسبب الجهد العالي</button>
+        <button class="quiz-opt" data-correct="true">صفر — لا مسار مغلق فلا تيار</button>
+        <button class="quiz-opt" data-correct="false">يعتمد على لون السلك</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="quiz-next-btn">عرض النتيجة ←</button>
+      <div class="quiz-dots"></div>
+    </div>
+    <div class="quiz-result">
+      <div class="score">٠/١</div>
+      <div class="score-label">إجابات صحيحة</div>
+      <button class="quiz-restart">أعد المحاولة</button>
+    </div>
+  </div>
+</section>
+
+<section id="step3">
+  <div class="step-tag mono"><span class="step-num">٣</span>المفهوم الثالث</div>
+  <div class="section-head">
+    <h2 class="section-title">المقاومة — ما يعيق الجريان</h2>
+    <p class="section-desc">لا مسار كهربائي مثالي تماماً. كل مادة تعيق التيار بدرجة ما.</p>
+  </div>
+  <div class="exp-grid">
+    <div class="exp-text">
+      <p><span class="term">المقاومة (Resistance)</span> هي مدى "صعوبة" مرور التيار خلال مادة معينة. وحدتها <strong>الأوم (Ω)</strong>. في تشابه الماء، تخيل أنبوباً ضيقاً أو مليئاً بالحصى — نفس فرق الارتفاع، لكن الماء يتحرك بصعوبة أكبر.</p>
+      <p>النحاس مقاومته منخفضة جداً (ولهذا نصنع الأسلاك منه)، أما المطاط فمقاومته عالية جداً (ولهذا نستخدمه كعازل حول الأسلاك).</p>
+      <p>المقاومة تتحول غالباً إلى حرارة — وهذا تماماً مبدأ عمل السخان الكهربائي والمصباح المتوهج التقليدي: سلك بمقاومة عالية يسخن حتى يتوهج.</p>
+    </div>
+    <div class="analogy-card">
+      <div class="a-label mono">تشابه بصري — أنبوب بعائق</div>
+      <svg viewBox="0 0 320 160" fill="none">
+        <rect x="20" y="60" width="280" height="40" rx="20" fill="#1A1E25" stroke="#4B5160" stroke-width="2"/>
+        <rect x="140" y="55" width="40" height="50" rx="6" fill="#15181D" stroke="#E0A030" stroke-width="2"/>
+        <line x1="148" y1="65" x2="172" y2="95" stroke="#E0A030" stroke-width="2" opacity="0.6"/>
+        <line x1="148" y1="95" x2="172" y2="65" stroke="#E0A030" stroke-width="2" opacity="0.6"/>
+        <circle cx="0" cy="0" r="5" fill="#5FD4D4">
+          <animateMotion dur="2.6s" repeatCount="indefinite" path="M35 80 L290 80" keyPoints="0;0.3;0.42;0.55;1" keyTimes="0;0.3;0.5;0.6;1"/>
+        </circle>
+        <text x="160" y="135" text-anchor="middle" fill="#E0A030" font-size="12" font-family="IBM Plex Mono, monospace">العائق = المقاومة، يبطّئ ويسخّن</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="quiz-wrap mini" data-quiz="q3">
+    <div class="quiz-label mono">اختبار سريع — المقاومة</div>
+    <div class="quiz-progress mono">سؤال ١ من ١</div>
+    <div class="quiz-q active" data-q="0">
+      <div class="quiz-question">لماذا نستخدم النحاس للأسلاك والمطاط كعازل حولها؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">النحاس مقاومته منخفضة (يمرر التيار)، والمطاط مقاومته عالية (يمنعه)</button>
+        <button class="quiz-opt" data-correct="false">النحاس أرخص فقط، والمطاط أجمل بصرياً</button>
+        <button class="quiz-opt" data-correct="false">لا فرق فعلي بينهما من ناحية المقاومة</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="quiz-next-btn">عرض النتيجة ←</button>
+      <div class="quiz-dots"></div>
+    </div>
+    <div class="quiz-result">
+      <div class="score">٠/١</div>
+      <div class="score-label">إجابات صحيحة</div>
+      <button class="quiz-restart">أعد المحاولة</button>
+    </div>
+  </div>
+</section>
+
+<section id="step4">
+  <div class="step-tag mono"><span class="step-num">٤</span>المفهوم الرابع</div>
+  <div class="section-head">
+    <h2 class="section-title">قانون أوم — المعادلة التي تربطهم جميعاً</h2>
+    <p class="section-desc">جرّب الآن بنفسك: حرّك المقياسين وشاهد كيف يتفاعل التيار والسطوع في الدائرة الحقيقية أدناه.</p>
+  </div>
+
+  <div class="sim-wrap">
+    <div class="sim-grid">
+      <div class="circuit-svg-wrap">
+        <svg id="circuitSvg" viewBox="0 0 320 240" fill="none" style="width:100%; max-width:340px;">
+          <path id="wirePath" d="M60 200 L60 60 L150 60 L150 30 L230 30 L230 60 L260 60 L260 200 L60 200" stroke="#4B5160" stroke-width="4" fill="none" stroke-linejoin="round"/>
+          <g>
+            <rect x="40" y="170" width="40" height="60" fill="none" stroke="#C77B3F" stroke-width="3" rx="3"/>
+            <line x1="50" y1="185" x2="70" y2="185" stroke="#E0985A" stroke-width="3"/>
+            <line x1="55" y1="215" x2="65" y2="215" stroke="#E0985A" stroke-width="3"/>
+            <text x="60" y="250" text-anchor="middle" fill="#8B92A0" font-size="10" font-family="IBM Plex Mono, monospace">بطارية</text>
+          </g>
+          <g id="resistorGroup">
+            <path d="M150 30 L160 18 L170 42 L180 18 L190 42 L200 18 L210 42 L220 30" stroke="#E0A030" stroke-width="4" fill="none" stroke-linejoin="round"/>
+            <text x="185" y="10" text-anchor="middle" fill="#8B92A0" font-size="10" font-family="IBM Plex Mono, monospace">مقاومة</text>
+          </g>
+          <g id="bulbGroup">
+            <circle id="bulbGlow" cx="260" cy="130" r="26" fill="#E0A030" opacity="0.15"/>
+            <circle id="bulbCircle" cx="260" cy="130" r="16" fill="none" stroke="#8B92A0" stroke-width="3"/>
+            <path d="M251 122 L269 138 M269 122 L251 138" stroke="#8B92A0" stroke-width="2"/>
+            <text x="260" y="165" text-anchor="middle" fill="#8B92A0" font-size="10" font-family="IBM Plex Mono, monospace">مصباح</text>
+          </g>
+          <circle r="4" fill="#5FD4D4" id="dot1">
+            <animateMotion id="anim1" dur="3s" repeatCount="indefinite" path="M60 200 L60 60 L150 60 L150 30 L230 30 L230 60 L260 60 L260 200 L60 200"/>
+          </circle>
+          <circle r="4" fill="#5FD4D4" opacity="0.6" id="dot2">
+            <animateMotion id="anim2" dur="3s" begin="1s" repeatCount="indefinite" path="M60 200 L60 60 L150 60 L150 30 L230 30 L230 60 L260 60 L260 200 L60 200"/>
+          </circle>
+          <circle r="4" fill="#5FD4D4" opacity="0.3" id="dot3">
+            <animateMotion id="anim3" dur="3s" begin="2s" repeatCount="indefinite" path="M60 200 L60 60 L150 60 L150 30 L230 30 L230 60 L260 60 L260 200 L60 200"/>
+          </circle>
+        </svg>
+      </div>
+
+      <div class="sim-controls">
+        <div class="ctrl">
+          <div class="ctrl-label">الجهد (V) <span class="val mono" id="voltVal">9 V</span></div>
+          <input type="range" id="voltSlider" min="1" max="24" value="9" step="1">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-label">المقاومة (Ω) <span class="val mono" id="resVal">100 Ω</span></div>
+          <input type="range" id="resSlider" min="10" max="500" value="100" step="10">
+        </div>
+        <div class="sim-readout readout-4">
+          <div class="readout-box">
+            <div class="r-label mono">I</div>
+            <div class="r-val mono" id="currentVal">90mA</div>
+          </div>
+          <div class="readout-box">
+            <div class="r-label mono">V</div>
+            <div class="r-val mono" id="voltDisplay">9</div>
+          </div>
+          <div class="readout-box">
+            <div class="r-label mono">Ω</div>
+            <div class="r-val mono" id="resDisplay">100</div>
+          </div>
+          <div class="readout-box">
+            <div class="r-label mono">P (واط)</div>
+            <div class="r-val mono" id="powerVal">0.81</div>
+          </div>
+        </div>
+        <div class="sim-formula">I = V ÷ R &nbsp;|&nbsp; P = V × I</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="concept-grid" style="margin-top:2.5rem;">
+    <div class="concept-card">
+      <div class="c-sym">V</div>
+      <h3>الجهد</h3>
+      <div class="unit mono">يقاس بالفولت</div>
+      <p>القوة الدافعة. كلما زاد، زاد التيار (مع ثبات المقاومة).</p>
+    </div>
+    <div class="concept-card">
+      <div class="c-sym">I</div>
+      <h3>التيار</h3>
+      <div class="unit mono">يقاس بالأمبير</div>
+      <p>معدل جريان الشحنات. النتيجة المباشرة لتفاعل الجهد والمقاومة.</p>
+    </div>
+    <div class="concept-card">
+      <div class="c-sym">R</div>
+      <h3>المقاومة</h3>
+      <div class="unit mono">تقاس بالأوم</div>
+      <p>العائق. كلما زادت، قلّ التيار (مع ثبات الجهد).</p>
+    </div>
+  </div>
+
+  <div class="quiz-wrap mini" data-quiz="q4">
+    <div class="quiz-label mono">اختبار سريع — قانون أوم</div>
+    <div class="quiz-progress mono">سؤال ١ من ١</div>
+    <div class="quiz-q active" data-q="0">
+      <div class="quiz-question">حسب I = V ÷ R، إذا تضاعف الجهد وبقيت المقاومة ثابتة، ماذا يحدث للتيار؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">يتضاعف هو أيضاً</button>
+        <button class="quiz-opt" data-correct="false">ينخفض إلى النصف</button>
+        <button class="quiz-opt" data-correct="false">يبقى كما هو</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="quiz-next-btn">عرض النتيجة ←</button>
+      <div class="quiz-dots"></div>
+    </div>
+    <div class="quiz-result">
+      <div class="score">٠/١</div>
+      <div class="score-label">إجابات صحيحة</div>
+      <button class="quiz-restart">أعد المحاولة</button>
+    </div>
+  </div>
+</section>
+
+<div class="part-divider">
+  <span class="pd-label mono">الجزء الثاني — مفاهيم أعمق لفهم أكمل</span>
+  <div class="pd-line"></div>
+</div>
+
+<section id="power">
+  <div class="step-tag mono"><span class="step-num">٥</span>مفهوم جديد</div>
+  <div class="section-head">
+    <h2 class="section-title">القدرة الكهربائية — لماذا تحترق الأشياء أو تتوهج</h2>
+    <p class="section-desc">الجهد والتيار والمقاومة تفسر "الحركة". القدرة تفسر "الطاقة المُستهلكة فعلياً" في كل لحظة.</p>
+  </div>
+  <div class="exp-grid">
+    <div class="exp-text">
+      <p><span class="term">القدرة الكهربائية (Power)</span> هي معدل استهلاك الطاقة، وتقاس بـ<strong>الواط (W)</strong>. الصيغة بسيطة: <strong>القدرة = الجهد × التيار</strong> (P = V × I).</p>
+      <p>هذا يفسر أشياء يومية: مصباح ١٠٠ واط يستهلك طاقة أكبر من مصباح ٦٠ واط بنفس الجهد لأن تياره أعلى. سخان المياه يستهلك آلاف الواطات لأنه يحتاج طاقة حرارية كبيرة بسرعة.</p>
+      <p>القدرة هي أيضاً ما يحدد فاتورة الكهرباء: شركات الكهرباء لا تحاسبك على الفولت أو الأمبير منفردين، بل على <strong>كيلوواط/ساعة</strong> — أي القدرة مضروبة بالزمن.</p>
+    </div>
+    <div class="analogy-card">
+      <div class="a-label mono">تشابه بصري — القدرة كناتج لشيئين</div>
+      <svg viewBox="0 0 320 180" fill="none">
+        <text x="60" y="50" text-anchor="middle" fill="#5FD4D4" font-size="22" font-family="IBM Plex Mono, monospace" font-weight="600">V</text>
+        <text x="100" y="50" text-anchor="middle" fill="#8B92A0" font-size="18" font-family="IBM Plex Mono, monospace">×</text>
+        <text x="140" y="50" text-anchor="middle" fill="#5FD4D4" font-size="22" font-family="IBM Plex Mono, monospace" font-weight="600">I</text>
+        <line x1="20" y1="75" x2="220" y2="75" stroke="#4B5160" stroke-width="2"/>
+        <text x="120" y="115" text-anchor="middle" fill="#E0A030" font-size="26" font-family="IBM Plex Mono, monospace" font-weight="600">P</text>
+        <circle id="powerBulbGlow" cx="260" cy="90" r="22" fill="#E0A030" opacity="0.35"/>
+        <circle cx="260" cy="90" r="14" fill="none" stroke="#E0A030" stroke-width="2.5"/>
+        <text x="260" y="150" text-anchor="middle" fill="#8B92A0" font-size="11" font-family="IBM Plex Mono, monospace">القدرة = السطوع/الحرارة الفعلية</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="quiz-wrap mini" data-quiz="q5">
+    <div class="quiz-label mono">اختبار سريع — القدرة الكهربائية</div>
+    <div class="quiz-progress mono">سؤال ١ من ١</div>
+    <div class="quiz-q active" data-q="0">
+      <div class="quiz-question">مصباحان بنفس الجهد، لكن أحدهما يسحب تياراً أعلى من الآخر. أيهما يستهلك قدرة أكبر؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">المصباح الذي يسحب التيار الأعلى</button>
+        <button class="quiz-opt" data-correct="false">كلاهما متساويان دائماً إذا تساوى الجهد</button>
+        <button class="quiz-opt" data-correct="false">المصباح الذي يسحب التيار الأقل</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="quiz-next-btn">عرض النتيجة ←</button>
+      <div class="quiz-dots"></div>
+    </div>
+    <div class="quiz-result">
+      <div class="score">٠/١</div>
+      <div class="score-label">إجابات صحيحة</div>
+      <button class="quiz-restart">أعد المحاولة</button>
+    </div>
+  </div>
+</section>
+
+<section id="acdc">
+  <div class="step-tag mono"><span class="step-num">٦</span>مفهوم جديد</div>
+  <div class="section-head">
+    <h2 class="section-title">التيار المستمر والتيار المتردد</h2>
+    <p class="section-desc">حتى الآن تكلمنا عن تيار يتحرك باتجاه واحد ثابت. لكن الكهرباء التي تأتي من المقبس تختلف تماماً عن كهرباء البطارية.</p>
+  </div>
+
+  <div class="wave-compare">
+    <div class="wave-card">
+      <h3>التيار المستمر</h3>
+      <div class="sub mono">DC — Direct Current</div>
+      <svg viewBox="0 0 280 100" fill="none">
+        <line x1="10" y1="50" x2="270" y2="50" stroke="#4B5160" stroke-width="1"/>
+        <line x1="10" y1="30" x2="270" y2="30" stroke="#5FD4D4" stroke-width="3"/>
+      </svg>
+      <p>يتحرك في اتجاه واحد ثابت بقيمة جهد ثابتة. هذا ما تنتجه البطاريات والخلايا الشمسية.</p>
+      <ul>
+        <li>البطاريات (AA, ليثيوم، سيارات)</li>
+        <li>الألواح الشمسية</li>
+        <li>كل الدارات الإلكترونية الداخلية في الأجهزة</li>
+      </ul>
+    </div>
+    <div class="wave-card">
+      <h3>التيار المتردد</h3>
+      <div class="sub mono">AC — Alternating Current</div>
+      <svg viewBox="0 0 280 100" fill="none">
+        <line x1="10" y1="50" x2="270" y2="50" stroke="#4B5160" stroke-width="1"/>
+        <path d="M10 50 Q45 10 80 50 Q115 90 150 50 Q185 10 220 50 Q255 90 270 50" stroke="#E0A030" stroke-width="3" fill="none"/>
+      </svg>
+      <p>يتغير اتجاهه ذهاباً وعودة بشكل دوري ومتكرر. هذا ما يخرج من مقابس المنازل.</p>
+      <ul>
+        <li>شبكة الكهرباء المنزلية (٥٠ أو ٦٠ هرتز حسب البلد)</li>
+        <li>المحولات الكبيرة ومحطات التوليد</li>
+        <li>يُحوَّل غالباً إلى DC داخل الأجهزة الإلكترونية</li>
+      </ul>
+    </div>
+  </div>
+
+  <p style="color:var(--dim); margin-top:1.5rem; font-size:0.95rem; max-width:60ch;">لماذا نستخدم AC في شبكة الكهرباء أساساً؟ لأنه يمكن تحويل جهده بسهولة (رفعه أو خفضه) باستخدام المحولات، مما يسمح بنقله لمسافات طويلة بكفاءة عالية وفقد طاقة أقل.</p>
+
+  <div class="quiz-wrap mini" data-quiz="q6">
+    <div class="quiz-label mono">اختبار سريع — AC و DC</div>
+    <div class="quiz-progress mono">سؤال ١ من ١</div>
+    <div class="quiz-q active" data-q="0">
+      <div class="quiz-question">ما نوع التيار الذي تنتجه البطارية العادية؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">تيار مستمر (DC)</button>
+        <button class="quiz-opt" data-correct="false">تيار متردد (AC)</button>
+        <button class="quiz-opt" data-correct="false">لا فرق، البطارية تنتج كلا النوعين معاً</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="quiz-next-btn">عرض النتيجة ←</button>
+      <div class="quiz-dots"></div>
+    </div>
+    <div class="quiz-result">
+      <div class="score">٠/١</div>
+      <div class="score-label">إجابات صحيحة</div>
+      <button class="quiz-restart">أعد المحاولة</button>
+    </div>
+  </div>
+</section>
+
+<section id="materials">
+  <div class="step-tag mono"><span class="step-num">٧</span>مفهوم جديد</div>
+  <div class="section-head">
+    <h2 class="section-title">الموصلات والعوازل</h2>
+    <p class="section-desc">كل مادة في الطبيعة تقع في مكان ما على مقياس المقاومة — من شديدة التوصيل إلى شديدة العزل.</p>
+  </div>
+
+  <div class="material-grid">
+    <div class="material-card conductor">
+      <h3 style="color:var(--cyan);">الموصلات</h3>
+      <div class="sub">Conductors — مقاومة منخفضة جداً</div>
+      <p>تسمح للتيار بالمرور بسهولة كبيرة. تحتوي إلكترونات حرة الحركة في تركيبها الذري، وأغلبها معادن.</p>
+      <div class="material-tags">
+        <span class="material-tag">النحاس</span>
+        <span class="material-tag">الفضة</span>
+        <span class="material-tag">الألمنيوم</span>
+        <span class="material-tag">الذهب</span>
+        <span class="material-tag">الماء المالح</span>
+        <span class="material-tag">جسم الإنسان (جزئياً)</span>
+      </div>
+    </div>
+    <div class="material-card insulator">
+      <h3 style="color:var(--copper-bright);">العوازل</h3>
+      <div class="sub">Insulators — مقاومة عالية جداً</div>
+      <p>تمنع مرور التيار تقريباً بشكل كامل. إلكتروناتها مرتبطة بشدة بالذرة ولا تتحرك بحرية.</p>
+      <div class="material-tags">
+        <span class="material-tag">المطاط</span>
+        <span class="material-tag">الزجاج</span>
+        <span class="material-tag">البلاستيك</span>
+        <span class="material-tag">الخشب الجاف</span>
+        <span class="material-tag">الهواء الجاف</span>
+        <span class="material-tag">السيراميك</span>
+      </div>
+    </div>
+  </div>
+
+  <p style="color:var(--dim); margin-top:1.5rem; font-size:0.95rem; max-width:60ch;">ملاحظة مهمة: الخشب أو الهواء "الرطب" يصبح موصلاً جزئياً بسبب الماء الموجود فيه — وهذا أحد أسباب الخطورة الإضافية للتعامل مع الكهرباء في بيئة مبللة.</p>
+
+  <div class="quiz-wrap mini" data-quiz="q7">
+    <div class="quiz-label mono">اختبار سريع — الموصلات والعوازل</div>
+    <div class="quiz-progress mono">سؤال ١ من ١</div>
+    <div class="quiz-q active" data-q="0">
+      <div class="quiz-question">لماذا يصبح التعامل مع الكهرباء في بيئة مبللة أكثر خطورة؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">الماء يقلل من خاصية العزل، فيسهل مرور التيار خلال الجسم</button>
+        <button class="quiz-opt" data-correct="false">الماء يزيد من مقاومة الجسم فيحمي من الكهرباء</button>
+        <button class="quiz-opt" data-correct="false">لا علاقة بين الماء والكهرباء إطلاقاً</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="quiz-next-btn">عرض النتيجة ←</button>
+      <div class="quiz-dots"></div>
+    </div>
+    <div class="quiz-result">
+      <div class="score">٠/١</div>
+      <div class="score-label">إجابات صحيحة</div>
+      <button class="quiz-restart">أعد المحاولة</button>
+    </div>
+  </div>
+</section>
+
+<section id="circuits">
+  <div class="step-tag mono"><span class="step-num">٨</span>تطبيق</div>
+  <div class="section-head">
+    <h2 class="section-title">الدارة المتسلسلة والدارة المتوازية</h2>
+    <p class="section-desc">كل الدارات الكهربائية المعقدة تُبنى من تركيب هذين النوعين الأساسيين فقط.</p>
+  </div>
+  <div class="circuit-compare">
+    <div class="circuit-type-card">
+      <h3>الدارة المتسلسلة</h3>
+      <div class="sub mono">Series Circuit</div>
+      <svg viewBox="0 0 280 100" fill="none">
+        <path d="M30 80 L30 20 L100 20 L130 20 L200 20 L250 20 L250 80 L30 80" stroke="#4B5160" stroke-width="3" fill="none"/>
+        <path d="M100 20 L110 8 L120 32 L130 8" stroke="#E0A030" stroke-width="3" fill="none"/>
+        <path d="M200 20 L210 8 L220 32 L230 20" stroke="#E0A030" stroke-width="3" fill="none"/>
+        <circle r="4" fill="#5FD4D4">
+          <animateMotion dur="2.5s" repeatCount="indefinite" path="M30 80 L30 20 L100 20 L130 20 L200 20 L250 20 L250 80 L30 80"/>
+        </circle>
+      </svg>
+      <p>مسار واحد فقط للتيار. إذا انقطع في أي نقطة، تتوقف الدارة كلها — مثل أضواء الزينة القديمة، إن احترقت لمبة واحدة انطفأ الجميع.</p>
+    </div>
+    <div class="circuit-type-card">
+      <h3>الدارة المتوازية</h3>
+      <div class="sub mono">Parallel Circuit</div>
+      <svg viewBox="0 0 280 100" fill="none">
+        <path d="M30 50 L30 20 L100 20 L100 80 L30 80 L30 50" stroke="#4B5160" stroke-width="3" fill="none"/>
+        <line x1="100" y1="20" x2="250" y2="20" stroke="#4B5160" stroke-width="3"/>
+        <line x1="100" y1="80" x2="250" y2="80" stroke="#4B5160" stroke-width="3"/>
+        <line x1="150" y1="20" x2="150" y2="80" stroke="#4B5160" stroke-width="3"/>
+        <line x1="220" y1="20" x2="220" y2="80" stroke="#4B5160" stroke-width="3"/>
+        <path d="M150 20 L150 35 L142 42 L158 50 L142 58 L150 65 L150 80" stroke="#E0A030" stroke-width="2.5" fill="none"/>
+        <path d="M220 20 L220 35 L212 42 L228 50 L212 58 L220 65 L220 80" stroke="#E0A030" stroke-width="2.5" fill="none"/>
+        <circle r="3.5" fill="#5FD4D4">
+          <animateMotion dur="2s" repeatCount="indefinite" path="M30 50 L30 20 L100 20 L150 20"/>
+        </circle>
+        <circle r="3.5" fill="#5FD4D4">
+          <animateMotion dur="1.8s" repeatCount="indefinite" path="M150 80 L100 80 L30 80 L30 50"/>
+        </circle>
+      </svg>
+      <p>مسارات متعددة منفصلة. إذا انقطع أحد الفروع، تستمر الفروع الأخرى بالعمل — مثل توصيلات الإضاءة في المنزل الحديث.</p>
+    </div>
+  </div>
+
+  <div class="symbols-grid" style="margin-top:2.5rem;">
+    <div class="symbol-box">
+      <svg viewBox="0 0 60 40"><rect x="22" y="8" width="16" height="24" fill="none" stroke="#C77B3F" stroke-width="2.5" rx="2"/><line x1="26" y1="14" x2="34" y2="14" stroke="#E0985A" stroke-width="2"/><line x1="28" y1="26" x2="32" y2="26" stroke="#E0985A" stroke-width="2"/></svg>
+      <div class="s-name">بطارية</div>
+      <div class="s-en">Battery</div>
+    </div>
+    <div class="symbol-box">
+      <svg viewBox="0 0 60 40"><path d="M8 20 L18 20 L23 8 L30 32 L37 8 L42 20 L52 20" stroke="#E0A030" stroke-width="2.5" fill="none"/></svg>
+      <div class="s-name">مقاومة</div>
+      <div class="s-en">Resistor</div>
+    </div>
+    <div class="symbol-box">
+      <svg viewBox="0 0 60 40"><circle cx="30" cy="20" r="11" fill="none" stroke="#8B92A0" stroke-width="2.2"/><path d="M22 12 L38 28 M38 12 L22 28" stroke="#8B92A0" stroke-width="1.8"/></svg>
+      <div class="s-name">مصباح</div>
+      <div class="s-en">Lamp / Bulb</div>
+    </div>
+    <div class="symbol-box">
+      <svg viewBox="0 0 60 40"><line x1="30" y1="6" x2="30" y2="18" stroke="#6B7280" stroke-width="2.5"/><line x1="18" y1="18" x2="42" y2="18" stroke="#6B7280" stroke-width="2.5"/><line x1="22" y1="24" x2="38" y2="24" stroke="#6B7280" stroke-width="2.5"/><line x1="26" y1="30" x2="34" y2="30" stroke="#6B7280" stroke-width="2.5"/></svg>
+      <div class="s-name">أرضي</div>
+      <div class="s-en">Ground</div>
+    </div>
+  </div>
+
+  <div class="quiz-wrap mini" data-quiz="q8">
+    <div class="quiz-label mono">اختبار سريع — أنواع الدارات</div>
+    <div class="quiz-progress mono">سؤال ١ من ١</div>
+    <div class="quiz-q active" data-q="0">
+      <div class="quiz-question">احترقت لمبة واحدة في سلسلة أضواء قديمة فانطفأ كل السلسلة. أي نوع دارة هذا؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">دارة متسلسلة</button>
+        <button class="quiz-opt" data-correct="false">دارة متوازية</button>
+        <button class="quiz-opt" data-correct="false">لا علاقة لنوع الدارة بهذا</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="quiz-next-btn">عرض النتيجة ←</button>
+      <div class="quiz-dots"></div>
+    </div>
+    <div class="quiz-result">
+      <div class="score">٠/١</div>
+      <div class="score-label">إجابات صحيحة</div>
+      <button class="quiz-restart">أعد المحاولة</button>
+    </div>
+  </div>
+</section>
+
+<section id="safety">
+  <div class="step-tag mono"><span class="step-num">٩</span>أساسي قبل أي تجربة عملية</div>
+  <div class="section-head">
+    <h2 class="section-title">السلامة الكهربائية — قواعد لا تُساوم عليها</h2>
+    <p class="section-desc">فهم النظرية لا يكفي. هذه القواعد تحميك بدنياً قبل أي تعامل فعلي مع كهرباء حقيقية.</p>
+  </div>
+
+  <div class="safety-grid">
+    <div class="safety-card">
+      <div class="s-icon">١</div>
+      <div>
+        <h4>اقطع المصدر قبل أي لمس</h4>
+        <p>افصل القاطع الكهربائي (Breaker) أو اخرج القابس قبل فتح أي جهاز أو لوحة كهربائية، حتى لو بدا "مغلقاً".</p>
+      </div>
+    </div>
+    <div class="safety-card">
+      <div class="s-icon">٢</div>
+      <div>
+        <h4>لا تتعامل مع كهرباء بيدين مبللتين</h4>
+        <p>الماء يقلل مقاومة الجسم بشكل كبير، فيسمح بمرور تيار أعلى وأخطر خلال نفس الجهد.</p>
+      </div>
+    </div>
+    <div class="safety-card">
+      <div class="s-icon">٣</div>
+      <div>
+        <h4>افهم الفرق بين الجهد المنزلي والمنخفض</h4>
+        <p>دارات البطاريات الصغيرة (٩ فولت مثلاً) آمنة للتجربة. جهد المنزل (٢٢٠ فولت AC) خطر فعلي ويستوجب احتراماً كاملاً.</p>
+      </div>
+    </div>
+    <div class="safety-card">
+      <div class="s-icon">٤</div>
+      <div>
+        <h4>التيار هو الخطر، لا الجهد فقط</h4>
+        <p>عشرات المليأمبيرات فقط قد تكون قاتلة إذا عبرت القلب. الجهد العالي خطر بقدر ما يستطيع توليد تيار كافٍ عبر الجسم.</p>
+      </div>
+    </div>
+    <div class="safety-card">
+      <div class="s-icon">٥</div>
+      <div>
+        <h4>استخدم أدوات معزولة دائماً</h4>
+        <p>مفكات ومقصات ذات مقابض معزولة مصممة خصيصاً للعمل قرب الكهرباء — لا تستخدم أدوات معدنية عارية.</p>
+      </div>
+    </div>
+    <div class="safety-card">
+      <div class="s-icon">٦</div>
+      <div>
+        <h4>لا تتجاوز حدود معرفتك</h4>
+        <p>هذا الكورس أساس مفاهيمي فقط. أي عمل فعلي على تمديدات منزلية أو صناعية يجب أن يتم بإشراف فني مؤهل.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="glossary">
+  <div class="step-tag mono"><span class="step-num">١٠</span>مرجع للمراجعة</div>
+  <div class="section-head">
+    <h2 class="section-title">مرجع المصطلحات السريع</h2>
+    <p class="section-desc">رجوع سريع لكل ما تعلمته في هذا الكورس، بدون الحاجة للتمرير لأعلى.</p>
+  </div>
+
+  <table class="glossary-table">
+    <thead>
+      <tr><th>المفهوم</th><th>الرمز / الوحدة</th><th>التعريف المختصر</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="g-term">الجهد</td><td class="g-sym">V — فولت</td><td>القوة الدافعة التي تحرك الشحنات الكهربائية.</td></tr>
+      <tr><td class="g-term">التيار</td><td class="g-sym">I — أمبير</td><td>معدل تدفق الشحنات الكهربائية عبر المسار.</td></tr>
+      <tr><td class="g-term">المقاومة</td><td class="g-sym">R — أوم</td><td>مدى إعاقة المادة لمرور التيار.</td></tr>
+      <tr><td class="g-term">قانون أوم</td><td class="g-sym">I = V ÷ R</td><td>المعادلة التي تربط الجهد والتيار والمقاومة معاً.</td></tr>
+      <tr><td class="g-term">القدرة</td><td class="g-sym">P — واط</td><td>معدل استهلاك الطاقة الكهربائية: P = V × I.</td></tr>
+      <tr><td class="g-term">تيار مستمر</td><td class="g-sym">DC</td><td>تيار يتحرك في اتجاه واحد ثابت، كما في البطاريات.</td></tr>
+      <tr><td class="g-term">تيار متردد</td><td class="g-sym">AC</td><td>تيار يغيّر اتجاهه بشكل دوري، كما في شبكة المنزل.</td></tr>
+      <tr><td class="g-term">موصل</td><td class="g-sym">—</td><td>مادة ذات مقاومة منخفضة، تسمح بمرور التيار بسهولة (مثل النحاس).</td></tr>
+      <tr><td class="g-term">عازل</td><td class="g-sym">—</td><td>مادة ذات مقاومة عالية، تمنع مرور التيار (مثل المطاط).</td></tr>
+      <tr><td class="g-term">دارة متسلسلة</td><td class="g-sym">—</td><td>مسار واحد للتيار؛ انقطاعه يوقف الدارة كاملة.</td></tr>
+      <tr><td class="g-term">دارة متوازية</td><td class="g-sym">—</td><td>مسارات متعددة مستقلة؛ انقطاع أحدها لا يوقف الباقي.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="finalExamSection" style="border-bottom:none;">
+  <div class="step-tag mono"><span class="step-num">١١</span>الاختبار الشامل</div>
+  <div class="section-head">
+    <span class="final-badge mono">★ الاختبار النهائي — ١٠ أسئلة</span>
+    <h2 class="section-title">اختبر فهمك الكامل لكل ما سبق</h2>
+    <p class="section-desc">هذا الاختبار يجمع كل المفاهيم في الكورس. حاول الإجابة دون الرجوع للأعلى أولاً.</p>
+  </div>
+
+  <div class="quiz-wrap" data-quiz="finalExam">
+    <div class="quiz-progress mono">السؤال ١ من ١٠</div>
+
+    <div class="quiz-q active" data-q="0">
+      <div class="quiz-question">ما الذي "يدفع" الشحنات الكهربائية للتحرك أساساً؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">فرق الجهد (الفولت)</button>
+        <button class="quiz-opt" data-correct="false">المقاومة</button>
+        <button class="quiz-opt" data-correct="false">حرارة السلك</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="1">
+      <div class="quiz-question">عندك جهد ثابت، وزدت المقاومة في الدارة. ماذا يحدث للتيار؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="false">يزداد</button>
+        <button class="quiz-opt" data-correct="true">يقلّ</button>
+        <button class="quiz-opt" data-correct="false">يبقى ثابتاً تماماً</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="2">
+      <div class="quiz-question">سلك مقطوع في دارة كهربائية، لكن البطارية بحالة جيدة بجهد عالٍ. ما قيمة التيار في هذه الحالة؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="false">عالٍ جداً</button>
+        <button class="quiz-opt" data-correct="true">صفر — لا مسار مغلق فلا تيار</button>
+        <button class="quiz-opt" data-correct="false">يعتمد فقط على لون السلك</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="3">
+      <div class="quiz-question">احترقت لمبة واحدة في سلسلة أضواء قديمة فانطفأ كل السلسلة. أي نوع دارة هذا؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">دارة متسلسلة</button>
+        <button class="quiz-opt" data-correct="false">دارة متوازية</button>
+        <button class="quiz-opt" data-correct="false">لا علاقة لنوع الدارة بهذا</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="4">
+      <div class="quiz-question">حسب قانون أوم I = V ÷ R، إذا تضاعف الجهد وبقيت المقاومة ثابتة، ماذا يحدث للتيار؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">يتضاعف هو أيضاً</button>
+        <button class="quiz-opt" data-correct="false">ينخفض إلى النصف</button>
+        <button class="quiz-opt" data-correct="false">يبقى كما هو</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="5">
+      <div class="quiz-question">ما الصيغة الصحيحة لحساب القدرة الكهربائية؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="false">P = V ÷ I</button>
+        <button class="quiz-opt" data-correct="true">P = V × I</button>
+        <button class="quiz-opt" data-correct="false">P = I ÷ R</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="6">
+      <div class="quiz-question">ما نوع التيار الذي يخرج من مقابس الكهرباء في المنزل؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="false">تيار مستمر (DC)</button>
+        <button class="quiz-opt" data-correct="true">تيار متردد (AC)</button>
+        <button class="quiz-opt" data-correct="false">لا يوجد تيار في المقبس إلا عند توصيل جهاز فقط</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="7">
+      <div class="quiz-question">لماذا تُستخدم الأسلاك المنزلية من النحاس وليس من المطاط؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">النحاس موصل بمقاومة منخفضة تسمح بمرور التيار بسهولة</button>
+        <button class="quiz-opt" data-correct="false">النحاس أخف وزناً من المطاط فقط</button>
+        <button class="quiz-opt" data-correct="false">لا فرق حقيقي بين المادتين</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="8">
+      <div class="quiz-question">ما الذي يحدد فعلياً خطورة الكهرباء على جسم الإنسان أكثر من غيره؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="false">الجهد فقط، بصرف النظر عن أي شيء آخر</button>
+        <button class="quiz-opt" data-correct="true">شدة التيار العابر فعلياً خلال الجسم (خصوصاً القلب)</button>
+        <button class="quiz-opt" data-correct="false">لون السلك المستخدم</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-q" data-q="9">
+      <div class="quiz-question">قبل فتح أي جهاز كهربائي للفحص أو الإصلاح، ما أول خطوة سلامة واجبة؟</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-correct="true">فصل المصدر الكهربائي (القاطع أو القابس) أولاً</button>
+        <button class="quiz-opt" data-correct="false">التأكد من أن اليدين جافتان فقط، دون فصل أي شيء</button>
+        <button class="quiz-opt" data-correct="false">استخدام أداة معدنية عادية لأنها أسرع</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-nav">
+      <button class="quiz-next-btn">التالي ←</button>
+      <div class="quiz-dots"></div>
+    </div>
+
+    <div class="quiz-result">
+      <div class="score">٠/١٠</div>
+      <div class="score-label">إجابات صحيحة</div>
+      <div class="score-msg" id="finalMsg"></div>
+      <button class="quiz-restart">أعد المحاولة</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p class="mono">مرجع تمهيدي عام — أساس مفاهيمي لبدء دراسة الكهرباء، وليس بديلاً عن دورة تأسيسية كاملة أو إشراف مدرّب عند التعامل مع كهرباء حقيقية.</p>
+</footer>
+
+<script>
+// progress rail
+const rail = document.getElementById('railFill');
+function updateRail(){
+  const scrolled = window.scrollY;
+  const max = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = Math.min(scrolled / Math.max(max,1), 1) * 100;
+  rail.style.width = pct + '%';
+}
+window.addEventListener('scroll', updateRail, {passive:true});
+updateRail();
+
+// ===== Ohm's law simulator =====
+const voltSlider = document.getElementById('voltSlider');
+const resSlider = document.getElementById('resSlider');
+const voltVal = document.getElementById('voltVal');
+const resVal = document.getElementById('resVal');
+const voltDisplay = document.getElementById('voltDisplay');
+const resDisplay = document.getElementById('resDisplay');
+const currentVal = document.getElementById('currentVal');
+const powerVal = document.getElementById('powerVal');
+const bulbGlow = document.getElementById('bulbGlow');
+const bulbCircle = document.getElementById('bulbCircle');
+const powerBulbGlow = document.getElementById('powerBulbGlow');
+const anims = [document.getElementById('anim1'), document.getElementById('anim2'), document.getElementById('anim3')];
+
+function updateSim(){
+  const V = parseFloat(voltSlider.value);
+  const R = parseFloat(resSlider.value);
+  const I = V / R; // amps
+  const I_mA = I * 1000;
+  const P = V * I; // watts
+
+  voltVal.textContent = V + ' V';
+  resVal.textContent = R + ' Ω';
+  voltDisplay.textContent = V;
+  resDisplay.textContent = R;
+  currentVal.textContent = I_mA >= 1000 ? (I_mA/1000).toFixed(2)+'A' : Math.round(I_mA)+'mA';
+  powerVal.textContent = P.toFixed(2);
+
+  const brightness = Math.min(I_mA / 150, 1);
+  bulbGlow.setAttribute('opacity', (0.1 + brightness*0.75).toFixed(2));
+  bulbGlow.setAttribute('r', (20 + brightness*18).toFixed(1));
+  bulbCircle.setAttribute('stroke', brightness > 0.3 ? '#E0A030' : '#8B92A0');
+  if(powerBulbGlow){
+    powerBulbGlow.setAttribute('opacity', (0.15 + brightness*0.6).toFixed(2));
+  }
+
+  const baseDur = 3.2;
+  const dur = Math.max(0.5, baseDur / (0.3 + brightness*2.2));
+  anims.forEach(a => a.setAttribute('dur', dur.toFixed(2)+'s'));
+}
+voltSlider.addEventListener('input', updateSim);
+resSlider.addEventListener('input', updateSim);
+updateSim();
+
+// ===== Generic quiz engine — supports multiple independent quiz blocks =====
+const arNums = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+function toArabicNum(n){ return String(n).split('').map(d => arNums[parseInt(d)]).join(''); }
+
+function initQuiz(wrapEl){
+  const questions = Array.from(wrapEl.querySelectorAll('.quiz-q'));
+  const totalQ = questions.length;
+  let current = 0;
+  let score = 0;
+  let answered = new Array(totalQ).fill(false);
+
+  const progressEl = wrapEl.querySelector('.quiz-progress');
+  const nextBtn = wrapEl.querySelector('.quiz-next-btn');
+  const dotsWrap = wrapEl.querySelector('.quiz-dots');
+  const resultEl = wrapEl.querySelector('.quiz-result');
+  const scoreEl = wrapEl.querySelector('.quiz-result .score');
+  const finalMsgEl = wrapEl.querySelector('#finalMsg');
+  const isFinal = wrapEl.dataset.quiz === 'finalExam';
+
+  function buildDots(){
+    dotsWrap.innerHTML = '';
+    for(let i=0;i<totalQ;i++){
+      const d = document.createElement('div');
+      d.className = 'quiz-dot';
+      dotsWrap.appendChild(d);
+    }
+    refreshDots();
+  }
+  function refreshDots(){
+    const dots = dotsWrap.querySelectorAll('.quiz-dot');
+    dots.forEach((d,i)=>{
+      d.classList.remove('done','current');
+      if(answered[i]) d.classList.add('done');
+      if(i===current) d.classList.add('current');
+    });
+  }
+  function showQuestion(idx){
+    questions.forEach(q=>q.classList.remove('active'));
+    questions[idx].classList.add('active');
+    progressEl.textContent = `السؤال ${toArabicNum(idx+1)} من ${toArabicNum(totalQ)}`;
+    nextBtn.classList.remove('show');
+    refreshDots();
+  }
+  function attachOptionHandlers(qEl, qIndex){
+    const opts = qEl.querySelectorAll('.quiz-opt');
+    const feedback = qEl.querySelector('.quiz-feedback');
+    opts.forEach(opt=>{
+      opt.addEventListener('click', ()=>{
+        if(answered[qIndex]) return;
+        answered[qIndex] = true;
+        const isCorrect = opt.dataset.correct === 'true';
+        opts.forEach(o=>{
+          o.disabled = true;
+          if(o.dataset.correct === 'true') o.classList.add('correct');
+          else if(o===opt) o.classList.add('incorrect');
+        });
+        if(isCorrect) score++;
+        feedback.textContent = isCorrect
+          ? 'صحيح. هذا هو جوهر العلاقة بين هذه المفاهيم.'
+          : 'غير دقيق — لاحظ الإجابة المظللة بالسيان وراجع المفهوم المرتبط بها أعلاه.';
+        feedback.classList.add('show');
+        refreshDots();
+        if(qIndex === totalQ-1){ nextBtn.textContent = 'عرض النتيجة ←'; }
+        nextBtn.classList.add('show');
+      });
+    });
+  }
+  questions.forEach((q,i)=>attachOptionHandlers(q,i));
+
+  nextBtn.addEventListener('click', ()=>{
+    if(current === totalQ-1){
+      wrapEl.querySelectorAll('.quiz-q, .quiz-progress, .quiz-nav').forEach(el=>el.style.display='none');
+      scoreEl.textContent = `${toArabicNum(score)}/${toArabicNum(totalQ)}`;
+      if(isFinal && finalMsgEl){
+        let msg = '';
+        if(score === totalQ) msg = 'إتقان كامل! أنت جاهز للانتقال لمواضيع أعمق في الكهرباء.';
+        else if(score >= totalQ*0.7) msg = 'فهم جيد جداً. راجع الأسئلة التي أخطأت فيها بسرعة، ثم انتقل قدماً.';
+        else msg = 'يُفضّل مراجعة الأقسام أعلاه مرة أخرى قبل الانتقال لما بعد هذا الكورس.';
+        finalMsgEl.textContent = msg;
+      }
+      resultEl.classList.add('show');
+    } else {
+      current++;
+      showQuestion(current);
+    }
+  });
+
+  wrapEl.querySelector('.quiz-restart').addEventListener('click', ()=>{
+    current = 0; score = 0; answered = new Array(totalQ).fill(false);
+    questions.forEach(q=>{
+      q.querySelectorAll('.quiz-opt').forEach(o=>{ o.disabled=false; o.classList.remove('correct','incorrect'); });
+      q.querySelector('.quiz-feedback').classList.remove('show');
+    });
+    nextBtn.textContent = totalQ === 1 ? 'عرض النتيجة ←' : 'التالي ←';
+    wrapEl.querySelectorAll('.quiz-q, .quiz-progress, .quiz-nav').forEach(el=>el.style.display='');
+    resultEl.classList.remove('show');
+    showQuestion(0);
+  });
+
+  if(totalQ === 1){ nextBtn.textContent = 'عرض النتيجة ←'; }
+  buildDots();
+  showQuestion(0);
+}
+
+document.querySelectorAll('[data-quiz]').forEach(initQuiz);
+</script>
+
+</body>
+</html>
