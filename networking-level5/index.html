@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الشبكات — المستوى الخامس: حلّ المشاكل كالمحترفين</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0e1116;--bg2:#141922;--panel:#1a212c;--panel2:#212b38;--ink:#e8edf4;--ink2:#aab6c6;--muted:#79859a;--line:#2a3442;--line2:#374556;--copper:#d98a4f;--copper2:#f0a368;--cyan:#46c8d8;--cyan2:#6fe0ee;--good:#46c8a0;--bad:#e0716f;--warn:#e0b34f;--rail:#2a3442;--radius:14px;--radius-sm:9px;--shadow:0 10px 30px rgba(0,0,0,.35);--maxw:920px;}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:radial-gradient(1200px 600px at 80% -10%,#172030 0%,transparent 55%),radial-gradient(900px 500px at 0% 10%,#16242a 0%,transparent 50%),var(--bg);color:var(--ink);font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;line-height:1.85;font-size:17px;font-weight:300;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.mono{font-family:'IBM Plex Mono',monospace;direction:ltr;unicode-bidi:embed}
+#rail{position:fixed;top:0;right:0;left:0;height:4px;background:var(--rail);z-index:200}
+#rail-fill{height:100%;width:0;background:linear-gradient(90deg,var(--copper),var(--cyan));transition:width .08s linear}
+.crumb{position:sticky;top:0;z-index:150;background:rgba(14,17,22,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.crumb-in{max-width:var(--maxw);margin:0 auto;padding:11px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.badge{background:linear-gradient(135deg,var(--copper),var(--copper2));color:#1a1208;font-weight:600;font-size:13px;padding:4px 11px;border-radius:999px;white-space:nowrap}
+.crumb a{color:var(--ink2);text-decoration:none;font-size:14px;border-bottom:1px dashed transparent;transition:.2s}
+.crumb a:hover{color:var(--cyan2);border-bottom-color:var(--cyan)}
+.crumb .sep{color:var(--muted);font-size:12px}.crumb .here{color:var(--ink);font-weight:500;font-size:14px}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px}
+.hero{padding:64px 0 30px;text-align:center}
+.kicker{color:var(--cyan2);font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;direction:ltr}
+h1{font-size:clamp(30px,6vw,48px);font-weight:700;line-height:1.3;margin-bottom:16px;background:linear-gradient(135deg,#fff 30%,var(--cyan2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sub{color:var(--ink2);font-size:clamp(17px,2.4vw,20px);font-weight:300;max-width:680px;margin:0 auto 26px}
+.chips{display:flex;gap:11px;justify-content:center;flex-wrap:wrap;margin-bottom:26px}
+.chip{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-size:14px;color:var(--ink2);display:flex;align-items:center;gap:7px}
+.chip b{color:var(--copper2);font-weight:600}
+.prereq{background:linear-gradient(135deg,rgba(70,200,216,.07),rgba(217,138,79,.05));border:1px solid var(--line2);border-radius:var(--radius);padding:16px 20px;max-width:620px;margin:0 auto 30px;font-size:15px;color:var(--ink2)}
+.prereq b{color:var(--ink)}.prereq a{color:var(--cyan2);text-decoration:none;border-bottom:1px dashed var(--cyan)}
+.toc{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;max-width:560px;margin:0 auto 20px;text-align:right}
+.toc h3{font-size:14px;color:var(--muted);font-weight:500;margin-bottom:14px;font-family:'IBM Plex Mono',monospace;letter-spacing:.5px;direction:ltr;text-align:left}
+.toc ol{list-style:none;counter-reset:toc}.toc li{counter-increment:toc;margin-bottom:9px}
+.toc a{color:var(--ink2);text-decoration:none;display:flex;align-items:center;gap:12px;padding:7px 10px;border-radius:8px;transition:.2s}
+.toc a:hover{background:var(--panel2);color:var(--ink)}
+.toc a::before{content:counter(toc,decimal-leading-zero);font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--copper);background:var(--bg);border:1px solid var(--line2);width:30px;height:30px;border-radius:8px;display:grid;place-items:center;flex-shrink:0;direction:ltr}
+.cue{text-align:center;color:var(--muted);font-size:13px;margin:30px 0;animation:bob 2s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
+section{padding:46px 0;border-top:1px solid var(--line)}
+.step-tag{display:inline-flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line2);border-radius:999px;padding:6px 15px;font-size:13px;color:var(--copper2);font-family:'IBM Plex Mono',monospace;margin-bottom:18px;direction:ltr}
+.step-tag .n{background:linear-gradient(135deg,var(--copper),var(--copper2));color:#1a1208;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-weight:600}
+h2{font-size:clamp(24px,4vw,32px);font-weight:600;margin-bottom:16px;line-height:1.4}
+h3.sub-h{font-size:20px;font-weight:600;color:var(--cyan2);margin:26px 0 12px}
+p{color:var(--ink2);margin-bottom:16px;font-weight:300}
+p b,li b{color:var(--ink);font-weight:600}.lead{font-size:19px;color:var(--ink)}
+ul.bul{list-style:none;margin:16px 0}
+ul.bul li{color:var(--ink2);margin-bottom:11px;padding-right:26px;position:relative}
+ul.bul li::before{content:'';position:absolute;right:6px;top:13px;width:7px;height:7px;border-radius:50%;background:var(--copper)}
+.analogy{background:linear-gradient(135deg,var(--panel),var(--bg2));border:1px solid var(--line2);border-right:3px solid var(--copper);border-radius:var(--radius);padding:20px 22px;margin:22px 0}
+.analogy .tag{color:var(--copper2);font-size:13px;font-weight:600;font-family:'IBM Plex Mono',monospace;direction:ltr;display:block;margin-bottom:8px}
+.sim{background:var(--panel);border:1px solid var(--line2);border-radius:var(--radius);padding:24px;margin:26px 0;box-shadow:var(--shadow)}
+.sim-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.sim-head .dot{width:9px;height:9px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.sim-head h4{font-size:16px;font-weight:600;color:var(--ink)}
+.sim-note{font-size:13px;color:var(--muted);margin-bottom:18px}
+.ctrl{margin:16px 0}.ctrl label{display:flex;justify-content:space-between;font-size:14px;color:var(--ink2);margin-bottom:8px}
+.ctrl label .val{font-family:'IBM Plex Mono',monospace;color:var(--cyan2);direction:ltr}
+input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:3px;background:var(--line2);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--copper),var(--copper2));cursor:pointer;border:2px solid var(--bg);box-shadow:0 2px 8px rgba(0,0,0,.4)}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--copper2);cursor:pointer;border:2px solid var(--bg)}
+.btn{background:linear-gradient(135deg,var(--copper),var(--copper2));color:#1a1208;border:none;border-radius:9px;padding:11px 20px;font-family:'IBM Plex Sans Arabic',sans-serif;font-weight:600;font-size:15px;cursor:pointer;transition:.2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(217,138,79,.3)}.btn:active{transform:translateY(0)}
+.btn.ghost{background:transparent;border:1px solid var(--line2);color:var(--ink2)}
+.btn.ghost:hover{border-color:var(--cyan);color:var(--cyan2);box-shadow:none}
+.btn.cyan{background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:#06222a}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+.toggle-row{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.toggle{background:var(--bg);border:1px solid var(--line2);border-radius:8px;padding:9px 15px;font-size:14px;color:var(--ink2);cursor:pointer;transition:.2s;font-family:inherit}
+.toggle.on{background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:#06222a;border-color:transparent;font-weight:600}
+.stage{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-sm);padding:20px;margin:16px 0;min-height:90px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px}
+.readout{font-family:'IBM Plex Mono',monospace;font-size:14px;color:var(--ink2);direction:ltr;text-align:left;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-top:12px;white-space:pre-wrap;word-break:break-word}
+.readout .hl{color:var(--cyan2)}.readout .cu{color:var(--copper2)}
+.quiz{background:linear-gradient(135deg,var(--panel),var(--bg2));border:1px solid var(--line2);border-radius:var(--radius);padding:22px;margin:26px 0}
+.quiz .q-tag{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--copper2);direction:ltr;margin-bottom:10px}
+.quiz .q{font-size:17px;font-weight:500;color:var(--ink);margin-bottom:16px}
+.opt{display:block;width:100%;text-align:right;background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:13px 16px;margin-bottom:10px;color:var(--ink2);cursor:pointer;font-family:inherit;font-size:15px;transition:.15s}
+.opt:hover{border-color:var(--cyan);color:var(--ink)}
+.opt.correct{border-color:var(--good);background:rgba(70,200,160,.12);color:#bfeede}
+.opt.wrong{border-color:var(--bad);background:rgba(224,113,111,.12);color:#f1c2c1}
+.opt:disabled{cursor:default}
+.fb{font-size:14px;padding:12px 14px;border-radius:8px;margin-top:6px;display:none}.fb.show{display:block}
+.fb.ok{background:rgba(70,200,160,.1);color:#9fe2cc;border:1px solid rgba(70,200,160,.3)}
+.fb.no{background:rgba(224,113,111,.1);color:#eab4b3;border:1px solid rgba(224,113,111,.3)}
+.tbl{width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;background:var(--panel);border-radius:var(--radius);overflow:hidden}
+.tbl th{background:var(--panel2);color:var(--copper2);font-weight:600;text-align:right;padding:13px 16px;font-size:14px;border-bottom:1px solid var(--line2)}
+.tbl td{padding:12px 16px;color:var(--ink2);border-bottom:1px solid var(--line)}
+.tbl tr:last-child td{border-bottom:none}.tbl .mono{color:var(--cyan2)}
+.symgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;margin:18px 0}
+.sym{background:var(--panel);border:1px solid var(--line2);border-radius:var(--radius-sm);padding:18px 14px;text-align:center}
+.sym svg{width:46px;height:46px;margin-bottom:8px}
+.sym .sname{font-size:14px;color:var(--ink);font-weight:500;margin-bottom:3px}
+.sym .sdesc{font-size:12px;color:var(--muted)}
+.exam{background:linear-gradient(160deg,var(--panel2),var(--bg2));border:1px solid var(--line2);border-radius:var(--radius);padding:26px;margin:30px 0}
+.exam h2{margin-bottom:6px}.exam-sub{color:var(--ink2);font-size:15px;margin-bottom:8px}
+.eq{padding:18px 0;border-top:1px solid var(--line)}.eq:first-of-type{border-top:none}
+.eq .eqn{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--copper2);direction:ltr;margin-bottom:8px}
+.eq .eqq{font-size:16px;font-weight:500;color:var(--ink);margin-bottom:14px}
+.escore{margin-top:24px;padding:22px;border-radius:var(--radius);text-align:center;display:none}
+.escore.show{display:block;animation:pop .4s ease}
+@keyframes pop{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+.escore .big{font-size:42px;font-weight:700;font-family:'IBM Plex Mono',monospace;direction:ltr}.escore .msg{font-size:17px;margin-top:8px}
+.done{background:linear-gradient(135deg,rgba(217,138,79,.12),rgba(70,200,216,.1));border:1px solid var(--line2);border-radius:var(--radius);padding:34px;text-align:center;margin:34px 0}
+.done .ic{width:64px;height:64px;margin:0 auto 16px;background:linear-gradient(135deg,var(--copper),var(--cyan));border-radius:50%;display:grid;place-items:center}
+.done h2{margin-bottom:10px}.done p{max-width:520px;margin:0 auto 20px}
+.next-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:#06222a;text-decoration:none;font-weight:600;padding:14px 26px;border-radius:11px;font-size:16px;transition:.2s}
+.next-btn:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(70,200,216,.3)}
+.locked .next-btn{opacity:.4;pointer-events:none;filter:grayscale(.6)}
+.lockmsg{font-size:13px;color:var(--muted);margin-top:12px}
+footer{border-top:1px solid var(--line);padding:30px 0 50px;text-align:center}
+.disc{background:var(--panel);border:1px solid var(--line2);border-radius:var(--radius);padding:18px 22px;font-size:13px;color:var(--muted);max-width:640px;margin:0 auto 18px}
+.disc b{color:var(--ink2)}
+footer .copy{font-size:13px;color:var(--muted);font-family:'IBM Plex Mono',monospace;direction:ltr}
+/* device compare */
+.devcards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+.devcard{background:var(--bg2);border:1px solid var(--line2);border-radius:12px;padding:18px;text-align:center;cursor:pointer;transition:.2s}
+.devcard:hover{border-color:var(--cyan);transform:translateY(-3px)}
+.devcard.sel{border-color:var(--copper2);background:linear-gradient(135deg,rgba(217,138,79,.12),var(--bg2))}
+.devcard svg{width:50px;height:50px;margin-bottom:10px}
+.devcard .dname{font-weight:600;color:var(--ink);margin-bottom:4px}
+.devcard .dlayer{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--cyan2);direction:ltr}
+/* vlan */
+.vlanwrap{display:flex;flex-direction:column;gap:10px;margin:14px 0}
+.vport{display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--line2);border-radius:9px;padding:11px 14px;transition:.3s}
+.vport .pnum{font-family:'IBM Plex Mono',monospace;color:var(--muted);width:54px;direction:ltr;font-size:13px}
+.vport .pname{flex:1;color:var(--ink);font-size:15px}
+.vport .vtag{font-family:'IBM Plex Mono',monospace;font-size:12px;padding:4px 10px;border-radius:6px;direction:ltr;cursor:pointer;transition:.2s;border:1px solid transparent}
+.vtag.v10{background:rgba(217,138,79,.18);color:var(--copper2);border-color:rgba(217,138,79,.4)}
+.vtag.v20{background:rgba(70,200,216,.18);color:var(--cyan2);border-color:rgba(70,200,216,.4)}
+.vport.v10{border-right:3px solid var(--copper)}
+.vport.v20{border-right:3px solid var(--cyan)}
+/* traffic */
+.trafgrid{display:flex;flex-direction:column;gap:8px;margin:14px 0}
+.thost{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg2);border:1px solid var(--line2);border-radius:8px;transition:.3s}
+.thost .ic{width:30px;height:30px;border-radius:6px;display:grid;place-items:center;font-size:15px;background:var(--panel2)}
+.thost .nm{flex:1;font-size:14px;color:var(--ink2);font-family:'IBM Plex Mono',monospace;direction:ltr}
+.thost.hit{border-color:var(--cyan);background:rgba(70,200,216,.1)}
+.thost.hit .nm{color:var(--cyan2)}
+.thost .recv{font-size:12px;color:var(--good);opacity:0;transition:.3s}
+.thost.hit .recv{opacity:1}
+@media(max-width:560px){body{font-size:16px}.sim{padding:18px}.devcards{grid-template-columns:1fr}}
+
+/* level-5 specific */
+.term{background:#0a0d12;border:1px solid var(--line2);border-radius:9px;padding:16px;font-family:'IBM Plex Mono',monospace;font-size:13px;direction:ltr;text-align:left;color:#b9c6d6;min-height:120px;white-space:pre-wrap;line-height:1.7;overflow-x:auto}
+.term .prompt{color:var(--cyan2)}
+.term .ok{color:var(--good)}
+.term .err{color:var(--bad)}
+.term .dim{color:var(--muted)}
+.term .cu{color:var(--copper2)}
+.layer-check{display:flex;flex-direction:column;gap:7px;margin:10px 0}
+.lc{display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--line2);border-radius:9px;padding:12px 15px;transition:.3s;opacity:.4}
+.lc.on{opacity:1}
+.lc.pass{border-color:rgba(70,200,160,.4)}
+.lc.fail{border-color:rgba(224,113,111,.5);background:linear-gradient(135deg,rgba(224,113,111,.1),var(--bg2))}
+.lc .lcn{font-family:'IBM Plex Mono',monospace;color:var(--copper2);width:64px;flex-shrink:0;direction:ltr;font-size:12px}
+.lc .lct b{color:var(--ink);display:block;font-size:14px}
+.lc .lct span{font-size:13px;color:var(--ink2)}
+.lc .lcv{margin-right:auto;font-size:18px;flex-shrink:0}
+.dtree{background:var(--bg2);border:1px solid var(--line2);border-radius:11px;padding:20px;margin:10px 0}
+.dtree .scenario{font-size:15px;color:var(--ink);margin-bottom:16px;padding:13px;background:var(--panel2);border-radius:8px;border-right:3px solid var(--copper)}
+.dtree .dq{font-size:15px;color:var(--cyan2);font-weight:600;margin-bottom:12px}
+.dopt{display:block;width:100%;text-align:right;background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:12px 15px;margin-bottom:9px;color:var(--ink2);cursor:pointer;font-family:inherit;font-size:14px;transition:.15s}
+.dopt:hover{border-color:var(--cyan);color:var(--ink)}
+.dresult{margin-top:14px;padding:14px;border-radius:9px;font-size:14px;display:none}
+.dresult.show{display:block;animation:pop .3s ease}
+.dresult.win{background:rgba(70,200,160,.1);border:1px solid rgba(70,200,160,.35);color:#9fe2cc}
+.dresult.lose{background:rgba(224,179,79,.1);border:1px solid rgba(224,179,79,.35);color:#e6c98a}
+
+</style>
+</head>
+<body>
+<div id="rail"><div id="rail-fill"></div></div>
+
+<nav class="crumb">
+  <div class="crumb-in">
+    <span class="badge">المستوى 5 من 5</span>
+    <a href="../index.html">المسارات</a>
+    <span class="sep">/</span>
+    <a href="../networking-level4/index.html">المستوى 4</a>
+    <span class="sep">/</span>
+    <span class="here">حلّ المشاكل كالمحترفين</span>
+  </div>
+</nav>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="kicker">Networking · Level 05</div>
+    <h1>حلّ المشاكل كالمحترفين</h1>
+    <p class="sub">المستوى الأخير. هنا نجمع كل ما تعلّمته ونحوّله إلى مهارة عملية: عندما "لا يعمل الإنترنت"، كيف تشخّص المشكلة بمنهجية بدل التخمين العشوائي، وأي أدوات تستخدم.</p>
+    <div class="chips">
+      <div class="chip">⏱️ <b>~30 دقيقة</b></div>
+      <div class="chip">🎯 <b>5 مفاهيم</b></div>
+      <div class="chip">💻 <b>طرفية تفاعلية</b></div>
+      <div class="chip">📝 <b>امتحان من 10</b></div>
+    </div>
+    <div class="prereq">
+      <b>قبل أن تبدأ:</b> هذا المستوى يجمع كل ما سبق. يُفترض أنك أكملت <a href="../networking-level4/index.html">المستويات 1–4</a>: الطبقات، العناوين، الأجهزة، والأمن. سنستخدمها كلها للتشخيص.
+    </div>
+    <nav class="toc">
+      <h3>// in this level</h3>
+      <ol>
+        <li><a href="#s1">المنهجية: طبقة بطبقة</a></li>
+        <li><a href="#s2">أداة ping</a></li>
+        <li><a href="#s3">أداة ipconfig</a></li>
+        <li><a href="#s4">أداة traceroute</a></li>
+        <li><a href="#s5">شخّص العطل بنفسك</a></li>
+        <li><a href="#glossary">المصطلحات والمراجع</a></li>
+        <li><a href="#exam">الامتحان النهائي</a></li>
+      </ol>
+    </nav>
+    <div class="cue">↓ مرّر للأسفل لتبدأ</div>
+  </header>
+</div>
+
+<div class="wrap">
+
+<!-- S1 -->
+<section id="s1">
+  <span class="step-tag"><span class="n">1</span> المنهجية</span>
+  <h2>القاعدة الأولى: شخّص من الأسفل للأعلى</h2>
+  <p class="lead">المبتدئ يخمّن. المحترف يتبع طبقات OSI واحدة واحدة.</p>
+  <p>عندما تتعطّل الشبكة، لا تقفز للاستنتاجات. ابدأ من <b>الطبقة الأدنى</b> (هل الكابل موصول؟ هل Wi-Fi متصل؟) واصعد طبقة طبقة. هكذا تعزل المشكلة بدل تجربة حلول عشوائية. أول طبقة تفشل هي مصدر العطل غالبًا.</p>
+
+  <div class="analogy">
+    <span class="tag">// تشبيه</span>
+    مثل طبيب يفحص بترتيب: النبض أولًا، ثم التنفّس، ثم باقي الأعراض. لا يبدأ بأعقد الاحتمالات. في الشبكة: تأكّد أن الأساس سليم (الكابل، الاتصال) قبل أن تتّهم الموقع أو المتصفّح.</p>
+  </div>
+
+  <p>شغّل فحصًا تشخيصيًا متدرّجًا وشاهد أين يتوقّف:</p>
+
+  <div class="sim">
+    <div class="sim-head"><span class="dot"></span><h4>الفحص المتدرّج طبقة بطبقة</h4></div>
+    <div class="sim-note">اختر سيناريو عطل ثم شغّل الفحص. ستتوقّف العملية عند أول طبقة فاشلة.</div>
+    <div class="toggle-row" id="scenRow"></div>
+    <div class="layer-check" id="layerCheck"></div>
+    <div class="btn-row">
+      <button class="btn cyan" onclick="diagStep()">▸ افحص الطبقة التالية</button>
+      <button class="btn ghost" onclick="diagReset()">إعادة</button>
+    </div>
+    <div class="readout" id="diagOut">اختر سيناريو ثم ابدأ الفحص.</div>
+  </div>
+
+  <div class="quiz" data-q>
+    <div class="q-tag">// quiz</div>
+    <div class="q">من أين يبدأ المحترف تشخيص عطل في الشبكة؟</div>
+    <button class="opt" data-correct="true">من الطبقة الأدنى (الكابل/الاتصال) صعودًا</button>
+    <button class="opt" data-correct="false">من أعقد احتمال أولًا</button>
+    <button class="opt" data-correct="false">بإعادة تشغيل كل شيء عشوائيًا</button>
+    <div class="fb ok">صحيح! ابدأ من الأساس واصعد — أول طبقة تفشل هي غالبًا مصدر العطل.</div>
+    <div class="fb no">ليس تمامًا. المنهجية الصحيحة: من الأدنى للأعلى، طبقة طبقة.</div>
+  </div>
+</section>
+
+<!-- S2 -->
+<section id="s2">
+  <span class="step-tag"><span class="n">2</span> ping</span>
+  <h2>ping: هل الطرف الآخر حيّ؟</h2>
+  <p><b>ping</b> أبسط وأهمّ أداة تشخيص. تُرسل "نبضة" صغيرة لجهاز وتنتظر ردّه، تمامًا كأنك تنادي شخصًا وتنتظر "نعم". إن ردّ، فالطريق إليه سالك. إن لم يردّ، فهناك انقطاع في مكان ما.</p>
+  <p>ping تعطيك معلومتين مهمّتين: هل وصلت الرسالة (نجاح/فشل)، وكم استغرقت (زمن الاستجابة بالـ ms). زمن أقل = اتصال أسرع.</p>
+
+  <div class="analogy">
+    <span class="tag">// تشبيه</span>
+    مثل صدى الصوت في الجبل. تصرخ، وإن سمعت صدى فالجبل هناك وتعرف كم بَعُد من سرعة عودة الصدى. ping يفعل الشيء نفسه مع الأجهزة: ينادي، ويقيس زمن الردّ.</p>
+  </div>
+
+  <p>جرّب ping على أهداف مختلفة:</p>
+
+  <div class="sim">
+    <div class="sim-head"><span class="dot"></span><h4>طرفية ping</h4></div>
+    <div class="sim-note">اضغط هدفًا لإرسال ping إليه وشاهد النتيجة كما تظهر في الطرفية الحقيقية.</div>
+    <div class="toggle-row" id="pingTargets"></div>
+    <div class="term" id="pingTerm"><span class="dim">$ في انتظار أمر ping...</span></div>
+  </div>
+
+  <div class="quiz" data-q>
+    <div class="q-tag">// quiz</div>
+    <div class="q">ماذا يخبرك نجاح أمر ping لجهاز ما؟</div>
+    <button class="opt" data-correct="true">أن الطريق إليه سالك وهو يستجيب</button>
+    <button class="opt" data-correct="false">أن كلمة مروره صحيحة</button>
+    <button class="opt" data-correct="false">أن سرعة الإنترنت 100 ميجابت</button>
+    <div class="fb ok">صحيح! ping ناجح = الجهاز قابل للوصول ويردّ، والمسار إليه يعمل.</div>
+    <div class="fb no">ليس تمامًا. ping يخبرك فقط أن الجهاز قابل للوصول ويستجيب.</div>
+  </div>
+</section>
+
+<!-- S3 -->
+<section id="s3">
+  <span class="step-tag"><span class="n">3</span> ipconfig</span>
+  <h2>ipconfig: ما هي إعدادات جهازك؟</h2>
+  <p>قبل أن تتّهم الشبكة، تأكّد أن جهازك نفسه مُعدّ بشكل صحيح. أمر <b>ipconfig</b> (أو <b>ifconfig</b> على بعض الأنظمة) يكشف لك إعدادات جهازك: عنوان IP الحالي، القناع، والبوابة الافتراضية.</p>
+  <p>هذا يجيب على أسئلة حاسمة: هل حصل جهازي على عنوان IP أصلًا؟ هل البوابة صحيحة؟ لو ظهر عنوان غريب يبدأ بـ <span class="mono">169.254</span>، فهذا يعني أن DHCP فشل ولم يحصل جهازك على عنوان.</p>
+
+  <div class="sim">
+    <div class="sim-head"><span class="dot"></span><h4>طرفية ipconfig</h4></div>
+    <div class="sim-note">اضغط لتشغيل الأمر في حالتين: جهاز سليم، وجهاز فشل DHCP. لاحظ الفرق.</div>
+    <div class="toggle-row">
+      <button class="toggle on" id="ipcHealthy" onclick="runIpc('ok')">جهاز سليم</button>
+      <button class="toggle" id="ipcBroken" onclick="runIpc('fail')">فشل DHCP</button>
+    </div>
+    <div class="term" id="ipcTerm"></div>
+    <div class="readout" id="ipcOut"></div>
+  </div>
+
+  <div class="quiz" data-q>
+    <div class="q-tag">// quiz</div>
+    <div class="q">عنوان يبدأ بـ 169.254 في ipconfig يعني عادةً:</div>
+    <button class="opt" data-correct="true">أن DHCP فشل ولم يحصل الجهاز على عنوان صالح</button>
+    <button class="opt" data-correct="false">أن الإنترنت سريع جدًا</button>
+    <button class="opt" data-correct="false">أن الجهاز محميّ تمامًا</button>
+    <div class="fb ok">صحيح! نطاق 169.254 هو عنوان "احتياطي" يظهر حين يفشل DHCP.</div>
+    <div class="fb no">ليس تمامًا. 169.254 إشارة على فشل DHCP في منح عنوان.</div>
+  </div>
+</section>
+
+<!-- S4 -->
+<section id="s4">
+  <span class="step-tag"><span class="n">4</span> traceroute</span>
+  <h2>traceroute: أين تتعطّل الرحلة بالضبط؟</h2>
+  <p>أحيانًا الموقع لا يفتح، لكنك لا تعرف أين المشكلة: في شبكتك؟ في الطريق؟ في الموقع نفسه؟ هنا يلمع <b>traceroute</b> (أو <b>tracert</b>). يكشف لك كل "قفزة" (Hop) تمرّ بها الحزمة في طريقها للوجهة، خطوة خطوة.</p>
+  <p>إن وصلت الرحلة للقفزة الثالثة ثم توقّفت، عرفت أن المشكلة هناك تحديدًا — لا في جهازك ولا في الوجهة. هذا يحوّل "لا يعمل" الغامضة إلى نقطة محدّدة.</p>
+
+  <div class="analogy">
+    <span class="tag">// تشبيه</span>
+    مثل تتبّع شحنة بريدية. بدل "لم تصل"، ترى: غادرت المستودع ✓، وصلت المدينة ✓، عالقة في مركز الفرز ✗. الآن تعرف أين المشكلة بالضبط بدل التخمين.</p>
+  </div>
+
+  <p>شغّل traceroute وشاهد القفزات تظهر واحدة واحدة:</p>
+
+  <div class="sim">
+    <div class="sim-head"><span class="dot"></span><h4>طرفية traceroute</h4></div>
+    <div class="sim-note">اضغط "القفزة التالية" لتتبّع المسار خطوة بخطوة حتى الوجهة (أو حتى العطل).</div>
+    <div class="toggle-row">
+      <button class="toggle on" id="trOk" onclick="setTrace('ok')">رحلة ناجحة</button>
+      <button class="toggle" id="trFail" onclick="setTrace('fail')">رحلة متعطّلة</button>
+    </div>
+    <div class="term" id="trTerm"><span class="dim">$ اختر نوع الرحلة ثم ابدأ التتبّع...</span></div>
+    <div class="btn-row">
+      <button class="btn cyan" onclick="traceStep()">▸ القفزة التالية</button>
+      <button class="btn ghost" onclick="traceReset()">إعادة</button>
+    </div>
+  </div>
+
+  <div class="quiz" data-q>
+    <div class="q-tag">// quiz</div>
+    <div class="q">ما الذي يساعدك traceroute على معرفته؟</div>
+    <button class="opt" data-correct="true">أين بالضبط تتوقّف الحزمة في طريقها للوجهة</button>
+    <button class="opt" data-correct="false">كلمة مرور الراوتر</button>
+    <button class="opt" data-correct="false">عدد الأجهزة المتصلة بـ Wi-Fi</button>
+    <div class="fb ok">صحيح! traceroute يكشف كل قفزة، فتعرف أين ينقطع المسار تحديدًا.</div>
+    <div class="fb no">ليس تمامًا. traceroute يُظهر مسار الحزمة ونقطة توقّفها.</div>
+  </div>
+</section>
+
+<!-- S5 -->
+<section id="s5">
+  <span class="step-tag"><span class="n">5</span> التطبيق</span>
+  <h2>شخّص العطل بنفسك</h2>
+  <p>الآن دورك. سنعرض عليك أعطالًا واقعية، وعليك اختيار الخطوة التشخيصية الصحيحة باستخدام كل ما تعلّمته. فكّر بمنهجية: ما الطبقة؟ أي أداة؟</p>
+
+  <div class="sim">
+    <div class="sim-head"><span class="dot"></span><h4>سيناريوهات تشخيص</h4></div>
+    <div class="sim-note">اقرأ العطل واختر أفضل خطوة أولى. ستظهر النتيجة وشرحها.</div>
+    <div class="dtree" id="dtree"></div>
+    <div class="btn-row">
+      <button class="btn ghost" onclick="nextScenario()">السيناريو التالي ←</button>
+    </div>
+  </div>
+
+  <div class="quiz" data-q>
+    <div class="q-tag">// quiz</div>
+    <div class="q">"الإنترنت لا يعمل على جهازي فقط، بينما يعمل على بقية الأجهزة." أين تبدأ؟</div>
+    <button class="opt" data-correct="true">بفحص إعدادات جهازي (ipconfig) — المشكلة محليّة فيه</button>
+    <button class="opt" data-correct="false">باتّهام مزوّد الإنترنت</button>
+    <button class="opt" data-correct="false">بتغيير الموقع الذي أزوره</button>
+    <div class="fb ok">صحيح! إن كان العطل في جهاز واحد فقط، فالمشكلة محليّة — ابدأ بـ ipconfig.</div>
+    <div class="fb no">فكّر بالمنطق: جهاز واحد متعطّل = مشكلة محليّة فيه، افحص إعداداته أولًا.</div>
+  </div>
+</section>
+
+<!-- GLOSSARY -->
+<section id="glossary">
+  <span class="step-tag"><span class="n">★</span> مرجع سريع</span>
+  <h2>أدوات التشخيص الأساسية</h2>
+  <table class="tbl">
+    <thead><tr><th>الأداة</th><th>الأمر</th><th>متى تستخدمها</th></tr></thead>
+    <tbody>
+      <tr><td>الاختبار بالنبض</td><td class="mono">ping</td><td>هل الجهاز/الموقع قابل للوصول ويردّ؟</td></tr>
+      <tr><td>إعدادات الجهاز</td><td class="mono">ipconfig</td><td>عرض IP والقناع والبوابة لجهازك</td></tr>
+      <tr><td>تتبّع المسار</td><td class="mono">traceroute</td><td>أين تتوقّف الحزمة في طريقها؟</td></tr>
+      <tr><td>فحص الأسماء</td><td class="mono">nslookup</td><td>هل يُترجم اسم الموقع إلى عنوان؟</td></tr>
+      <tr><td>عنوان احتياطي</td><td class="mono">169.254.x.x</td><td>علامة فشل DHCP</td></tr>
+      <tr><td>الاسترجاع الداخلي</td><td class="mono">127.0.0.1</td><td>اختبار أن بطاقة الشبكة نفسها تعمل</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="sub-h">منهجية التشخيص في 4 أسئلة</h3>
+  <div class="symgrid">
+    <div class="sym"><div class="big-sym">1</div><div class="sname">جهاز واحد أم الكل؟</div><div class="sdesc">يحدّد إن كانت محليّة أم عامة</div></div>
+    <div class="sym"><div class="big-sym">2</div><div class="sname">هل عندي IP؟</div><div class="sdesc">ipconfig — تحقّق من الأساس</div></div>
+    <div class="sym"><div class="big-sym">3</div><div class="sname">هل أصل للبوابة؟</div><div class="sdesc">ping للراوتر</div></div>
+    <div class="sym"><div class="big-sym">4</div><div class="sname">أين ينقطع؟</div><div class="sdesc">traceroute للوجهة</div></div>
+  </div>
+</section>
+
+<!-- EXAM -->
+<section id="exam">
+  <div class="exam">
+    <span class="step-tag"><span class="n">✓</span> الاختبار النهائي</span>
+    <h2>امتحن نفسك — 10 أسئلة</h2>
+    <p class="exam-sub">آخر امتحان في المسار. أجب على الكل ثم اضغط "صحّح إجاباتي". تحتاج 7 من 10 لإكمال المسار كاملًا.</p>
+    <div id="examBody"></div>
+    <div class="btn-row" style="margin-top:18px">
+      <button class="btn" onclick="gradeExam()">صحّح إجاباتي</button>
+      <button class="btn ghost" onclick="resetExam()">امسح الإجابات</button>
+    </div>
+    <div class="escore" id="examScore"></div>
+  </div>
+</section>
+
+<!-- COMPLETE (final — closes the whole track) -->
+<section id="complete" class="locked">
+  <div class="done" id="doneCard">
+    <div class="ic"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#0e1116" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <h2>🎉 ركّبت مسار الشبكات الكامل!</h2>
+    <p>من "ما هي الشبكة؟" إلى تشخيص الأعطال كالمحترفين — أتممت الخمسة مستويات. الآن تفهم الطبقات، العناوين والشبكات الفرعية، الأجهزة، الأمن، وأدوات التشخيص. أساس متين تبني عليه أي تعمّق قادم.</p>
+    <a class="next-btn" href="../index.html">العودة إلى كل المسارات ←</a>
+    <div class="lockmsg" id="lockMsg">🔒 أكمل الامتحان بنجاح (7/10) لإتمام المسار</div>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="disc">
+      <b>تنبيه:</b> هذه المادة تعليمية تبسيطية للمبتدئين، هدفها بناء الحدس والمنهجية. التشخيص في البيئات الحقيقية قد يتطلّب أدوات وخبرة أعمق. للعمل الاحترافي ارجع إلى المراجع والشهادات المعتمدة.
+    </div>
+    <div class="copy">// Networking Track · Level 5 of 5 · Track Complete</div>
+  </div>
+</footer>
+
+<script>
+/* progress rail */
+const rail=document.getElementById('rail-fill');
+addEventListener('scroll',()=>{const h=document.documentElement;rail.style.width=(h.scrollTop)/(h.scrollHeight-h.clientHeight)*100+'%';},{passive:true});
+
+/* mini-quiz engine */
+document.querySelectorAll('[data-q]').forEach(q=>{
+  const opts=q.querySelectorAll('.opt');const ok=q.querySelector('.fb.ok'),no=q.querySelector('.fb.no');
+  opts.forEach(o=>o.addEventListener('click',()=>{
+    opts.forEach(x=>x.disabled=true);
+    const correct=o.dataset.correct==='true';
+    o.classList.add(correct?'correct':'wrong');
+    if(!correct)q.querySelector('[data-correct="true"]').classList.add('correct');
+    (correct?ok:no).classList.add('show');
+  }));
+});
+
+/* S1: layered diagnostic */
+const diagLayers=[
+  {n:'L1 المادية',t:'الكابل / الاتصال',d:'هل السلك موصول أو Wi-Fi متصل؟'},
+  {n:'L2 الربط',t:'بطاقة الشبكة',d:'هل بطاقة الشبكة تعمل وتُرسل؟'},
+  {n:'L3 الشبكة',t:'عنوان IP والبوابة',d:'هل لديك IP صالح وبوابة صحيحة؟'},
+  {n:'L4+ النقل',t:'الوصول للوجهة',d:'هل يستجيب الموقع/الخدمة؟'}
+];
+const scenarios=[
+  {name:'الكابل مفصول',failAt:0},
+  {name:'فشل DHCP (لا IP)',failAt:2},
+  {name:'الموقع نفسه معطّل',failAt:3},
+  {name:'كل شيء سليم',failAt:-1}
+];
+let curScen=0,diagIdx=-1;
+function buildScenRow(){
+  const r=document.getElementById('scenRow');r.innerHTML='';
+  scenarios.forEach((s,i)=>{
+    const b=document.createElement('button');b.className='toggle'+(i===curScen?' on':'');
+    b.textContent=s.name;b.onclick=()=>{curScen=i;diagIdx=-1;buildScenRow();renderDiag();document.getElementById('diagOut').innerHTML='السيناريو: <span class="cu">'+s.name+'</span>. ابدأ الفحص.';};
+    r.appendChild(b);
+  });
+}
+function renderDiag(){
+  const w=document.getElementById('layerCheck');w.innerHTML='';
+  const fail=scenarios[curScen].failAt;
+  diagLayers.forEach((l,i)=>{
+    let cls='lc';let mark='';
+    if(i<=diagIdx){
+      cls+=' on';
+      if(fail!==-1&&i===fail){cls+=' fail';mark='<span class="lcv">✗</span>';}
+      else if(fail===-1||i<fail){cls+=' pass';mark='<span class="lcv">✓</span>';}
+    }
+    const d=document.createElement('div');d.className=cls;
+    d.innerHTML='<span class="lcn">'+l.n+'</span><div class="lct"><b>'+l.t+'</b><span>'+l.d+'</span></div>'+mark;
+    w.appendChild(d);
+  });
+}
+function diagStep(){
+  const fail=scenarios[curScen].failAt;
+  // stop advancing once we hit the failing layer
+  if(fail!==-1&&diagIdx>=fail){
+    document.getElementById('diagOut').innerHTML='<span class="cu">توقّف الفحص عند: '+diagLayers[fail].t+'</span>\n→ هذا مصدر العطل. ركّز إصلاحك هنا.';return;
+  }
+  if(diagIdx<diagLayers.length-1)diagIdx++;
+  renderDiag();
+  if(fail!==-1&&diagIdx===fail){
+    document.getElementById('diagOut').innerHTML='<span class="cu">✗ فشلت الطبقة: '+diagLayers[fail].t+'</span>\n→ وجدنا العطل! المنهجية وفّرت عليك التخمين.';
+  }else if(fail===-1&&diagIdx===diagLayers.length-1){
+    document.getElementById('diagOut').innerHTML='<span class="hl">✓ كل الطبقات سليمة.</span>\nإن استمرّت المشكلة فهي على مستوى أعلى (التطبيق نفسه).';
+  }else{
+    document.getElementById('diagOut').innerHTML='الطبقة <span class="hl">'+diagLayers[diagIdx].t+'</span>: سليمة ✓ — تابع للأعلى.';
+  }
+}
+function diagReset(){diagIdx=-1;renderDiag();document.getElementById('diagOut').innerHTML='السيناريو: <span class="cu">'+scenarios[curScen].name+'</span>. ابدأ الفحص.';}
+buildScenRow();renderDiag();
+
+/* S2: ping terminal */
+const pingT={
+  'الراوتر (192.168.1.1)':{ok:true,ms:[1,1,2,1]},
+  'موقع جوجل (8.8.8.8)':{ok:true,ms:[14,12,15,13]},
+  'موقع لا يستجيب':{ok:false,ms:[]}
+};
+function buildPingTargets(){
+  const r=document.getElementById('pingTargets');r.innerHTML='';
+  Object.keys(pingT).forEach(k=>{
+    const b=document.createElement('button');b.className='toggle';b.textContent=k;b.onclick=()=>runPing(k);r.appendChild(b);
+  });
+}
+function runPing(k){
+  const t=pingT[k];const term=document.getElementById('pingTerm');
+  const host=k.match(/\(([^)]+)\)/)?k.match(/\(([^)]+)\)/)[1]:'10.0.0.99';
+  let out='<span class="prompt">$ ping '+host+'</span>\n\n';
+  if(t.ok){
+    t.ms.forEach((m,i)=>{out+='Reply from '+host+': bytes=32 time='+m+'ms TTL=64\n';});
+    const avg=Math.round(t.ms.reduce((a,b)=>a+b,0)/t.ms.length);
+    out+='\n<span class="ok">✓ 4 sent, 4 received, 0% loss</span>\n';
+    out+='<span class="dim">avg = '+avg+'ms — </span><span class="cu">'+(avg<5?'ممتاز (محلي)':avg<50?'جيّد':'بطيء')+'</span>';
+  }else{
+    out+='Request timed out.\nRequest timed out.\nRequest timed out.\nRequest timed out.\n';
+    out+='\n<span class="err">✗ 4 sent, 0 received, 100% loss</span>\n';
+    out+='<span class="dim">الهدف لا يستجيب — انقطاع في المسار أو الجهاز متوقّف.</span>';
+  }
+  term.innerHTML=out;
+}
+buildPingTargets();
+
+/* S3: ipconfig */
+function runIpc(mode){
+  document.getElementById('ipcHealthy').classList.toggle('on',mode==='ok');
+  document.getElementById('ipcBroken').classList.toggle('on',mode==='fail');
+  const term=document.getElementById('ipcTerm');const out=document.getElementById('ipcOut');
+  if(mode==='ok'){
+    term.innerHTML='<span class="prompt">$ ipconfig</span>\n\n'+
+      '   IPv4 Address . . . : <span class="ok">192.168.1.42</span>\n'+
+      '   Subnet Mask  . . . : 255.255.255.0\n'+
+      '   Default Gateway  . : <span class="ok">192.168.1.1</span>';
+    out.innerHTML='<span class="hl">جهاز سليم:</span> عنوان IP صالح وبوابة واضحة. الأساس يعمل. ✓';
+  }else{
+    term.innerHTML='<span class="prompt">$ ipconfig</span>\n\n'+
+      '   IPv4 Address . . . : <span class="err">169.254.88.12</span>\n'+
+      '   Subnet Mask  . . . : 255.255.0.0\n'+
+      '   Default Gateway  . : <span class="err">(فارغ)</span>';
+    out.innerHTML='<span class="cu">مشكلة!</span> العنوان 169.254.x.x والبوابة فارغة → <span class="cu">فشل DHCP</span>. الجهاز لم يحصل على عنوان. الحلّ: أعد الاتصال أو افحص الراوتر.';
+  }
+}
+runIpc('ok');
+
+/* S4: traceroute */
+const traceData={
+  ok:[
+    {hop:1,host:'192.168.1.1 (الراوتر)',ms:1,ok:true},
+    {hop:2,host:'10.20.0.1 (المزوّد)',ms:8,ok:true},
+    {hop:3,host:'72.14.x.x (عبور)',ms:18,ok:true},
+    {hop:4,host:'8.8.8.8 (الوجهة)',ms:21,ok:true}
+  ],
+  fail:[
+    {hop:1,host:'192.168.1.1 (الراوتر)',ms:1,ok:true},
+    {hop:2,host:'10.20.0.1 (المزوّد)',ms:9,ok:true},
+    {hop:3,host:'* * * (لا استجابة)',ms:null,ok:false},
+    {hop:4,host:'* * * (لا استجابة)',ms:null,ok:false}
+  ]
+};
+let traceMode='ok',traceIdx=-1;
+function setTrace(m){traceMode=m;traceIdx=-1;document.getElementById('trOk').classList.toggle('on',m==='ok');document.getElementById('trFail').classList.toggle('on',m==='fail');document.getElementById('trTerm').innerHTML='<span class="prompt">$ traceroute '+(m==='ok'?'8.8.8.8':'example.com')+'</span>\n<span class="dim">اضغط "القفزة التالية" لبدء التتبّع...</span>';}
+function traceStep(){
+  const data=traceData[traceMode];
+  if(traceIdx>=data.length-1)return;
+  traceIdx++;
+  let out='<span class="prompt">$ traceroute '+(traceMode==='ok'?'8.8.8.8':'example.com')+'</span>\n\n';
+  for(let i=0;i<=traceIdx;i++){
+    const h=data[i];
+    if(h.ok){out+=(h.hop)+'  '+h.host+'  <span class="ok">'+h.ms+'ms</span>\n';}
+    else{out+=(h.hop)+'  <span class="err">'+h.host+'</span>\n';}
+  }
+  // verdict
+  if(traceMode==='ok'&&traceIdx===data.length-1){out+='\n<span class="ok">✓ وصلت الرحلة للوجهة بنجاح.</span>';}
+  else if(traceMode==='fail'&&!data[traceIdx].ok&&(traceIdx===2)){out+='\n<span class="cu">✗ المسار ينقطع بعد القفزة 2 (المزوّد).</span>\n<span class="dim">المشكلة خارج شبكتك — لدى المزوّد أو ما بعده.</span>';}
+  document.getElementById('trTerm').innerHTML=out;
+}
+function traceReset(){traceIdx=-1;setTrace(traceMode);}
+setTrace('ok');
+
+/* S5: diagnostic decision tree */
+const dscenarios=[
+  {
+    s:'الإنترنت بطيء على جهاز واحد فقط، وقريب من حدود البيت بعيدًا عن الراوتر.',
+    q:'ما أرجح سبب وأفضل خطوة؟',
+    opts:[
+      {t:'إشارة Wi-Fi ضعيفة بسبب المسافة — اقترب أو استخدم كابل',win:true},
+      {t:'الموقع كله معطّل عالميًا',win:false},
+      {t:'كلمة مرور Wi-Fi خاطئة',win:false}
+    ],
+    win:'صحيح! جهاز واحد + بعيد عن الراوتر = ضعف إشارة لاسلكية (مفهوم المستوى 4).',
+    lose:'فكّر: المشكلة على جهاز واحد بعيد عن الراوتر — هذا نمط ضعف الإشارة اللاسلكية.'
+  },
+  {
+    s:'لا يوجد إنترنت على أي جهاز في البيت إطلاقًا، وأضواء الراوتر مطفأة.',
+    q:'من أين تبدأ؟',
+    opts:[
+      {t:'الطبقة المادية: تأكّد أن الراوتر يعمل ويصله طاقة وكابل المزوّد',win:true},
+      {t:'تغيير المتصفّح على هاتفك',win:false},
+      {t:'تشغيل traceroute فورًا',win:false}
+    ],
+    win:'صحيح! كل الأجهزة معطّلة وأضواء الراوتر مطفأة = ابدأ من الأساس المادي.',
+    lose:'العطل يشمل الكل والراوتر مطفأ — هذه مشكلة في الطبقة الأدنى (الطاقة/الكابل).'
+  },
+  {
+    s:'جهازك متصل بـ Wi-Fi لكن لا يفتح أي موقع. ipconfig يُظهر عنوان 169.254.x.x',
+    q:'ما التشخيص؟',
+    opts:[
+      {t:'فشل DHCP — الجهاز لم يحصل على IP صالح. أعد الاتصال أو افحص الراوتر',win:true},
+      {t:'الموقع محظور في بلدك',win:false},
+      {t:'بطاقة الشبكة محترقة فيزيائيًا',win:false}
+    ],
+    win:'صحيح! 169.254 علامة فشل DHCP (مفهوم تعلّمته للتوّ). الإصلاح في الاتصال/الراوتر.',
+    lose:'تذكّر: عنوان 169.254 يعني فشل DHCP تحديدًا — لا علاقة بالحظر أو العتاد.'
+  }
+];
+let dIdx=0;
+function renderDtree(){
+  const sc=dscenarios[dIdx];const w=document.getElementById('dtree');
+  let opts='';
+  sc.opts.forEach((o,i)=>{opts+='<button class="dopt" onclick="pickD('+i+')">'+o.t+'</button>';});
+  w.innerHTML='<div class="scenario">🔧 '+sc.s+'</div><div class="dq">'+sc.q+'</div>'+opts+'<div class="dresult" id="dres"></div>';
+}
+function pickD(i){
+  const sc=dscenarios[dIdx];const win=sc.opts[i].win;
+  document.querySelectorAll('#dtree .dopt').forEach(b=>b.disabled=true);
+  const r=document.getElementById('dres');r.className='dresult show '+(win?'win':'lose');
+  r.innerHTML=win?'✓ '+sc.win:'✗ '+sc.lose;
+}
+function nextScenario(){dIdx=(dIdx+1)%dscenarios.length;renderDtree();}
+renderDtree();
+
+/* FINAL EXAM */
+const examQs=[
+  {q:'من أين يبدأ التشخيص المنهجي؟',o:['من أعقد سبب','من الطبقة الأدنى صعودًا','عشوائيًا'],a:1},
+  {q:'أداة ping تخبرك:',o:['كلمة مرور الجهاز','هل الجهاز قابل للوصول ويردّ','سرعة المعالج'],a:1},
+  {q:'أي أمر يعرض عنوان IP وبوابة جهازك؟',o:['ipconfig','ping','tracert'],a:0},
+  {q:'عنوان 169.254.x.x يعني:',o:['اتصال ممتاز','فشل DHCP','تشفير قوي'],a:1},
+  {q:'traceroute مفيد لـ:',o:['معرفة أين ينقطع المسار','تغيير كلمة المرور','زيادة السرعة'],a:0},
+  {q:'لو تعطّل جهاز واحد فقط بينما البقية تعمل، المشكلة:',o:['عند المزوّد','محليّة في ذلك الجهاز','في الموقع'],a:1},
+  {q:'في traceroute، ظهور * * * بعد قفزة معيّنة يعني:',o:['نجاح كامل','انقطاع المسار عند تلك النقطة','سرعة عالية'],a:1},
+  {q:'لو أضواء الراوتر مطفأة وكل الأجهزة بلا إنترنت، ابدأ بـ:',o:['الطبقة المادية (طاقة/كابل)','تغيير المتصفّح','تشفير أقوى'],a:0},
+  {q:'العنوان 127.0.0.1 يُستخدم لـ:',o:['اختبار أن بطاقة الشبكة نفسها تعمل','تصفّح الإنترنت','الطباعة'],a:0},
+  {q:'القاعدة الذهبية في التشخيص:',o:['خمّن وجرّب كل شيء','اعزل المشكلة بالمنهجية طبقة طبقة','أعد التشغيل دائمًا أولًا'],a:1}
+];
+function buildExam(){
+  const b=document.getElementById('examBody');b.innerHTML='';
+  examQs.forEach((q,i)=>{
+    let opts='';q.o.forEach((o,j)=>{opts+='<button class="opt" data-ex="'+i+'" data-opt="'+j+'" onclick="pickExam('+i+','+j+')">'+o+'</button>';});
+    b.innerHTML+='<div class="eq" id="eq'+i+'"><div class="eqn">Q'+(i+1).toString().padStart(2,'0')+'</div><div class="eqq">'+q.q+'</div>'+opts+'</div>';
+  });
+}
+const examPick={};
+function pickExam(i,j){examPick[i]=j;document.querySelectorAll('[data-ex="'+i+'"]').forEach(b=>{b.style.borderColor=(+b.dataset.opt===j)?'var(--cyan)':'var(--line2)';b.style.color=(+b.dataset.opt===j)?'var(--ink)':'var(--ink2)';});}
+function gradeExam(){
+  let score=0;
+  examQs.forEach((q,i)=>{
+    document.querySelectorAll('[data-ex="'+i+'"]').forEach(b=>{b.disabled=true;const opt=+b.dataset.opt;b.classList.remove('correct','wrong');if(opt===q.a)b.classList.add('correct');else if(examPick[i]===opt)b.classList.add('wrong');});
+    if(examPick[i]===q.a)score++;
+  });
+  const s=document.getElementById('examScore');s.className='escore show';const pass=score>=7;
+  s.style.background=pass?'rgba(70,200,160,.1)':'rgba(224,179,79,.1)';
+  s.style.border='1px solid '+(pass?'rgba(70,200,160,.4)':'rgba(224,179,79,.4)');
+  s.innerHTML='<div class="big" style="color:'+(pass?'var(--good)':'var(--warn)')+'">'+score+'/10</div><div class="msg">'+(pass?'🎉 مبروك! أتممت مسار الشبكات الكامل بنجاح. ✓':'قريب جدًا! راجع النقاط وأعد المحاولة — تحتاج 7 على الأقل لإتمام المسار.')+'</div>';
+  if(pass){document.getElementById('complete').classList.remove('locked');document.getElementById('lockMsg').innerHTML='✅ أتممت المسار كاملًا — عمل رائع!';}
+  s.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function resetExam(){for(const k in examPick)delete examPick[k];buildExam();document.getElementById('examScore').className='escore';}
+buildExam();
+</script>
+</body>
+</html>

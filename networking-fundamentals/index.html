@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الشبكات — المستوى الأول: كيف تتحدث الأجهزة؟</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0e1116; --bg2:#141922; --panel:#1a212c; --panel2:#212b38;
+  --ink:#e8edf4; --ink2:#aab6c6; --muted:#79859a;
+  --line:#2a3442; --line2:#374556;
+  --copper:#d98a4f; --copper2:#f0a368; --cyan:#46c8d8; --cyan2:#6fe0ee;
+  --good:#46c8a0; --bad:#e0716f; --warn:#e0b34f;
+  --rail:#2a3442;
+  --radius:14px; --radius-sm:9px;
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+  --maxw:920px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:radial-gradient(1200px 600px at 80% -10%,#172030 0%,transparent 55%),
+             radial-gradient(900px 500px at 0% 10%,#16242a 0%,transparent 50%),
+             var(--bg);
+  color:var(--ink);
+  font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;
+  line-height:1.85; font-size:17px; font-weight:300;
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+}
+.mono{font-family:'IBM Plex Mono',monospace;direction:ltr;unicode-bidi:embed}
+
+/* progress rail */
+#rail{position:fixed;top:0;right:0;left:0;height:4px;background:var(--rail);z-index:200}
+#rail-fill{height:100%;width:0;background:linear-gradient(90deg,var(--copper),var(--cyan));transition:width .08s linear}
+
+/* breadcrumb */
+.crumb{position:sticky;top:0;z-index:150;background:rgba(14,17,22,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.crumb-in{max-width:var(--maxw);margin:0 auto;padding:11px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.badge{background:linear-gradient(135deg,var(--copper),var(--copper2));color:#1a1208;font-weight:600;font-size:13px;padding:4px 11px;border-radius:999px;white-space:nowrap}
+.crumb a{color:var(--ink2);text-decoration:none;font-size:14px;border-bottom:1px dashed transparent;transition:.2s}
+.crumb a:hover{color:var(--cyan2);border-bottom-color:var(--cyan)}
+.crumb .sep{color:var(--muted);font-size:12px}
+.crumb .here{color:var(--ink);font-weight:500;font-size:14px}
+
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px}
+
+/* hero */
+.hero{padding:64px 0 30px;text-align:center}
+.kicker{color:var(--cyan2);font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;direction:ltr}
+h1{font-size:clamp(30px,6vw,48px);font-weight:700;line-height:1.3;margin-bottom:16px;background:linear-gradient(135deg,#fff 30%,var(--cyan2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sub{color:var(--ink2);font-size:clamp(17px,2.4vw,20px);font-weight:300;max-width:680px;margin:0 auto 26px}
+.chips{display:flex;gap:11px;justify-content:center;flex-wrap:wrap;margin-bottom:26px}
+.chip{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-size:14px;color:var(--ink2);display:flex;align-items:center;gap:7px}
+.chip b{color:var(--copper2);font-weight:600}
+.prereq{background:linear-gradient(135deg,rgba(70,200,216,.07),rgba(217,138,79,.05));border:1px solid var(--line2);border-radius:var(--radius);padding:16px 20px;max-width:620px;margin:0 auto 30px;font-size:15px;color:var(--ink2)}
+.prereq b{color:var(--ink)}
+.prereq a{color:var(--cyan2);text-decoration:none;border-bottom:1px dashed var(--cyan)}
+
+/* toc */
+.toc{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;max-width:560px;margin:0 auto 20px;text-align:right}
+.toc h3{font-size:14px;color:var(--muted);font-weight:500;margin-bottom:14px;font-family:'IBM Plex Mono',monospace;letter-spacing:.5px;direction:ltr;text-align:left}
+.toc ol{list-style:none;counter-reset:toc}
+.toc li{counter-increment:toc;margin-bottom:9px}
+.toc a{color:var(--ink2);text-decoration:none;display:flex;align-items:center;gap:12px;padding:7px 10px;border-radius:8px;transition:.2s}
+.toc a:hover{background:var(--panel2);color:var(--ink)}
+.toc a::before{content:counter(toc,decimal-leading-zero);font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--copper);background:var(--bg);border:1px solid var(--line2);width:30px;height:30px;border-radius:8px;display:grid;place-items:center;flex-shrink:0;direction:ltr}
+
+.cue{text-align:center;color:var(--muted);font-size:13px;margin:30px 0;animation:bob 2s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
+
+/* sections */
+section{padding:46px 0;border-top:1px solid var(--line)}
+.step-tag{display:inline-flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line2);border-radius:999px;padding:6px 15px;font-size:13px;color:var(--copper2);font-family:'IBM Plex Mono',monospace;margin-bottom:18px;direction:ltr}
+.step-tag .n{background:linear-gradient(135deg,var(--copper),var(--copper2));color:#1a1208;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-weight:600}
+h2{font-size:clamp(24px,4vw,32px);font-weight:600;margin-bottom:16px;line-height:1.4}
+h3.sub-h{font-size:20px;font-weight:600;color:var(--cyan2);margin:26px 0 12px}
+p{color:var(--ink2);margin-bottom:16px;font-weight:300}
+p b,li b{color:var(--ink);font-weight:600}
+.lead{font-size:19px;color:var(--ink)}
+ul.bul{list-style:none;margin:16px 0}
+ul.bul li{color:var(--ink2);margin-bottom:11px;padding-right:26px;position:relative}
+ul.bul li::before{content:'';position:absolute;right:6px;top:13px;width:7px;height:7px;border-radius:50%;background:var(--copper)}
+
+.analogy{background:linear-gradient(135deg,var(--panel),var(--bg2));border:1px solid var(--line2);border-right:3px solid var(--copper);border-radius:var(--radius);padding:20px 22px;margin:22px 0}
+.analogy .tag{color:var(--copper2);font-size:13px;font-weight:600;font-family:'IBM Plex Mono',monospace;direction:ltr;display:block;margin-bottom:8px}
+
+/* interactive panel */
+.sim{background:var(--panel);border:1px solid var(--line2);border-radius:var(--radius);padding:24px;margin:26px 0;box-shadow:var(--shadow)}
+.sim-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.sim-head .dot{width:9px;height:9px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.sim-head h4{font-size:16px;font-weight:600;color:var(--ink)}
+.sim-note{font-size:13px;color:var(--muted);margin-bottom:18px}
+.ctrl{margin:16px 0}
+.ctrl label{display:flex;justify-content:space-between;font-size:14px;color:var(--ink2);margin-bottom:8px}
+.ctrl label .val{font-family:'IBM Plex Mono',monospace;color:var(--cyan2);direction:ltr}
+input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:3px;background:var(--line2);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--copper),var(--copper2));cursor:pointer;border:2px solid var(--bg);box-shadow:0 2px 8px rgba(0,0,0,.4)}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--copper2);cursor:pointer;border:2px solid var(--bg)}
+.btn{background:linear-gradient(135deg,var(--copper),var(--copper2));color:#1a1208;border:none;border-radius:9px;padding:11px 20px;font-family:'IBM Plex Sans Arabic',sans-serif;font-weight:600;font-size:15px;cursor:pointer;transition:.2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(217,138,79,.3)}
+.btn:active{transform:translateY(0)}
+.btn.ghost{background:transparent;border:1px solid var(--line2);color:var(--ink2)}
+.btn.ghost:hover{border-color:var(--cyan);color:var(--cyan2);box-shadow:none}
+.btn.cyan{background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:#06222a}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+.toggle-row{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.toggle{background:var(--bg);border:1px solid var(--line2);border-radius:8px;padding:9px 15px;font-size:14px;color:var(--ink2);cursor:pointer;transition:.2s;font-family:inherit}
+.toggle.on{background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:#06222a;border-color:transparent;font-weight:600}
+
+.stage{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-sm);padding:20px;margin:16px 0;min-height:90px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px}
+.readout{font-family:'IBM Plex Mono',monospace;font-size:14px;color:var(--ink2);direction:ltr;text-align:left;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-top:12px;white-space:pre-wrap;word-break:break-word}
+.readout .hl{color:var(--cyan2)}
+.readout .cu{color:var(--copper2)}
+
+/* OSI stack */
+.osi{display:flex;flex-direction:column;gap:6px;margin:8px 0}
+.layer{display:flex;align-items:center;gap:14px;background:var(--bg2);border:1px solid var(--line2);border-radius:9px;padding:13px 16px;cursor:pointer;transition:.2s;position:relative;overflow:hidden}
+.layer:hover{border-color:var(--cyan);transform:translateX(-4px)}
+.layer.active{border-color:var(--copper2);background:linear-gradient(135deg,rgba(217,138,79,.14),var(--bg2))}
+.layer .num{font-family:'IBM Plex Mono',monospace;font-size:15px;color:var(--copper2);width:26px;flex-shrink:0;direction:ltr}
+.layer .nm{font-weight:600;color:var(--ink);font-size:15px}
+.layer .en{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);direction:ltr;margin-right:auto}
+.layer-detail{background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:16px 18px;margin-top:10px;font-size:15px;color:var(--ink2);min-height:60px}
+.layer-detail .dt-nm{color:var(--cyan2);font-weight:600}
+
+/* packet bits */
+.pktwrap{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:14px 0;min-height:50px}
+.pkt{background:linear-gradient(135deg,var(--panel2),var(--bg2));border:1px solid var(--line2);border-radius:7px;padding:8px 11px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--cyan2);direction:ltr;transition:.3s;animation:pop .3s ease}
+.pkt .h{color:var(--copper2)}
+@keyframes pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
+
+/* topology builder */
+.topo{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;min-height:140px}
+.node{display:flex;flex-direction:column;align-items:center;gap:6px;animation:pop .35s ease}
+.node svg{width:54px;height:54px}
+.node .lbl{font-size:12px;color:var(--ink2);font-family:'IBM Plex Mono',monospace;direction:ltr}
+.wire{width:36px;height:2px;background:linear-gradient(90deg,var(--copper),var(--cyan));position:relative}
+.wire.live::after{content:'';position:absolute;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--cyan2);box-shadow:0 0 8px var(--cyan2);animation:flow 1.1s linear infinite}
+@keyframes flow{from{right:0}to{right:100%}}
+
+/* journey steps */
+.journey{margin:14px 0}
+.jstep{display:flex;gap:14px;padding:14px;border-radius:9px;border:1px solid transparent;transition:.3s;opacity:.4}
+.jstep.on{opacity:1;background:var(--bg2);border-color:var(--line2)}
+.jstep .jn{font-family:'IBM Plex Mono',monospace;color:var(--copper2);width:30px;flex-shrink:0;direction:ltr}
+.jstep .jt b{color:var(--ink);display:block;margin-bottom:3px}
+.jstep .jt span{font-size:14px;color:var(--ink2)}
+
+/* quiz */
+.quiz{background:linear-gradient(135deg,var(--panel),var(--bg2));border:1px solid var(--line2);border-radius:var(--radius);padding:22px;margin:26px 0}
+.quiz .q-tag{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--copper2);direction:ltr;margin-bottom:10px}
+.quiz .q{font-size:17px;font-weight:500;color:var(--ink);margin-bottom:16px}
+.opt{display:block;width:100%;text-align:right;background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:13px 16px;margin-bottom:10px;color:var(--ink2);cursor:pointer;font-family:inherit;font-size:15px;transition:.15s}
+.opt:hover{border-color:var(--cyan);color:var(--ink)}
+.opt.correct{border-color:var(--good);background:rgba(70,200,160,.12);color:#bfeede}
+.opt.wrong{border-color:var(--bad);background:rgba(224,113,111,.12);color:#f1c2c1}
+.opt:disabled{cursor:default}
+.fb{font-size:14px;padding:12px 14px;border-radius:8px;margin-top:6px;display:none}
+.fb.show{display:block}
+.fb.ok{background:rgba(70,200,160,.1);color:#9fe2cc;border:1px solid rgba(70,200,160,.3)}
+.fb.no{background:rgba(224,113,111,.1);color:#eab4b3;border:1px solid rgba(224,113,111,.3)}
+
+/* tables */
+.tbl{width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;background:var(--panel);border-radius:var(--radius);overflow:hidden}
+.tbl th{background:var(--panel2);color:var(--copper2);font-weight:600;text-align:right;padding:13px 16px;font-size:14px;border-bottom:1px solid var(--line2)}
+.tbl td{padding:12px 16px;color:var(--ink2);border-bottom:1px solid var(--line)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl .mono{color:var(--cyan2)}
+
+/* symbols grid */
+.symgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;margin:18px 0}
+.sym{background:var(--panel);border:1px solid var(--line2);border-radius:var(--radius-sm);padding:18px 14px;text-align:center}
+.sym svg{width:48px;height:48px;margin-bottom:10px}
+.sym .sname{font-size:14px;color:var(--ink);font-weight:500;margin-bottom:3px}
+.sym .sdesc{font-size:12px;color:var(--muted)}
+
+/* exam */
+.exam{background:linear-gradient(160deg,var(--panel2),var(--bg2));border:1px solid var(--line2);border-radius:var(--radius);padding:26px;margin:30px 0}
+.exam h2{margin-bottom:6px}
+.exam-sub{color:var(--ink2);font-size:15px;margin-bottom:8px}
+.eq{padding:18px 0;border-top:1px solid var(--line)}
+.eq:first-of-type{border-top:none}
+.eq .eqn{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--copper2);direction:ltr;margin-bottom:8px}
+.eq .eqq{font-size:16px;font-weight:500;color:var(--ink);margin-bottom:14px}
+.escore{margin-top:24px;padding:22px;border-radius:var(--radius);text-align:center;display:none}
+.escore.show{display:block;animation:pop .4s ease}
+.escore .big{font-size:42px;font-weight:700;font-family:'IBM Plex Mono',monospace;direction:ltr}
+.escore .msg{font-size:17px;margin-top:8px}
+
+/* completion */
+.done{background:linear-gradient(135deg,rgba(217,138,79,.12),rgba(70,200,216,.1));border:1px solid var(--line2);border-radius:var(--radius);padding:34px;text-align:center;margin:34px 0}
+.done .ic{width:64px;height:64px;margin:0 auto 16px;background:linear-gradient(135deg,var(--copper),var(--cyan));border-radius:50%;display:grid;place-items:center}
+.done h2{margin-bottom:10px}
+.done p{max-width:520px;margin:0 auto 20px}
+.next-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:#06222a;text-decoration:none;font-weight:600;padding:14px 26px;border-radius:11px;font-size:16px;transition:.2s}
+.next-btn:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(70,200,216,.3)}
+.locked .next-btn{opacity:.4;pointer-events:none;filter:grayscale(.6)}
+.lockmsg{font-size:13px;color:var(--muted);margin-top:12px}
+
+footer{border-top:1px solid var(--line);padding:30px 0 50px;text-align:center}
+.disc{background:var(--panel);border:1px solid var(--line2);border-radius:var(--radius);padding:18px 22px;font-size:13px;color:var(--muted);max-width:640px;margin:0 auto 18px}
+.disc b{color:var(--ink2)}
+footer .copy{font-size:13px;color:var(--muted);font-family:'IBM Plex Mono',monospace;direction:ltr}
+
+@media(max-width:560px){
+  body{font-size:16px}
+  .layer .en{display:none}
+  .sim{padding:18px}
+}
+</style>
+</head>
+<body>
+<div id="rail"><div id="rail-fill"></div></div>
+
+<nav class="crumb">
+  <div class="crumb-in">
+    <span class="badge">المستوى 1 من 5</span>
+    <a href="../index.html">المسارات</a>
+    <span class="sep">/</span>
+    <span class="here">الشبكات: كيف تتحدث الأجهزة؟</span>
+  </div>
+</nav>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="kicker">Networking · Level 01</div>
+    <h1>كيف تتحدث الأجهزة مع بعضها؟</h1>
+    <p class="sub">قبل أن نوصّل أي جهاز أو نضبط أي إعداد، لازم نفهم اللغة التي تتكلمها الأجهزة. في هذا المستوى نبدأ من الصفر: ما هي الشبكة، وكيف ترحل رسالة واحدة من جهازك إلى الطرف الآخر.</p>
+    <div class="chips">
+      <div class="chip">⏱️ <b>~25 دقيقة</b></div>
+      <div class="chip">🎯 <b>5 مفاهيم</b></div>
+      <div class="chip">🧪 <b>محاكيات حيّة</b></div>
+      <div class="chip">📝 <b>امتحان من 10</b></div>
+    </div>
+    <div class="prereq">
+      <b>نقطة البداية:</b> هذا أول مستوى في مسار الشبكات، فلا يحتاج أي معرفة سابقة. كل ما تحتاجه هو الفضول. إذا أكملت لاحقًا، ستجد المستويات التالية تبني فوق هذا الأساس مباشرة.
+    </div>
+    <nav class="toc">
+      <h3>// in this level</h3>
+      <ol>
+        <li><a href="#s1">ما هي الشبكة أصلًا؟</a></li>
+        <li><a href="#s2">نموذج الطبقات (OSI)</a></li>
+        <li><a href="#s3">الحزم: كيف تُقطّع الرسالة؟</a></li>
+        <li><a href="#s4">عنوان MAC مقابل عنوان IP</a></li>
+        <li><a href="#s5">رحلة رسالة كاملة</a></li>
+        <li><a href="#glossary">المصطلحات والرموز</a></li>
+        <li><a href="#exam">الامتحان النهائي</a></li>
+      </ol>
+    </nav>
+    <div class="cue">↓ مرّر للأسفل لتبدأ</div>
+  </header>
+</div>
+
+<div class="wrap">
+
+<!-- ===== SECTION 1 ===== -->
+<section id="s1">
+  <span class="step-tag"><span class="n">1</span> ما هي الشبكة</span>
+  <h2>الشبكة ببساطة: جهازان أو أكثر يتبادلان رسائل</h2>
+  <p class="lead">كلمة "شبكة" تبدو معقّدة، لكن فكرتها بسيطة جدًا.</p>
+  <p>الشبكة هي ببساطة مجموعة أجهزة موصولة ببعضها حتى تستطيع تبادل المعلومات. هاتفك وجهاز التوجيه (الراوتر) في بيتك يشكّلان شبكة. حاسوبك والطابعة في المكتب يشكّلان شبكة. والإنترنت نفسه ما هو إلا أكبر شبكة في العالم: ملايين الشبكات الصغيرة موصولة ببعضها.</p>
+
+  <div class="analogy">
+    <span class="tag">// تشبيه</span>
+    تخيّل مجموعة بيوت في حي واحد. كل بيت يستطيع إرسال رسالة لأي بيت آخر عبر الطرقات. <b>البيوت</b> هي الأجهزة، <b>الطرقات</b> هي الأسلاك أو الموجات اللاسلكية، و<b>عنوان كل بيت</b> هو ما يضمن وصول الرسالة للمكان الصحيح. الشبكة هي الحي كلّه.
+  </div>
+
+  <p>في البداية كان عندنا جهازان فقط موصولان بسلك واحد. لكن ماذا لو أردنا وصل عشرة أجهزة؟ مئة جهاز؟ هنا يظهر دور جهاز وسيط اسمه <b>المُبدّل (Switch)</b> — نقطة تجمّع يتصل بها الجميع. جرّب أن تبني شبكة صغيرة بنفسك:</p>
+
+  <div class="sim">
+    <div class="sim-head"><span class="dot"></span><h4>ابنِ شبكتك الصغيرة</h4></div>
+    <div class="sim-note">أضف أجهزة وشاهد كيف يتغيّر شكل الشبكة. لاحظ متى نحتاج مُبدّلًا.</div>
+    <div class="stage"><div class="topo" id="topo"></div></div>
+    <div class="btn-row">
+      <button class="btn" onclick="addDevice()">+ أضف جهازًا</button>
+      <button class="btn ghost" onclick="resetTopo()">إعادة تعيين</button>
+    </div>
+    <div class="readout" id="topoOut">الأجهزة: <span class="hl">0</span></div>
+  </div>
+
+  <div class="quiz" data-q>
+    <div class="q-tag">// quiz</div>
+    <div class="q">ما الجهاز الذي نضيفه عندما نريد وصل أجهزة كثيرة في نقطة واحدة؟</div>
+    <button class="opt" data-correct="false">سلك أطول</button>
+    <button class="opt" data-correct="true">مُبدّل (Switch)</button>
+    <button class="opt" data-correct="false">شاشة إضافية</button>
+    <div class="fb ok">صحيح! المُبدّل هو نقطة التجمّع التي تتيح لأجهزة كثيرة الاتصال ببعضها.</div>
+    <div class="fb no">ليس تمامًا. المُبدّل (Switch) هو الجهاز الذي يجمع عدة أجهزة في نقطة واحدة.</div>
+  </div>
+</section>
+
+<!-- ===== SECTION 2 ===== -->
+<section id="s2">
+  <span class="step-tag"><span class="n">2</span> نموذج الطبقات</span>
+  <h2>لماذا نقسّم الشبكة إلى طبقات؟</h2>
+  <p>عندما ترسل رسالة، يحدث الكثير خلف الكواليس: تحويل النص إلى إشارات، تحديد الوجهة، التأكد من وصول كل شيء سليمًا. لو حاولنا التعامل مع كل هذا دفعة واحدة لأصبح فوضى. لذلك قسّم المهندسون العملية إلى <b>طبقات</b>، كل طبقة مسؤولة عن مهمة واحدة فقط.</p>
+  <p>أشهر نموذج لهذا التقسيم اسمه <b>نموذج OSI</b> ويتكوّن من سبع طبقات. لا تحفظها الآن — فقط افهم الفكرة: الرسالة تنزل من الأعلى للأسفل عند الإرسال، وتصعد من الأسفل للأعلى عند الاستقبال.</p>
+
+  <div class="analogy">
+    <span class="tag">// تشبيه</span>
+    مثل إرسال طرد بالبريد. أنت تكتب الرسالة (الطبقة العليا)، تضعها في مغلّف وتكتب العنوان (طبقة وسطى)، ساعي البريد ينقلها بالشاحنة (الطبقة الدنيا). كل مرحلة <b>تغلّف</b> ما قبلها. في الطرف الآخر يحدث العكس: الشاحنة تصل، يُفتح المغلّف، تُقرأ الرسالة.
+  </div>
+
+  <p>اضغط على أي طبقة لتعرف وظيفتها:</p>
+
+  <div class="sim">
+    <div class="sim-head"><span class="dot"></span><h4>طبقات OSI السبع</h4></div>
+    <div class="sim-note">اضغط طبقة لرؤية دورها. الطبقة 7 هي الأقرب لك، والطبقة 1 هي الأسلاك.</div>
+    <div class="osi" id="osi"></div>
+    <div class="layer-detail" id="osiDetail">↑ اختر طبقة لعرض شرحها</div>
+  </div>
+
+  <h3 class="sub-h">التغليف: كيف تُلبَس الرسالة؟</h3>
+  <p>عندما تنزل الرسالة عبر الطبقات، كل طبقة تضيف "غلافًا" صغيرًا فيه معلومات تحتاجها تلك الطبقة. هذا اسمه <b>التغليف (Encapsulation)</b>. شاهده يحدث:</p>
+
+  <div class="sim">
+    <div class="sim-head"><span class="dot"></span><h4>محاكي التغليف</h4></div>
+    <div class="sim-note">اضغط "أرسل" وراقب كيف تكتسب رسالتك أغلفة كلما نزلت طبقة.</div>
+    <div class="stage"><div class="pktwrap" id="encap"></div></div>
+    <div class="btn-row">
+      <button class="btn cyan" onclick="encapStep()">▸ انزل طبقة</button>
+      <button class="btn ghost" onclick="encapReset()">إعادة</button>
+    </div>
+    <div class="readout" id="encapOut">الرسالة جاهزة في الطبقة 7. اضغط لتبدأ النزول.</div>
+  </div>
+
+  <div class="quiz" data-q>
+    <div class="q-tag">// quiz</div>
+    <div class="q">ماذا يحدث للرسالة وهي تنزل عبر طبقات OSI عند الإرسال؟</div>
+    <button class="opt" data-correct="true">كل طبقة تضيف غلافًا بمعلوماتها (تغليف)</button>
+    <button class="opt" data-correct="false">تُحذف منها أجزاء لتصغر</button>
+    <button class="opt" data-correct="false">تبقى كما هي بلا أي تغيير</button>
+    <div class="fb ok">بالضبط! هذه عملية التغليف — كل طبقة تلفّ الرسالة بمعلوماتها الخاصة.</div>
+    <div class="fb no">ليس تمامًا. كل طبقة تُضيف غلافًا (header) — هذا هو التغليف.</div>
+  </div>
+</section>
+
+<!-- ===== SECTION 3 ===== -->
+<section id="s3">
+  <span class="step-tag"><span class="n">3</span> الحزم</span>
+  <h2>لماذا لا تُرسل الرسالة دفعة واحدة؟</h2>
+  <p>قد تظن أن ملفًا كبيرًا يُرسل ككتلة واحدة عبر الشبكة. الحقيقة عكس ذلك تمامًا: الرسالة تُقطّع إلى قطع صغيرة اسمها <b>حزم (Packets)</b>. كل حزمة تحمل جزءًا من البيانات، ورقمًا يحدّد ترتيبها، وعنوان الوجهة.</p>
+  <p>لماذا؟ لأن إرسال قطع صغيرة أكثر مرونة: لو ضاعت قطعة، نعيد إرسالها وحدها دون الملف كله. ولو كان هناك ازدحام، تستطيع القطع أخذ طرق مختلفة ثم تتجمّع في النهاية.</p>
+
+  <div class="analogy">
+    <span class="tag">// تشبيه</span>
+    تخيّل أنك تريد نقل مكتبة ضخمة. لن تحملها دفعة واحدة — ستضعها في <b>صناديق مرقّمة</b>. كل صندوق يسافر وحده، وربما بطرق مختلفة، ثم تعيد ترتيبها بالأرقام في الوجهة. الحزمة هي الصندوق المرقّم.
+  </div>
+
+  <p>اكتب رسالة قصيرة وشاهدها تتحوّل إلى حزم:</p>
+
+  <div class="sim">
+    <div class="sim-head"><span class="dot"></span><h4>مقسّم الحزم</h4></div>
+    <div class="sim-note">اكتب نصًّا واختر حجم الحزمة. لاحظ كيف يُقطّع النص ويُرقّم.</div>
+    <div class="ctrl">
+      <label>حجم كل حزمة <span class="val" id="szVal">4 أحرف</span></label>
+      <input type="range" id="pktSize" min="2" max="8" value="4" oninput="splitPackets()">
+    </div>
+    <input type="text" id="msgIn" value="HELLO NETWORK" maxlength="24" oninput="splitPackets()"
+      style="width:100%;background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:12px 14px;color:var(--cyan2);font-family:'IBM Plex Mono',monospace;direction:ltr;margin-bottom:8px">
+    <div class="stage"><div class="pktwrap" id="pkts"></div></div>
+    <div class="readout" id="pktOut"></div>
+  </div>
+
+  <div class="quiz" data-q>
+    <div class="q-tag">// quiz</div>
+    <div class="q">لماذا نقطّع الرسالة إلى حزم بدل إرسالها دفعة واحدة؟</div>
+    <button class="opt" data-correct="false">لأن الأجهزة لا تفهم الرسائل الطويلة</button>
+    <button class="opt" data-correct="true">لأنه أمرن: نعيد إرسال القطعة الضائعة وحدها فقط</button>
+    <button class="opt" data-correct="false">لأن الحزم أسرع من الكهرباء</button>
+    <div class="fb ok">صحيح! التقطيع يجعل الشبكة مرنة وموثوقة — نعالج كل قطعة على حدة.</div>
+    <div class="fb no">ليس تمامًا. الفائدة الأساسية هي المرونة: معالجة وإعادة إرسال كل حزمة بمفردها.</div>
+  </div>
+</section>
+
+<!-- ===== SECTION 4 ===== -->
+<section id="s4">
+  <span class="step-tag"><span class="n">4</span> العناوين</span>
+  <h2>عنوانان لكل جهاز: MAC وIP</h2>
+  <p>حتى تصل الحزمة للجهاز الصحيح، يحتاج كل جهاز إلى عنوان. لكن المفاجأة أن لكل جهاز <b>عنوانين</b> مختلفين، لكل منهما دور:</p>
+  <ul class="bul">
+    <li><b>عنوان MAC</b> — اسم ثابت يُحرق في بطاقة الشبكة من المصنع، لا يتغيّر أبدًا. مثل رقم الهيكل في السيارة.</li>
+    <li><b>عنوان IP</b> — عنوان متغيّر تمنحه الشبكة للجهاز، ويتبدّل حسب المكان. مثل عنوان بيتك الذي يتغيّر لو انتقلت.</li>
+  </ul>
+
+  <div class="analogy">
+    <span class="tag">// تشبيه</span>
+    <b>MAC</b> مثل اسمك الكامل — يلازمك أينما ذهبت ولا يتغيّر. <b>IP</b> مثل عنوان سكنك — يدلّ على مكانك الآن، ويتغيّر إذا انتقلت لمدينة أخرى. البريد يحتاج الاثنين: العنوان ليصل للحي الصحيح، والاسم ليصل للشخص الصحيح.
+  </div>
+
+  <p>بدّل بين العنوانين لترى الفرق:</p>
+
+  <div class="sim">
+    <div class="sim-head"><span class="dot"></span><h4>MAC مقابل IP</h4></div>
+    <div class="sim-note">اضغط الأزرار لمقارنة خصائص كل عنوان. "انقل الجهاز" يُظهر أيّهما يتغيّر.</div>
+    <div class="toggle-row">
+      <button class="toggle on" id="tMac" onclick="showAddr('mac')">عنوان MAC</button>
+      <button class="toggle" id="tIp" onclick="showAddr('ip')">عنوان IP</button>
+    </div>
+    <div class="stage" style="flex-direction:column;align-items:stretch">
+      <div class="readout" id="addrOut" style="margin:0"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" onclick="moveDevice()">🚚 انقل الجهاز لشبكة أخرى</button>
+      <button class="btn ghost" onclick="resetAddr()">إعادة</button>
+    </div>
+    <div class="readout" id="moveOut">الجهاز في شبكته الأصلية.</div>
+  </div>
+
+  <div class="quiz" data-q>
+    <div class="q-tag">// quiz</div>
+    <div class="q">أيّ عنوان يتغيّر عندما ينتقل الجهاز إلى شبكة جديدة؟</div>
+    <button class="opt" data-correct="false">عنوان MAC</button>
+    <button class="opt" data-correct="true">عنوان IP</button>
+    <button class="opt" data-correct="false">كلاهما يبقى ثابتًا</button>
+    <div class="fb ok">صحيح! IP يتبدّل حسب الشبكة، بينما MAC ثابت من المصنع.</div>
+    <div class="fb no">انتبه — MAC ثابت دائمًا. الذي يتغيّر مع الشبكة هو عنوان IP.</div>
+  </div>
+</section>
+
+<!-- ===== SECTION 5 ===== -->
+<section id="s5">
+  <span class="step-tag"><span class="n">5</span> الرحلة الكاملة</span>
+  <h2>رحلة رسالة واحدة من البداية للنهاية</h2>
+  <p>الآن نجمع كل ما تعلّمناه. سنتتبّع رسالة وهي تغادر جهازك، تمرّ بالمُبدّل، ثم بجهاز التوجيه (الراوتر)، تعبر الإنترنت، وتصل للوجهة. اضغط "الخطوة التالية" وتابع القصة:</p>
+
+  <div class="sim">
+    <div class="sim-head"><span class="dot"></span><h4>تتبّع الرحلة خطوة بخطوة</h4></div>
+    <div class="sim-note">كل خطوة تُضيء عند وصولها. شاهد كيف تتعاون الأجهزة لإيصال رسالتك.</div>
+    <div class="journey" id="journey"></div>
+    <div class="btn-row">
+      <button class="btn cyan" onclick="journeyStep()">▸ الخطوة التالية</button>
+      <button class="btn ghost" onclick="journeyReset()">إعادة من البداية</button>
+    </div>
+  </div>
+
+  <div class="quiz" data-q>
+    <div class="q-tag">// quiz</div>
+    <div class="q">أي جهاز مسؤول عن إخراج رسالتك من شبكتك المحلية نحو الإنترنت؟</div>
+    <button class="opt" data-correct="false">المُبدّل (Switch)</button>
+    <button class="opt" data-correct="true">جهاز التوجيه (Router)</button>
+    <button class="opt" data-correct="false">الطابعة</button>
+    <div class="fb ok">صحيح! الراوتر هو البوابة بين شبكتك المحلية والعالم الخارجي.</div>
+    <div class="fb no">ليس تمامًا. المُبدّل يعمل داخل شبكتك، أما الخروج للإنترنت فمهمة الراوتر.</div>
+  </div>
+</section>
+
+<!-- ===== GLOSSARY ===== -->
+<section id="glossary">
+  <span class="step-tag"><span class="n">★</span> مرجع سريع</span>
+  <h2>المصطلحات الأساسية</h2>
+  <table class="tbl">
+    <thead><tr><th>المصطلح</th><th>بالإنجليزية</th><th>المعنى المبسّط</th></tr></thead>
+    <tbody>
+      <tr><td>الشبكة</td><td class="mono">Network</td><td>أجهزة موصولة تتبادل المعلومات</td></tr>
+      <tr><td>المُبدّل</td><td class="mono">Switch</td><td>نقطة تجمّع داخل الشبكة المحلية</td></tr>
+      <tr><td>جهاز التوجيه</td><td class="mono">Router</td><td>البوابة بين شبكتك والإنترنت</td></tr>
+      <tr><td>الحزمة</td><td class="mono">Packet</td><td>قطعة صغيرة مرقّمة من الرسالة</td></tr>
+      <tr><td>التغليف</td><td class="mono">Encapsulation</td><td>إضافة كل طبقة معلوماتها للرسالة</td></tr>
+      <tr><td>عنوان MAC</td><td class="mono">MAC Address</td><td>اسم ثابت لبطاقة الشبكة من المصنع</td></tr>
+      <tr><td>عنوان IP</td><td class="mono">IP Address</td><td>عنوان متغيّر تمنحه الشبكة</td></tr>
+      <tr><td>نموذج OSI</td><td class="mono">OSI Model</td><td>تقسيم الشبكة إلى 7 طبقات وظيفية</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="sub-h">رموز أجهزة الشبكة</h3>
+  <p>ستقابل هذه الرموز كثيرًا في مخططات الشبكات. تعرّف عليها الآن:</p>
+  <div class="symgrid">
+    <div class="sym">
+      <svg viewBox="0 0 48 48"><rect x="8" y="14" width="32" height="20" rx="3" fill="none" stroke="#46c8d8" stroke-width="2"/><circle cx="16" cy="24" r="2" fill="#d98a4f"/><circle cx="24" cy="24" r="2" fill="#d98a4f"/><circle cx="32" cy="24" r="2" fill="#d98a4f"/></svg>
+      <div class="sname">حاسوب / جهاز</div><div class="sdesc">Host / Device</div>
+    </div>
+    <div class="sym">
+      <svg viewBox="0 0 48 48"><rect x="6" y="18" width="36" height="14" rx="3" fill="none" stroke="#46c8d8" stroke-width="2"/><path d="M12 25h4M20 25h4M28 25h4" stroke="#d98a4f" stroke-width="2" stroke-linecap="round"/></svg>
+      <div class="sname">مُبدّل</div><div class="sdesc">Switch</div>
+    </div>
+    <div class="sym">
+      <svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="13" fill="none" stroke="#46c8d8" stroke-width="2"/><path d="M18 24h12M24 18l6 6-6 6M30 24l-6-6" stroke="#d98a4f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+      <div class="sname">جهاز توجيه</div><div class="sdesc">Router</div>
+    </div>
+    <div class="sym">
+      <svg viewBox="0 0 48 48"><path d="M24 34a14 14 0 010-20" fill="none" stroke="#46c8d8" stroke-width="2"/><path d="M24 30a8 8 0 010-12" fill="none" stroke="#46c8d8" stroke-width="2"/><circle cx="24" cy="24" r="2.5" fill="#d98a4f"/><path d="M24 14a14 14 0 010 20" fill="none" stroke="#d98a4f" stroke-width="2" opacity=".6"/></svg>
+      <div class="sname">نقطة وصول</div><div class="sdesc">Access Point</div>
+    </div>
+    <div class="sym">
+      <svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="14" fill="none" stroke="#46c8d8" stroke-width="2"/><ellipse cx="24" cy="24" rx="6" ry="14" fill="none" stroke="#d98a4f" stroke-width="1.5"/><path d="M10 24h28M12 18h24M12 30h24" stroke="#46c8d8" stroke-width="1.2" opacity=".6"/></svg>
+      <div class="sname">الإنترنت</div><div class="sdesc">Internet / Cloud</div>
+    </div>
+    <div class="sym">
+      <svg viewBox="0 0 48 48"><rect x="14" y="10" width="20" height="28" rx="2" fill="none" stroke="#46c8d8" stroke-width="2"/><path d="M20 16h8M20 22h8M20 28h8" stroke="#d98a4f" stroke-width="2" stroke-linecap="round"/></svg>
+      <div class="sname">خادم</div><div class="sdesc">Server</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== EXAM ===== -->
+<section id="exam">
+  <div class="exam">
+    <span class="step-tag"><span class="n">✓</span> الاختبار النهائي</span>
+    <h2>امتحن نفسك — 10 أسئلة</h2>
+    <p class="exam-sub">أجب على كل الأسئلة ثم اضغط "صحّح إجاباتي". تحتاج 7 من 10 على الأقل لإكمال المستوى.</p>
+    <div id="examBody"></div>
+    <div class="btn-row" style="margin-top:18px">
+      <button class="btn" onclick="gradeExam()">صحّح إجاباتي</button>
+      <button class="btn ghost" onclick="resetExam()">امسح الإجابات</button>
+    </div>
+    <div class="escore" id="examScore"></div>
+  </div>
+</section>
+
+<!-- ===== COMPLETION ===== -->
+<section id="complete" class="locked">
+  <div class="done" id="doneCard">
+    <div class="ic"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#0e1116" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <h2>أتممت المستوى الأول!</h2>
+    <p>الآن تفهم ما هي الشبكة، كيف تُقسّم إلى طبقات، كيف تُقطّع الرسالة إلى حزم، والفرق بين MAC وIP. أساس متين لكل ما هو قادم.</p>
+    <a class="next-btn" href="../networking-level2/index.html">المستوى الثاني: العناوين والشبكات الفرعية ←</a>
+    <div class="lockmsg" id="lockMsg">🔒 أكمل الامتحان بنجاح (7/10) لفتح المستوى التالي</div>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="disc">
+      <b>تنبيه:</b> هذه المادة تعليمية تبسيطية للمبتدئين، هدفها بناء الحدس لا الإحاطة الكاملة. الشبكات الحقيقية فيها تفاصيل أعمق، وبعض التشبيهات هنا مبسّطة عمدًا. للعمل الاحترافي ارجع إلى المراجع والشهادات المعتمدة.
+    </div>
+    <div class="copy">// Networking Track · Level 1 of 5</div>
+  </div>
+</footer>
+
+<script>
+/* ===== progress rail ===== */
+const rail=document.getElementById('rail-fill');
+addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  const p=(h.scrollTop)/(h.scrollHeight-h.clientHeight)*100;
+  rail.style.width=p+'%';
+},{passive:true});
+
+/* ===== shared quiz engine (mini-quizzes) ===== */
+document.querySelectorAll('[data-q]').forEach(q=>{
+  const opts=q.querySelectorAll('.opt');
+  const ok=q.querySelector('.fb.ok'), no=q.querySelector('.fb.no');
+  opts.forEach(o=>o.addEventListener('click',()=>{
+    opts.forEach(x=>x.disabled=true);
+    const correct=o.dataset.correct==='true';
+    o.classList.add(correct?'correct':'wrong');
+    if(!correct){q.querySelector('[data-correct="true"]').classList.add('correct');}
+    (correct?ok:no).classList.add('show');
+  }));
+});
+
+/* ===== SECTION 1: topology builder ===== */
+let devCount=0;
+const pcSVG='<svg viewBox="0 0 48 48"><rect x="8" y="14" width="32" height="20" rx="3" fill="none" stroke="#46c8d8" stroke-width="2"/><circle cx="16" cy="24" r="2" fill="#d98a4f"/><circle cx="24" cy="24" r="2" fill="#d98a4f"/><circle cx="32" cy="24" r="2" fill="#d98a4f"/></svg>';
+const swSVG='<svg viewBox="0 0 48 48"><rect x="6" y="18" width="36" height="14" rx="3" fill="none" stroke="#d98a4f" stroke-width="2"/><path d="M12 25h4M20 25h4M28 25h4" stroke="#46c8d8" stroke-width="2" stroke-linecap="round"/></svg>';
+function renderTopo(){
+  const t=document.getElementById('topo');const out=document.getElementById('topoOut');
+  t.innerHTML='';
+  if(devCount===0){t.innerHTML='<span style="color:var(--muted);font-size:14px">اضغط "أضف جهازًا" لتبدأ</span>';out.innerHTML='الأجهزة: <span class="hl">0</span>';return;}
+  if(devCount===1){
+    t.innerHTML='<div class="node">'+pcSVG+'<span class="lbl">PC-1</span></div>';
+    out.innerHTML='الأجهزة: <span class="hl">1</span> — جهاز واحد لا يُشكّل شبكة بعد.';return;
+  }
+  if(devCount===2){
+    t.innerHTML='<div class="node">'+pcSVG+'<span class="lbl">PC-1</span></div><div class="wire live"></div><div class="node">'+pcSVG+'<span class="lbl">PC-2</span></div>';
+    out.innerHTML='الأجهزة: <span class="hl">2</span> — جهازان يكفيهما <span class="cu">سلك واحد</span> مباشر.';return;
+  }
+  let h='<div class="node">'+swSVG+'<span class="lbl">SWITCH</span></div>';
+  let wires='';
+  for(let i=0;i<devCount;i++){wires+='<div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div class="wire live"></div><div class="node">'+pcSVG+'<span class="lbl">PC-'+(i+1)+'</span></div></div>';}
+  t.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;gap:14px"><div class="node">'+swSVG+'<span class="lbl">SWITCH</span></div><div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center">'+wires+'</div></div>';
+  out.innerHTML='الأجهزة: <span class="hl">'+devCount+'</span> — مع 3 أجهزة أو أكثر نحتاج <span class="cu">مُبدّلًا</span> كنقطة تجمّع.';
+}
+function addDevice(){if(devCount<6)devCount++;renderTopo();}
+function resetTopo(){devCount=0;renderTopo();}
+renderTopo();
+
+/* ===== SECTION 2: OSI layers ===== */
+const layers=[
+  {n:7,nm:'التطبيق',en:'Application',d:'الطبقة الأقرب لك — التطبيقات التي تستخدمها مباشرة مثل المتصفح والبريد. هنا تبدأ رسالتك.'},
+  {n:6,nm:'العرض',en:'Presentation',d:'تترجم البيانات إلى صيغة مفهومة: التشفير، الضغط، تحويل الترميز. تجهّز الرسالة للنقل.'},
+  {n:5,nm:'الجلسة',en:'Session',d:'تفتح وتدير "الجلسة" بين جهازك والطرف الآخر، وتُبقيها منظّمة حتى تنتهي المحادثة.'},
+  {n:4,nm:'النقل',en:'Transport',d:'تقسّم البيانات إلى حزم وتتأكد من وصولها كاملة وبالترتيب الصحيح (بروتوكول TCP يعمل هنا).'},
+  {n:3,nm:'الشبكة',en:'Network',d:'تقرّر المسار: من أي طريق تسافر الحزمة لتصل للوجهة. هنا يعمل عنوان IP وجهاز التوجيه.'},
+  {n:2,nm:'ربط البيانات',en:'Data Link',d:'تنقل البيانات بين جهازين متجاورين مباشرة عبر عناوين MAC. المُبدّل يعمل في هذه الطبقة.'},
+  {n:1,nm:'المادية',en:'Physical',d:'الأسلاك والإشارات الكهربائية والموجات اللاسلكية — الطبقة التي تتحوّل فيها البيانات إلى نبضات حقيقية.'}
+];
+const osi=document.getElementById('osi');
+layers.forEach(l=>{
+  const d=document.createElement('div');d.className='layer';
+  d.innerHTML='<span class="num">'+l.n+'</span><span class="nm">'+l.nm+'</span><span class="en">'+l.en+'</span>';
+  d.onclick=()=>{
+    document.querySelectorAll('.layer').forEach(x=>x.classList.remove('active'));
+    d.classList.add('active');
+    document.getElementById('osiDetail').innerHTML='<span class="dt-nm">الطبقة '+l.n+' — '+l.nm+' ('+l.en+'):</span> '+l.d;
+  };
+  osi.appendChild(d);
+});
+
+/* ===== SECTION 2: encapsulation ===== */
+const encapLayers=[
+  {nm:'Data',cl:'',t:'بياناتك الأصلية (الطبقة 7)'},
+  {nm:'L4',cl:'h',t:'أضافت طبقة النقل رأسًا (TCP) لترقيم الحزم'},
+  {nm:'L3',cl:'h',t:'أضافت طبقة الشبكة عنوان IP للوجهة'},
+  {nm:'L2',cl:'h',t:'أضافت طبقة ربط البيانات عنوان MAC'},
+  {nm:'L1',cl:'h',t:'تحوّل كل شيء إلى إشارات على السلك — جاهز للإرسال!'}
+];
+let encapIdx=0;
+function renderEncap(){
+  const w=document.getElementById('encap');const out=document.getElementById('encapOut');
+  w.innerHTML='';
+  for(let i=encapIdx;i>=1;i--){const p=document.createElement('span');p.className='pkt';p.innerHTML='<span class="h">['+encapLayers[i].nm+']</span>';w.appendChild(p);}
+  const core=document.createElement('span');core.className='pkt';core.textContent='DATA';w.appendChild(core);
+  out.innerHTML=encapLayers[encapIdx].t;
+  if(encapIdx>=encapLayers.length-1)out.innerHTML+=' <span class="hl">✓ مكتمل</span>';
+}
+function encapStep(){if(encapIdx<encapLayers.length-1)encapIdx++;renderEncap();}
+function encapReset(){encapIdx=0;document.getElementById('encap').innerHTML='<span class="pkt">DATA</span>';document.getElementById('encapOut').innerHTML='الرسالة جاهزة في الطبقة 7. اضغط لتبدأ النزول.';}
+encapReset();
+
+/* ===== SECTION 3: packet splitter ===== */
+function splitPackets(){
+  const msg=document.getElementById('msgIn').value||'';
+  const sz=+document.getElementById('pktSize').value;
+  document.getElementById('szVal').textContent=sz+' أحرف';
+  const w=document.getElementById('pkts');const out=document.getElementById('pktOut');
+  w.innerHTML='';
+  if(!msg){out.textContent='اكتب نصًّا لرؤية الحزم.';return;}
+  const chunks=[];for(let i=0;i<msg.length;i+=sz){chunks.push(msg.slice(i,i+sz));}
+  chunks.forEach((c,i)=>{const p=document.createElement('span');p.className='pkt';p.innerHTML='<span class="h">#'+(i+1)+'</span> '+c.replace(/ /g,'·');w.appendChild(p);});
+  out.innerHTML='النص ('+msg.length+' حرف) قُسّم إلى <span class="hl">'+chunks.length+' حزم</span>. كل حزمة تحمل رقمها لإعادة الترتيب.';
+}
+splitPackets();
+
+/* ===== SECTION 4: MAC vs IP ===== */
+let movedNet=false;
+const addrData={
+  mac:{title:'عنوان MAC',ex:'A4:83:E7:2B:19:0C',rows:['ثابت من المصنع — لا يتغيّر','مرتبط بالجهاز نفسه (بطاقة الشبكة)','يعمل داخل الشبكة المحلية','مثل اسمك الكامل']},
+  ip:{title:'عنوان IP',ex:'192.168.1.42',rows:['تمنحه الشبكة — متغيّر','يتبدّل حسب الشبكة التي أنت فيها','يعمل عبر الإنترنت كله','مثل عنوان سكنك']}
+};
+function showAddr(k){
+  document.getElementById('tMac').classList.toggle('on',k==='mac');
+  document.getElementById('tIp').classList.toggle('on',k==='ip');
+  const a=addrData[k];
+  document.getElementById('addrOut').innerHTML='<span class="cu">'+a.title+'</span>\n<span class="hl">'+a.ex+'</span>\n\n• '+a.rows.join('\n• ');
+}
+function moveDevice(){
+  movedNet=!movedNet;
+  const o=document.getElementById('moveOut');
+  if(movedNet){o.innerHTML='انتقل الجهاز لشبكة جديدة:\nMAC: <span class="hl">A4:83:E7:2B:19:0C</span> (لم يتغيّر)\nIP: <span class="cu">10.0.5.88</span> (تغيّر!)';}
+  else{o.innerHTML='الجهاز في شبكته الأصلية.';}
+}
+function resetAddr(){movedNet=false;document.getElementById('moveOut').innerHTML='الجهاز في شبكته الأصلية.';showAddr('mac');}
+showAddr('mac');
+
+/* ===== SECTION 5: journey ===== */
+const journeySteps=[
+  {t:'جهازك يُنشئ الرسالة',d:'تكتب رسالة. تنزل عبر طبقات OSI وتُغلّف، ثم تتحوّل إلى حزم على بطاقة الشبكة.'},
+  {t:'المُبدّل يوزّع داخليًا',d:'الحزمة تصل المُبدّل، الذي يقرأ عنوان MAC ويوجّهها للمنفذ الصحيح داخل شبكتك المحلية.'},
+  {t:'جهاز التوجيه يقرأ IP',d:'الوجهة خارج شبكتك، فالراوتر يقرأ عنوان IP ويقرّر: هذه الحزمة يجب أن تخرج للإنترنت.'},
+  {t:'العبور عبر الإنترنت',d:'الحزمة تقفز بين عدة أجهزة توجيه عبر العالم، كل واحد يقرّبها خطوة من الوجهة.'},
+  {t:'الوصول والتجميع',d:'الحزم تصل الجهاز الهدف، تصعد عبر طبقاته، تُفكّ أغلفتها، وتُعاد بالترتيب لتظهر رسالتك كاملة. ✓'}
+];
+let jIdx=-1;
+function renderJourney(){
+  const w=document.getElementById('journey');w.innerHTML='';
+  journeySteps.forEach((s,i)=>{
+    const d=document.createElement('div');d.className='jstep'+(i<=jIdx?' on':'');
+    d.innerHTML='<span class="jn">0'+(i+1)+'</span><span class="jt"><b>'+s.t+'</b><span>'+s.d+'</span></span>';
+    w.appendChild(d);
+  });
+}
+function journeyStep(){if(jIdx<journeySteps.length-1)jIdx++;renderJourney();}
+function journeyReset(){jIdx=-1;renderJourney();}
+renderJourney();
+
+/* ===== FINAL EXAM ===== */
+const examQs=[
+  {q:'ما تعريف الشبكة الأبسط؟',o:['جهاز واحد قوي','أجهزة موصولة تتبادل المعلومات','برنامج على الحاسوب'],a:1},
+  {q:'أي جهاز يجمع عدة أجهزة في نقطة واحدة داخل الشبكة المحلية؟',o:['المُبدّل (Switch)','الشاشة','الطابعة'],a:0},
+  {q:'كم عدد طبقات نموذج OSI؟',o:['أربع','سبع','عشر'],a:1},
+  {q:'ماذا نسمّي إضافة كل طبقة لمعلوماتها على الرسالة؟',o:['التشفير','التغليف (Encapsulation)','الحذف'],a:1},
+  {q:'لماذا تُقطّع الرسالة إلى حزم؟',o:['لأنها أجمل شكلًا','للمرونة وإعادة إرسال القطعة الضائعة فقط','لتصبح أبطأ'],a:1},
+  {q:'عنوان MAC هو:',o:['ثابت من المصنع','يتغيّر كل يوم','نفسه عنوان IP'],a:0},
+  {q:'أي عنوان يتغيّر عند انتقال الجهاز لشبكة أخرى؟',o:['MAC','IP','لا شيء'],a:1},
+  {q:'في أي طبقة OSI يعمل جهاز التوجيه أساسًا؟',o:['الطبقة 1 المادية','الطبقة 3 الشبكة','الطبقة 7 التطبيق'],a:1},
+  {q:'ما الجهاز الذي يُخرج رسالتك من الشبكة المحلية إلى الإنترنت؟',o:['المُبدّل','جهاز التوجيه (Router)','الخادم'],a:1},
+  {q:'عند الاستقبال، الرسالة عبر طبقات OSI:',o:['تنزل من 1 إلى 7','تصعد من 1 إلى 7 وتُفكّ أغلفتها','تبقى ثابتة'],a:1}
+];
+function buildExam(){
+  const b=document.getElementById('examBody');b.innerHTML='';
+  examQs.forEach((q,i)=>{
+    let opts='';
+    q.o.forEach((o,j)=>{opts+='<button class="opt" data-ex="'+i+'" data-opt="'+j+'" onclick="pickExam('+i+','+j+')">'+o+'</button>';});
+    b.innerHTML+='<div class="eq" id="eq'+i+'"><div class="eqn">Q'+(i+1).toString().padStart(2,'0')+'</div><div class="eqq">'+q.q+'</div>'+opts+'</div>';
+  });
+}
+const examPick={};
+function pickExam(i,j){
+  examPick[i]=j;
+  document.querySelectorAll('[data-ex="'+i+'"]').forEach(b=>{
+    b.style.borderColor=(+b.dataset.opt===j)?'var(--cyan)':'var(--line2)';
+    b.style.color=(+b.dataset.opt===j)?'var(--ink)':'var(--ink2)';
+  });
+}
+function gradeExam(){
+  let score=0;
+  examQs.forEach((q,i)=>{
+    document.querySelectorAll('[data-ex="'+i+'"]').forEach(b=>{
+      b.disabled=true;const opt=+b.dataset.opt;
+      b.classList.remove('correct','wrong');
+      if(opt===q.a)b.classList.add('correct');
+      else if(examPick[i]===opt)b.classList.add('wrong');
+    });
+    if(examPick[i]===q.a)score++;
+  });
+  const s=document.getElementById('examScore');s.className='escore show';
+  const pass=score>=7;
+  s.style.background=pass?'rgba(70,200,160,.1)':'rgba(224,179,79,.1)';
+  s.style.border='1px solid '+(pass?'rgba(70,200,160,.4)':'rgba(224,179,79,.4)');
+  s.innerHTML='<div class="big" style="color:'+(pass?'var(--good)':'var(--warn)')+'">'+score+'/10</div><div class="msg">'+
+    (pass?'أحسنت! اجتزت المستوى الأول. المستوى التالي مفتوح الآن. ✓':'قريب! راجع النقاط ثم أعد المحاولة — تحتاج 7 على الأقل.')+'</div>';
+  if(pass){document.getElementById('complete').classList.remove('locked');document.getElementById('lockMsg').innerHTML='✅ تم فتح المستوى التالي — أحسنت!';}
+  s.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function resetExam(){for(const k in examPick)delete examPick[k];buildExam();document.getElementById('examScore').className='escore';}
+buildExam();
+</script>
+</body>
+</html>

@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الشبكات — المستوى الرابع: اللاسلكي وأمن الشبكات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0e1116;--bg2:#141922;--panel:#1a212c;--panel2:#212b38;--ink:#e8edf4;--ink2:#aab6c6;--muted:#79859a;--line:#2a3442;--line2:#374556;--copper:#d98a4f;--copper2:#f0a368;--cyan:#46c8d8;--cyan2:#6fe0ee;--good:#46c8a0;--bad:#e0716f;--warn:#e0b34f;--rail:#2a3442;--radius:14px;--radius-sm:9px;--shadow:0 10px 30px rgba(0,0,0,.35);--maxw:920px;}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:radial-gradient(1200px 600px at 80% -10%,#172030 0%,transparent 55%),radial-gradient(900px 500px at 0% 10%,#16242a 0%,transparent 50%),var(--bg);color:var(--ink);font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;line-height:1.85;font-size:17px;font-weight:300;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.mono{font-family:'IBM Plex Mono',monospace;direction:ltr;unicode-bidi:embed}
+#rail{position:fixed;top:0;right:0;left:0;height:4px;background:var(--rail);z-index:200}
+#rail-fill{height:100%;width:0;background:linear-gradient(90deg,var(--copper),var(--cyan));transition:width .08s linear}
+.crumb{position:sticky;top:0;z-index:150;background:rgba(14,17,22,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.crumb-in{max-width:var(--maxw);margin:0 auto;padding:11px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.badge{background:linear-gradient(135deg,var(--copper),var(--copper2));color:#1a1208;font-weight:600;font-size:13px;padding:4px 11px;border-radius:999px;white-space:nowrap}
+.crumb a{color:var(--ink2);text-decoration:none;font-size:14px;border-bottom:1px dashed transparent;transition:.2s}
+.crumb a:hover{color:var(--cyan2);border-bottom-color:var(--cyan)}
+.crumb .sep{color:var(--muted);font-size:12px}.crumb .here{color:var(--ink);font-weight:500;font-size:14px}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px}
+.hero{padding:64px 0 30px;text-align:center}
+.kicker{color:var(--cyan2);font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;direction:ltr}
+h1{font-size:clamp(30px,6vw,48px);font-weight:700;line-height:1.3;margin-bottom:16px;background:linear-gradient(135deg,#fff 30%,var(--cyan2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sub{color:var(--ink2);font-size:clamp(17px,2.4vw,20px);font-weight:300;max-width:680px;margin:0 auto 26px}
+.chips{display:flex;gap:11px;justify-content:center;flex-wrap:wrap;margin-bottom:26px}
+.chip{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-size:14px;color:var(--ink2);display:flex;align-items:center;gap:7px}
+.chip b{color:var(--copper2);font-weight:600}
+.prereq{background:linear-gradient(135deg,rgba(70,200,216,.07),rgba(217,138,79,.05));border:1px solid var(--line2);border-radius:var(--radius);padding:16px 20px;max-width:620px;margin:0 auto 30px;font-size:15px;color:var(--ink2)}
+.prereq b{color:var(--ink)}.prereq a{color:var(--cyan2);text-decoration:none;border-bottom:1px dashed var(--cyan)}
+.toc{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;max-width:560px;margin:0 auto 20px;text-align:right}
+.toc h3{font-size:14px;color:var(--muted);font-weight:500;margin-bottom:14px;font-family:'IBM Plex Mono',monospace;letter-spacing:.5px;direction:ltr;text-align:left}
+.toc ol{list-style:none;counter-reset:toc}.toc li{counter-increment:toc;margin-bottom:9px}
+.toc a{color:var(--ink2);text-decoration:none;display:flex;align-items:center;gap:12px;padding:7px 10px;border-radius:8px;transition:.2s}
+.toc a:hover{background:var(--panel2);color:var(--ink)}
+.toc a::before{content:counter(toc,decimal-leading-zero);font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--copper);background:var(--bg);border:1px solid var(--line2);width:30px;height:30px;border-radius:8px;display:grid;place-items:center;flex-shrink:0;direction:ltr}
+.cue{text-align:center;color:var(--muted);font-size:13px;margin:30px 0;animation:bob 2s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
+section{padding:46px 0;border-top:1px solid var(--line)}
+.step-tag{display:inline-flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line2);border-radius:999px;padding:6px 15px;font-size:13px;color:var(--copper2);font-family:'IBM Plex Mono',monospace;margin-bottom:18px;direction:ltr}
+.step-tag .n{background:linear-gradient(135deg,var(--copper),var(--copper2));color:#1a1208;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-weight:600}
+h2{font-size:clamp(24px,4vw,32px);font-weight:600;margin-bottom:16px;line-height:1.4}
+h3.sub-h{font-size:20px;font-weight:600;color:var(--cyan2);margin:26px 0 12px}
+p{color:var(--ink2);margin-bottom:16px;font-weight:300}
+p b,li b{color:var(--ink);font-weight:600}.lead{font-size:19px;color:var(--ink)}
+ul.bul{list-style:none;margin:16px 0}
+ul.bul li{color:var(--ink2);margin-bottom:11px;padding-right:26px;position:relative}
+ul.bul li::before{content:'';position:absolute;right:6px;top:13px;width:7px;height:7px;border-radius:50%;background:var(--copper)}
+.analogy{background:linear-gradient(135deg,var(--panel),var(--bg2));border:1px solid var(--line2);border-right:3px solid var(--copper);border-radius:var(--radius);padding:20px 22px;margin:22px 0}
+.analogy .tag{color:var(--copper2);font-size:13px;font-weight:600;font-family:'IBM Plex Mono',monospace;direction:ltr;display:block;margin-bottom:8px}
+.sim{background:var(--panel);border:1px solid var(--line2);border-radius:var(--radius);padding:24px;margin:26px 0;box-shadow:var(--shadow)}
+.sim-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.sim-head .dot{width:9px;height:9px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.sim-head h4{font-size:16px;font-weight:600;color:var(--ink)}
+.sim-note{font-size:13px;color:var(--muted);margin-bottom:18px}
+.ctrl{margin:16px 0}.ctrl label{display:flex;justify-content:space-between;font-size:14px;color:var(--ink2);margin-bottom:8px}
+.ctrl label .val{font-family:'IBM Plex Mono',monospace;color:var(--cyan2);direction:ltr}
+input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:3px;background:var(--line2);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--copper),var(--copper2));cursor:pointer;border:2px solid var(--bg);box-shadow:0 2px 8px rgba(0,0,0,.4)}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--copper2);cursor:pointer;border:2px solid var(--bg)}
+.btn{background:linear-gradient(135deg,var(--copper),var(--copper2));color:#1a1208;border:none;border-radius:9px;padding:11px 20px;font-family:'IBM Plex Sans Arabic',sans-serif;font-weight:600;font-size:15px;cursor:pointer;transition:.2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(217,138,79,.3)}.btn:active{transform:translateY(0)}
+.btn.ghost{background:transparent;border:1px solid var(--line2);color:var(--ink2)}
+.btn.ghost:hover{border-color:var(--cyan);color:var(--cyan2);box-shadow:none}
+.btn.cyan{background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:#06222a}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+.toggle-row{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.toggle{background:var(--bg);border:1px solid var(--line2);border-radius:8px;padding:9px 15px;font-size:14px;color:var(--ink2);cursor:pointer;transition:.2s;font-family:inherit}
+.toggle.on{background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:#06222a;border-color:transparent;font-weight:600}
+.stage{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-sm);padding:20px;margin:16px 0;min-height:90px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px}
+.readout{font-family:'IBM Plex Mono',monospace;font-size:14px;color:var(--ink2);direction:ltr;text-align:left;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-top:12px;white-space:pre-wrap;word-break:break-word}
+.readout .hl{color:var(--cyan2)}.readout .cu{color:var(--copper2)}
+.quiz{background:linear-gradient(135deg,var(--panel),var(--bg2));border:1px solid var(--line2);border-radius:var(--radius);padding:22px;margin:26px 0}
+.quiz .q-tag{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--copper2);direction:ltr;margin-bottom:10px}
+.quiz .q{font-size:17px;font-weight:500;color:var(--ink);margin-bottom:16px}
+.opt{display:block;width:100%;text-align:right;background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:13px 16px;margin-bottom:10px;color:var(--ink2);cursor:pointer;font-family:inherit;font-size:15px;transition:.15s}
+.opt:hover{border-color:var(--cyan);color:var(--ink)}
+.opt.correct{border-color:var(--good);background:rgba(70,200,160,.12);color:#bfeede}
+.opt.wrong{border-color:var(--bad);background:rgba(224,113,111,.12);color:#f1c2c1}
+.opt:disabled{cursor:default}
+.fb{font-size:14px;padding:12px 14px;border-radius:8px;margin-top:6px;display:none}.fb.show{display:block}
+.fb.ok{background:rgba(70,200,160,.1);color:#9fe2cc;border:1px solid rgba(70,200,160,.3)}
+.fb.no{background:rgba(224,113,111,.1);color:#eab4b3;border:1px solid rgba(224,113,111,.3)}
+.tbl{width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;background:var(--panel);border-radius:var(--radius);overflow:hidden}
+.tbl th{background:var(--panel2);color:var(--copper2);font-weight:600;text-align:right;padding:13px 16px;font-size:14px;border-bottom:1px solid var(--line2)}
+.tbl td{padding:12px 16px;color:var(--ink2);border-bottom:1px solid var(--line)}
+.tbl tr:last-child td{border-bottom:none}.tbl .mono{color:var(--cyan2)}
+.symgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;margin:18px 0}
+.sym{background:var(--panel);border:1px solid var(--line2);border-radius:var(--radius-sm);padding:18px 14px;text-align:center}
+.sym svg{width:46px;height:46px;margin-bottom:8px}
+.sym .sname{font-size:14px;color:var(--ink);font-weight:500;margin-bottom:3px}
+.sym .sdesc{font-size:12px;color:var(--muted)}
+.exam{background:linear-gradient(160deg,var(--panel2),var(--bg2));border:1px solid var(--line2);border-radius:var(--radius);padding:26px;margin:30px 0}
+.exam h2{margin-bottom:6px}.exam-sub{color:var(--ink2);font-size:15px;margin-bottom:8px}
+.eq{padding:18px 0;border-top:1px solid var(--line)}.eq:first-of-type{border-top:none}
+.eq .eqn{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--copper2);direction:ltr;margin-bottom:8px}
+.eq .eqq{font-size:16px;font-weight:500;color:var(--ink);margin-bottom:14px}
+.escore{margin-top:24px;padding:22px;border-radius:var(--radius);text-align:center;display:none}
+.escore.show{display:block;animation:pop .4s ease}
+@keyframes pop{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+.escore .big{font-size:42px;font-weight:700;font-family:'IBM Plex Mono',monospace;direction:ltr}.escore .msg{font-size:17px;margin-top:8px}
+.done{background:linear-gradient(135deg,rgba(217,138,79,.12),rgba(70,200,216,.1));border:1px solid var(--line2);border-radius:var(--radius);padding:34px;text-align:center;margin:34px 0}
+.done .ic{width:64px;height:64px;margin:0 auto 16px;background:linear-gradient(135deg,var(--copper),var(--cyan));border-radius:50%;display:grid;place-items:center}
+.done h2{margin-bottom:10px}.done p{max-width:520px;margin:0 auto 20px}
+.next-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:#06222a;text-decoration:none;font-weight:600;padding:14px 26px;border-radius:11px;font-size:16px;transition:.2s}
+.next-btn:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(70,200,216,.3)}
+.locked .next-btn{opacity:.4;pointer-events:none;filter:grayscale(.6)}
+.lockmsg{font-size:13px;color:var(--muted);margin-top:12px}
+footer{border-top:1px solid var(--line);padding:30px 0 50px;text-align:center}
+.disc{background:var(--panel);border:1px solid var(--line2);border-radius:var(--radius);padding:18px 22px;font-size:13px;color:var(--muted);max-width:640px;margin:0 auto 18px}
+.disc b{color:var(--ink2)}
+footer .copy{font-size:13px;color:var(--muted);font-family:'IBM Plex Mono',monospace;direction:ltr}
+/* device compare */
+.devcards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+.devcard{background:var(--bg2);border:1px solid var(--line2);border-radius:12px;padding:18px;text-align:center;cursor:pointer;transition:.2s}
+.devcard:hover{border-color:var(--cyan);transform:translateY(-3px)}
+.devcard.sel{border-color:var(--copper2);background:linear-gradient(135deg,rgba(217,138,79,.12),var(--bg2))}
+.devcard svg{width:50px;height:50px;margin-bottom:10px}
+.devcard .dname{font-weight:600;color:var(--ink);margin-bottom:4px}
+.devcard .dlayer{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--cyan2);direction:ltr}
+/* vlan */
+.vlanwrap{display:flex;flex-direction:column;gap:10px;margin:14px 0}
+.vport{display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--line2);border-radius:9px;padding:11px 14px;transition:.3s}
+.vport .pnum{font-family:'IBM Plex Mono',monospace;color:var(--muted);width:54px;direction:ltr;font-size:13px}
+.vport .pname{flex:1;color:var(--ink);font-size:15px}
+.vport .vtag{font-family:'IBM Plex Mono',monospace;font-size:12px;padding:4px 10px;border-radius:6px;direction:ltr;cursor:pointer;transition:.2s;border:1px solid transparent}
+.vtag.v10{background:rgba(217,138,79,.18);color:var(--copper2);border-color:rgba(217,138,79,.4)}
+.vtag.v20{background:rgba(70,200,216,.18);color:var(--cyan2);border-color:rgba(70,200,216,.4)}
+.vport.v10{border-right:3px solid var(--copper)}
+.vport.v20{border-right:3px solid var(--cyan)}
+/* traffic */
+.trafgrid{display:flex;flex-direction:column;gap:8px;margin:14px 0}
+.thost{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg2);border:1px solid var(--line2);border-radius:8px;transition:.3s}
+.thost .ic{width:30px;height:30px;border-radius:6px;display:grid;place-items:center;font-size:15px;background:var(--panel2)}
+.thost .nm{flex:1;font-size:14px;color:var(--ink2);font-family:'IBM Plex Mono',monospace;direction:ltr}
+.thost.hit{border-color:var(--cyan);background:rgba(70,200,216,.1)}
+.thost.hit .nm{color:var(--cyan2)}
+.thost .recv{font-size:12px;color:var(--good);opacity:0;transition:.3s}
+.thost.hit .recv{opacity:1}
+@media(max-width:560px){body{font-size:16px}.sim{padding:18px}.devcards{grid-template-columns:1fr}}
+
+/* level-4 specific */
+.signal-viz{display:flex;align-items:flex-end;gap:4px;justify-content:center;height:70px;margin:10px 0}
+.sbar{width:14px;background:var(--line2);border-radius:3px 3px 0 0;transition:.25s}
+.sbar.lit{background:linear-gradient(180deg,var(--cyan2),var(--cyan))}
+.sbar.weak{background:linear-gradient(180deg,var(--warn),#c79a3f)}
+.enc-tiers{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.tier{display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--line2);border-radius:9px;padding:12px 15px;cursor:pointer;transition:.2s}
+.tier:hover{transform:translateX(-4px)}
+.tier.sel{border-color:var(--copper2);background:linear-gradient(135deg,rgba(217,138,79,.12),var(--bg2))}
+.tier .tname{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--ink);direction:ltr}
+.tier .tbadge{margin-right:auto;font-size:12px;padding:3px 10px;border-radius:999px;font-weight:600}
+.tier .tbadge.bad{background:rgba(224,113,111,.18);color:#eab4b3}
+.tier .tbadge.mid{background:rgba(224,179,79,.18);color:#e6c98a}
+.tier .tbadge.good{background:rgba(70,200,160,.18);color:#9fe2cc}
+.fw-row{display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--line2);border-radius:9px;padding:11px 14px;margin-bottom:8px;font-family:'IBM Plex Mono',monospace;font-size:13px;direction:ltr}
+.fw-verdict{margin-right:auto;font-weight:600;padding:3px 11px;border-radius:999px;font-size:12px}
+.fw-verdict.allow{background:rgba(70,200,160,.18);color:#9fe2cc}
+.fw-verdict.block{background:rgba(224,113,111,.18);color:#eab4b3}
+.nat-flow{display:flex;flex-direction:column;gap:10px;margin:10px 0}
+.nat-box{background:var(--bg2);border:1px solid var(--line2);border-radius:9px;padding:13px 16px;font-family:'IBM Plex Mono',monospace;font-size:13px;direction:ltr;color:var(--ink2)}
+.nat-box .arrow{color:var(--copper2);font-weight:600}
+.nat-box .ch{color:var(--cyan2)}
+.threat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin:12px 0}
+.threat{background:var(--bg2);border:1px solid var(--line2);border-radius:9px;padding:14px;text-align:center;cursor:pointer;transition:.2s}
+.threat:hover{border-color:var(--cyan);transform:translateY(-3px)}
+.threat.revealed{border-color:var(--copper2)}
+.threat .ticon{font-size:26px;margin-bottom:8px}
+.threat .tlabel{font-size:13px;color:var(--ink);font-weight:500}
+.threat .tdesc{font-size:12px;color:var(--muted);margin-top:6px;display:none}
+.threat.revealed .tdesc{display:block}
+
+</style>
+</head>
+<body>
+<div id="rail"><div id="rail-fill"></div></div>
+
+<nav class="crumb">
+  <div class="crumb-in">
+    <span class="badge">المستوى 4 من 5</span>
+    <a href="../index.html">المسارات</a>
+    <span class="sep">/</span>
+    <a href="../networking-level3/index.html">المستوى 3</a>
+    <span class="sep">/</span>
+    <span class="here">اللاسلكي وأمن الشبكات</span>
+  </div>
+</nav>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="kicker">Networking · Level 04</div>
+    <h1>اللاسلكي وأمن الشبكات</h1>
+    <p class="sub">حتى الآن كانت أجهزتنا موصولة بأسلاك ومحمية ضمنيًا. الآن نقطع السلك ونفتح الباب للعالم: كيف يعمل Wi-Fi، وكيف نحمي شبكة يستطيع أي أحد قريب أن يحاول الدخول إليها.</p>
+    <div class="chips">
+      <div class="chip">⏱️ <b>~30 دقيقة</b></div>
+      <div class="chip">🎯 <b>6 مفاهيم</b></div>
+      <div class="chip">🛡️ <b>محاكي جدار حماية</b></div>
+      <div class="chip">📝 <b>امتحان من 10</b></div>
+    </div>
+    <div class="prereq">
+      <b>قبل أن تبدأ:</b> يُفترض أنك أكملت <a href="../networking-level3/index.html">المستوى الثالث</a> وتعرف المُبدّل والراوتر وVLAN. الأمن هنا يبني على فهمك لكيفية تدفّق المرور.
+    </div>
+    <nav class="toc">
+      <h3>// in this level</h3>
+      <ol>
+        <li><a href="#s1">كيف يعمل Wi-Fi؟</a></li>
+        <li><a href="#s2">SSID والقنوات</a></li>
+        <li><a href="#s3">التشفير: WEP إلى WPA3</a></li>
+        <li><a href="#s4">جدار الحماية</a></li>
+        <li><a href="#s5">NAT: قناع شبكتك</a></li>
+        <li><a href="#s6">تهديدات شائعة</a></li>
+        <li><a href="#glossary">المصطلحات والمراجع</a></li>
+        <li><a href="#exam">الامتحان النهائي</a></li>
+      </ol>
+    </nav>
+    <div class="cue">↓ مرّر للأسفل لتبدأ</div>
+  </header>
+</div>
+
+<div class="wrap">
+
+<!-- S1 -->
+<section id="s1">
+  <span class="step-tag"><span class="n">1</span> موجات Wi-Fi</span>
+  <h2>الشبكة بلا أسلاك: موجات في الهواء</h2>
+  <p class="lead">Wi-Fi ليس سحرًا — إنه ببساطة بياناتك محمولة على موجات راديو.</p>
+  <p>بدل دفع الإشارات عبر سلك نحاسي، تبثّها <b>نقطة الوصول (Access Point)</b> كموجات لاسلكية، وجهازك يلتقطها. لكن للموجات طبيعة مختلفة عن الأسلاك: تضعف مع المسافة، تخترقها الجدران بصعوبة، وتتأثّر بالتشويش من أجهزة أخرى.</p>
+
+  <div class="analogy">
+    <span class="tag">// تشبيه</span>
+    السلك مثل أنبوب ماء — التدفّق ثابت ومحمي. أما Wi-Fi فمثل الصوت في غرفة: كلما ابتعدت قلّ وضوحه، والجدران تخفته، وإن تكلّم آخرون في نفس الوقت حدث تشويش. لذلك قوة الإشارة تتغيّر حسب مكانك.
+  </div>
+
+  <p>حرّك المسافة عن نقطة الوصول وراقب قوة الإشارة:</p>
+
+  <div class="sim">
+    <div class="sim-head"><span class="dot"></span><h4>قوة الإشارة حسب المسافة</h4></div>
+    <div class="sim-note">حرّك المؤشّر لتبتعد عن نقطة الوصول. لاحظ كيف تضعف الإشارة والسرعة.</div>
+    <div class="ctrl">
+      <label>المسافة عن نقطة الوصول <span class="val" id="distVal">5 م</span></label>
+      <input type="range" id="distSlide" min="1" max="30" value="5" oninput="renderSignal()">
+    </div>
+    <div class="signal-viz" id="sigViz"></div>
+    <div class="readout" id="sigOut"></div>
+  </div>
+
+  <div class="quiz" data-q>
+    <div class="q-tag">// quiz</div>
+    <div class="q">لماذا تضعف إشارة Wi-Fi كلما ابتعدت عن نقطة الوصول؟</div>
+    <button class="opt" data-correct="false">لأن الكابل يطول</button>
+    <button class="opt" data-correct="true">لأن موجات الراديو تضعف مع المسافة والعوائق</button>
+    <button class="opt" data-correct="false">لأن البطارية تنفد</button>
+    <div class="fb ok">صحيح! الموجات اللاسلكية تفقد قوّتها مع المسافة والجدران والتشويش.</div>
+    <div class="fb no">ليس تمامًا. لا يوجد كابل في Wi-Fi — السبب هو ضعف الموجات مع المسافة.</div>
+  </div>
+</section>
+
+<!-- S2 -->
+<section id="s2">
+  <span class="step-tag"><span class="n">2</span> الاسم والقناة</span>
+  <h2>SSID: اسم شبكتك، والقناة: مسارها</h2>
+  <p><b>SSID</b> هو ببساطة اسم شبكة Wi-Fi الذي تراه في قائمة الشبكات. أما <b>القناة (Channel)</b> فهي "التردد" المحدّد الذي تبثّ عليه شبكتك — تخيّلها كمحطة إذاعية.</p>
+  <p>المشكلة: لو بثّت شبكتان قريبتان على نفس القناة، يحدث <b>تداخل</b> ويبطؤ الاثنان. لذلك تختار نقاط الوصول الذكية قنوات مختلفة عن الجيران تلقائيًا.</p>
+
+  <div class="analogy">
+    <span class="tag">// تشبيه</span>
+    SSID مثل اسم محطة الراديو ("إذاعة البيت"). القناة مثل ترددها (مثلًا 6). لو محطتان بثّتا على نفس التردد في نفس المنطقة، سمعت تشويشًا من الاثنتين. الحلّ أن تختار كل واحدة ترددًا فارغًا.
+  </div>
+
+  <p>وزّع ثلاث شبكات على القنوات وحاول تجنّب التداخل:</p>
+
+  <div class="sim">
+    <div class="sim-head"><span class="dot"></span><h4>اختر قناة بلا تداخل</h4></div>
+    <div class="sim-note">جارك يبثّ على القناة 6. اختر قناة لشبكتك وراقب إن حدث تداخل.</div>
+    <div class="toggle-row" id="chanRow"></div>
+    <div class="readout" id="chanOut">جارك على القناة 6. اختر قناتك.</div>
+  </div>
+
+  <div class="quiz" data-q>
+    <div class="q-tag">// quiz</div>
+    <div class="q">ما الذي يحدث لو بثّت شبكتان قريبتان على نفس القناة؟</div>
+    <button class="opt" data-correct="true">يحدث تداخل ويبطؤ الاثنان</button>
+    <button class="opt" data-correct="false">تندمجان في شبكة واحدة</button>
+    <button class="opt" data-correct="false">لا شيء، القنوات لا تهمّ</button>
+    <div class="fb ok">صحيح! نفس القناة = تداخل وبطء. لذا نوزّع الشبكات على قنوات مختلفة.</div>
+    <div class="fb no">ليس تمامًا. نفس القناة تسبّب تداخلًا يبطّئ كلتا الشبكتين.</div>
+  </div>
+</section>
+
+<!-- S3 -->
+<section id="s3">
+  <span class="step-tag"><span class="n">3</span> التشفير</span>
+  <h2>قفل شبكتك: من WEP القديم إلى WPA3</h2>
+  <p>شبكتك اللاسلكية تبثّ في الهواء، فأي شخص قريب يستطيع التقاط الموجات. لهذا نشفّرها — نحوّل البيانات إلى طلاسم لا يفهمها إلا من يملك كلمة المرور. لكن ليست كل أنواع التشفير متساوية:</p>
+  <ul class="bul">
+    <li><b>WEP</b> — قديم جدًا ومكسور تمامًا. لا تستخدمه أبدًا.</li>
+    <li><b>WPA / WPA2</b> — أقوى بكثير، وWPA2 كان المعيار لسنوات طويلة.</li>
+    <li><b>WPA3</b> — الأحدث والأقوى، يوفّر حماية أفضل حتى مع كلمات مرور ضعيفة.</li>
+  </ul>
+
+  <div class="analogy">
+    <span class="tag">// تشبيه</span>
+    تخيّلها أقفالًا على بابك. <b>WEP</b> قفل ورقي يفتحه أي طفل. <b>WPA2</b> قفل معدني جيّد. <b>WPA3</b> قفل ذكي بعدة طبقات. نفس الباب، لكن مستوى الأمان يفرق كثيرًا.
+  </div>
+
+  <p>اضغط كل نوع لترى مدى أمانه:</p>
+
+  <div class="sim">
+    <div class="sim-head"><span class="dot"></span><h4>مقارنة بروتوكولات التشفير</h4></div>
+    <div class="sim-note">اضغط أي بروتوكول لعرض تقييمه ومتى يُستخدم.</div>
+    <div class="enc-tiers" id="encTiers"></div>
+    <div class="readout" id="encOut">اختر بروتوكولًا لعرض تفاصيله.</div>
+  </div>
+
+  <div class="quiz" data-q>
+    <div class="q-tag">// quiz</div>
+    <div class="q">أي بروتوكول تشفير يجب تجنّبه لأنه مكسور؟</div>
+    <button class="opt" data-correct="true">WEP</button>
+    <button class="opt" data-correct="false">WPA2</button>
+    <button class="opt" data-correct="false">WPA3</button>
+    <div class="fb ok">صحيح! WEP قديم ومكسور — استخدم WPA2 أو WPA3 دائمًا.</div>
+    <div class="fb no">ليس تمامًا. WEP هو المكسور؛ WPA2 وWPA3 آمنان.</div>
+  </div>
+</section>
+
+<!-- S4 -->
+<section id="s4">
+  <span class="step-tag"><span class="n">4</span> جدار الحماية</span>
+  <h2>جدار الحماية: حارس يقرّر من يدخل ومن يُمنع</h2>
+  <p><b>جدار الحماية (Firewall)</b> هو حارس يقف بين شبكتك والعالم الخارجي، يفحص كل اتصال قادم أو خارج، ويقرّر بناءً على <b>قواعد</b>: هذا مسموح، وهذا ممنوع.</p>
+  <p>القواعد عادةً تعتمد على المنفذ (Port) ونوع الاتصال. مثلًا: "اسمح بتصفّح المواقع (المنفذ 443)" أو "امنع أي محاولة دخول من الخارج لم نطلبها".</p>
+
+  <div class="analogy">
+    <span class="tag">// تشبيه</span>
+    جدار الحماية مثل حارس عند باب حفل خاص ومعه قائمة. كل من يصل، يتحقّق: اسمك في القائمة؟ تفضّل بالدخول. غير موجود؟ ممنوع. الحارس لا يعرفك شخصيًا — يطبّق القواعد فقط.
+  </div>
+
+  <p>شغّل الحارس: اضغط كل اتصال ليفحصه جدار الحماية حسب القواعد.</p>
+
+  <div class="sim">
+    <div class="sim-head"><span class="dot"></span><h4>محاكي جدار الحماية</h4></div>
+    <div class="sim-note">القواعد: المنافذ 443 و80 و22 مسموحة، الباقي ممنوع. اضغط "افحص الاتصال التالي".</div>
+    <div id="fwLog"></div>
+    <div class="btn-row">
+      <button class="btn cyan" onclick="fwNext()">▸ افحص الاتصال التالي</button>
+      <button class="btn ghost" onclick="fwReset()">إعادة</button>
+    </div>
+    <div class="readout" id="fwOut">اضغط لبدء فحص الاتصالات الواردة.</div>
+  </div>
+
+  <div class="quiz" data-q>
+    <div class="q-tag">// quiz</div>
+    <div class="q">على أي أساس يقرّر جدار الحماية السماح أو المنع؟</div>
+    <button class="opt" data-correct="true">قواعد محدّدة مسبقًا (منافذ، نوع الاتصال)</button>
+    <button class="opt" data-correct="false">مزاجه في تلك اللحظة</button>
+    <button class="opt" data-correct="false">سرعة الإنترنت</button>
+    <div class="fb ok">صحيح! جدار الحماية يطبّق قواعد واضحة محدّدة سلفًا، لا قرارات عشوائية.</div>
+    <div class="fb no">ليس تمامًا. القرار يعتمد على قواعد محدّدة مسبقًا (مثل المنافذ).</div>
+  </div>
+</section>
+
+<!-- S5 -->
+<section id="s5">
+  <span class="step-tag"><span class="n">5</span> NAT</span>
+  <h2>NAT: كيف تتشارك أجهزتك عنوانًا عامًا واحدًا</h2>
+  <p>تذكّر من المستوى الثاني أن أجهزتك تحمل عناوين خاصة (192.168.x.x) لا تعمل على الإنترنت. فكيف تتصفّح إذًا؟ الجواب: <b>NAT</b>.</p>
+  <p>الراوتر يملك عنوانًا عامًا واحدًا، ويستخدم NAT ليترجم بين عناوين أجهزتك الخاصة وذلك العنوان العام. كل أجهزتك تخرج للإنترنت متخفّية خلف عنوان الراوتر الواحد، وهو يتذكّر أي ردّ يخصّ أي جهاز.</p>
+
+  <div class="analogy">
+    <span class="tag">// تشبيه</span>
+    NAT مثل موظف استقبال في شركة. الموظفون (أجهزتك) لا يعطون أرقامهم الشخصية للخارج. كل المكالمات تمرّ عبر رقم الشركة الواحد (العنوان العام)، والموظف يحوّل كل ردّ للشخص الصحيح بالداخل.
+  </div>
+
+  <p>اضغط "أرسل طلبًا" وشاهد NAT يترجم العنوان:</p>
+
+  <div class="sim">
+    <div class="sim-head"><span class="dot"></span><h4>محاكي ترجمة NAT</h4></div>
+    <div class="sim-note">شاهد كيف يتحوّل عنوانك الخاص إلى العنوان العام عند الخروج، والعكس عند العودة.</div>
+    <div class="nat-flow" id="natFlow"></div>
+    <div class="btn-row">
+      <button class="btn cyan" onclick="natStep()">▸ الخطوة التالية</button>
+      <button class="btn ghost" onclick="natReset()">إعادة</button>
+    </div>
+  </div>
+
+  <div class="quiz" data-q>
+    <div class="q-tag">// quiz</div>
+    <div class="q">ما الذي يتيح لعدة أجهزة الخروج للإنترنت عبر عنوان عام واحد؟</div>
+    <button class="opt" data-correct="true">NAT (ترجمة العناوين)</button>
+    <button class="opt" data-correct="false">DHCP</button>
+    <button class="opt" data-correct="false">WPA3</button>
+    <div class="fb ok">صحيح! NAT يترجم بين العناوين الخاصة والعنوان العام الواحد للراوتر.</div>
+    <div class="fb no">ليس تمامًا. الترجمة بين الخاص والعام مهمة NAT تحديدًا.</div>
+  </div>
+</section>
+
+<!-- S6 -->
+<section id="s6">
+  <span class="step-tag"><span class="n">6</span> التهديدات</span>
+  <h2>تهديدات شائعة وكيف تحمي نفسك</h2>
+  <p>فهم التهديدات نصف الحماية. لن نتعمّق في التقنيات، بل نتعرّف على أشهر الأخطار بلغة بسيطة حتى تتعرّف عليها وتتجنّبها. اضغط كل بطاقة لكشف وصفها:</p>
+
+  <div class="sim">
+    <div class="sim-head"><span class="dot"></span><h4>تعرّف على التهديد</h4></div>
+    <div class="sim-note">اضغط كل بطاقة لقلبها وقراءة شرح مبسّط للتهديد وكيفية تجنّبه.</div>
+    <div class="threat-grid" id="threatGrid"></div>
+    <div class="readout" id="threatOut">كُشف: 0 من التهديدات</div>
+  </div>
+
+  <div class="analogy">
+    <span class="tag">// القاعدة الذهبية</span>
+    معظم الاختراقات لا تحدث بذكاء تقني خارق، بل باستغلال أخطاء بسيطة: كلمة مرور ضعيفة، رابط مشبوه نُقر عليه، أو شبكة عامة وُثق بها. <b>اليقظة</b> أقوى من أي جدار حماية.
+  </div>
+
+  <div class="quiz" data-q>
+    <div class="q-tag">// quiz</div>
+    <div class="q">ما أكثر سبب شائع لنجاح الاختراقات؟</div>
+    <button class="opt" data-correct="false">قوة الحاسوب الفائقة للمخترق</button>
+    <button class="opt" data-correct="true">أخطاء بسيطة: كلمات مرور ضعيفة وروابط مشبوهة</button>
+    <button class="opt" data-correct="false">سرعة الإنترنت العالية</button>
+    <div class="fb ok">صحيح! العنصر البشري والأخطاء البسيطة هي الثغرة الأكبر عادةً.</div>
+    <div class="fb no">ليس تمامًا. معظم الاختراقات تستغل أخطاء بشرية بسيطة لا قوة تقنية.</div>
+  </div>
+</section>
+
+<!-- GLOSSARY -->
+<section id="glossary">
+  <span class="step-tag"><span class="n">★</span> مرجع سريع</span>
+  <h2>المصطلحات الأساسية</h2>
+  <table class="tbl">
+    <thead><tr><th>المصطلح</th><th>بالإنجليزية</th><th>المعنى المبسّط</th></tr></thead>
+    <tbody>
+      <tr><td>نقطة الوصول</td><td class="mono">Access Point</td><td>الجهاز الذي يبثّ Wi-Fi</td></tr>
+      <tr><td>اسم الشبكة</td><td class="mono">SSID</td><td>الاسم الظاهر لشبكة Wi-Fi</td></tr>
+      <tr><td>القناة</td><td class="mono">Channel</td><td>التردد الذي تبثّ عليه الشبكة</td></tr>
+      <tr><td>التشفير</td><td class="mono">WPA2/WPA3</td><td>قفل يحمي بيانات الشبكة اللاسلكية</td></tr>
+      <tr><td>جدار الحماية</td><td class="mono">Firewall</td><td>حارس يسمح أو يمنع الاتصالات بقواعد</td></tr>
+      <tr><td>ترجمة العناوين</td><td class="mono">NAT</td><td>مشاركة عنوان عام واحد بين أجهزة كثيرة</td></tr>
+      <tr><td>المنفذ</td><td class="mono">Port</td><td>رقم يحدّد نوع الخدمة (443 للمواقع الآمنة)</td></tr>
+      <tr><td>التصيّد</td><td class="mono">Phishing</td><td>خداعك للكشف عن بياناتك عبر رابط مزيّف</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="sub-h">منافذ شائعة يجب أن تعرفها</h3>
+  <div class="symgrid">
+    <div class="sym"><div class="big-sym">443</div><div class="sname">HTTPS</div><div class="sdesc">تصفّح آمن مشفّر</div></div>
+    <div class="sym"><div class="big-sym">80</div><div class="sname">HTTP</div><div class="sdesc">تصفّح غير مشفّر</div></div>
+    <div class="sym"><div class="big-sym">22</div><div class="sname">SSH</div><div class="sdesc">دخول آمن للأجهزة</div></div>
+    <div class="sym"><div class="big-sym">53</div><div class="sname">DNS</div><div class="sdesc">ترجمة أسماء المواقع</div></div>
+  </div>
+</section>
+
+<!-- EXAM -->
+<section id="exam">
+  <div class="exam">
+    <span class="step-tag"><span class="n">✓</span> الاختبار النهائي</span>
+    <h2>امتحن نفسك — 10 أسئلة</h2>
+    <p class="exam-sub">أجب على كل الأسئلة ثم اضغط "صحّح إجاباتي". تحتاج 7 من 10 على الأقل لإكمال المستوى.</p>
+    <div id="examBody"></div>
+    <div class="btn-row" style="margin-top:18px">
+      <button class="btn" onclick="gradeExam()">صحّح إجاباتي</button>
+      <button class="btn ghost" onclick="resetExam()">امسح الإجابات</button>
+    </div>
+    <div class="escore" id="examScore"></div>
+  </div>
+</section>
+
+<!-- COMPLETE -->
+<section id="complete" class="locked">
+  <div class="done" id="doneCard">
+    <div class="ic"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#0e1116" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <h2>أتممت المستوى الرابع!</h2>
+    <p>الآن تفهم كيف يعمل Wi-Fi، تختار التشفير الصحيح، وتعرف دور جدار الحماية وNAT وأشهر التهديدات. بقي مستوى واحد: أن تجمع كل هذا وتحلّ المشاكل بنفسك.</p>
+    <a class="next-btn" href="../networking-level5/index.html">المستوى الخامس: حلّ المشاكل كالمحترفين ←</a>
+    <div class="lockmsg" id="lockMsg">🔒 أكمل الامتحان بنجاح (7/10) لفتح المستوى التالي</div>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="disc">
+      <b>تنبيه:</b> هذه المادة تعليمية تبسيطية للمبتدئين. أمن الشبكات مجال واسع وعميق، وما هنا مقدّمة لبناء الوعي لا دليل حماية شامل. لتأمين شبكة حقيقية ارجع إلى مختصّين ومصادر معتمدة محدّثة.
+    </div>
+    <div class="copy">// Networking Track · Level 4 of 5</div>
+  </div>
+</footer>
+
+<script>
+/* progress rail */
+const rail=document.getElementById('rail-fill');
+addEventListener('scroll',()=>{const h=document.documentElement;rail.style.width=(h.scrollTop)/(h.scrollHeight-h.clientHeight)*100+'%';},{passive:true});
+
+/* mini-quiz engine */
+document.querySelectorAll('[data-q]').forEach(q=>{
+  const opts=q.querySelectorAll('.opt');const ok=q.querySelector('.fb.ok'),no=q.querySelector('.fb.no');
+  opts.forEach(o=>o.addEventListener('click',()=>{
+    opts.forEach(x=>x.disabled=true);
+    const correct=o.dataset.correct==='true';
+    o.classList.add(correct?'correct':'wrong');
+    if(!correct)q.querySelector('[data-correct="true"]').classList.add('correct');
+    (correct?ok:no).classList.add('show');
+  }));
+});
+
+/* S1: signal strength */
+function renderSignal(){
+  const d=+document.getElementById('distSlide').value;
+  document.getElementById('distVal').textContent=d+' م';
+  // strength 5 bars at d<=4, scaling down to 1 bar at d>=26
+  const strength=Math.max(1,Math.round(5-(d-1)/6));
+  const viz=document.getElementById('sigViz');viz.innerHTML='';
+  for(let i=1;i<=5;i++){
+    const b=document.createElement('div');b.className='sbar';
+    b.style.height=(20+i*10)+'px';
+    if(i<=strength)b.classList.add(strength<=2?'weak':'lit');
+    viz.appendChild(b);
+  }
+  const speeds=['ضعيفة جدًا','بطيئة','متوسطة','جيّدة','ممتازة'];
+  const mbps=[5,40,150,400,866][strength-1];
+  document.getElementById('sigOut').innerHTML='المسافة: <span class="cu">'+d+' متر</span> · قوة الإشارة: <span class="hl">'+strength+'/5</span>\nالجودة: <span class="hl">'+speeds[strength-1]+'</span> (~'+mbps+' Mbps تقريبًا)';
+}
+renderSignal();
+
+/* S2: channel selection */
+const channels=[1,3,6,9,11];
+let chosenChan=null;
+function buildChannels(){
+  const row=document.getElementById('chanRow');row.innerHTML='';
+  channels.forEach(c=>{
+    const b=document.createElement('button');b.className='toggle'+(c===chosenChan?' on':'');
+    b.textContent='قناة '+c;b.onclick=()=>pickChan(c);
+    if(c===6)b.style.borderColor='var(--warn)';
+    row.appendChild(b);
+  });
+}
+function pickChan(c){
+  chosenChan=c;buildChannels();
+  const out=document.getElementById('chanOut');
+  // interference if within 2 channels of 6 (channels overlap ±2 roughly in this simplified model)
+  const overlap=Math.abs(c-6)<=2;
+  if(c===6){out.innerHTML='اخترت <span class="cu">القناة 6</span> — نفس قناة الجار!\n→ <span class="cu">تداخل كامل</span>، الشبكتان ستبطآن. اختر قناة أبعد.';}
+  else if(overlap){out.innerHTML='اخترت <span class="hl">القناة '+c+'</span> — قريبة جدًا من قناة الجار (6).\n→ <span class="cu">تداخل جزئي</span>. جرّب قناة 1 أو 11.';}
+  else{out.innerHTML='اخترت <span class="hl">القناة '+c+'</span> — بعيدة عن قناة الجار (6).\n→ <span class="hl">لا تداخل</span>! أداء نظيف. ✓';}
+}
+buildChannels();
+
+/* S3: encryption tiers */
+const tiers=[
+  {nm:'WEP',badge:'bad',blabel:'مكسور',d:'قديم من التسعينيات، يُكسر في دقائق. لا تستخدمه إطلاقًا حتى لو ظهر كخيار.'},
+  {nm:'WPA',badge:'mid',blabel:'متقادم',d:'تحسين مؤقت على WEP، لكنه تجاوزه الزمن أيضًا. تجنّبه إن وُجد أحدث.'},
+  {nm:'WPA2',badge:'good',blabel:'جيّد',d:'كان المعيار الذهبي لسنوات. آمن لمعظم الاستخدامات إن كانت كلمة المرور قوية.'},
+  {nm:'WPA3',badge:'good',blabel:'الأفضل',d:'الأحدث. يحمي حتى مع كلمات مرور أضعف، ويقاوم هجمات التخمين. اختره إن توفّر.'}
+];
+function buildTiers(){
+  const w=document.getElementById('encTiers');w.innerHTML='';
+  tiers.forEach((t,i)=>{
+    const badgeName={bad:'سيّئ',mid:'متوسط',good:'آمن'}[t.badge];
+    const d=document.createElement('div');d.className='tier';d.id='tier'+i;
+    d.innerHTML='<span class="tname">'+t.nm+'</span><span class="tbadge '+t.badge+'">'+t.blabel+'</span>';
+    d.onclick=()=>{
+      document.querySelectorAll('.tier').forEach(x=>x.classList.remove('sel'));
+      d.classList.add('sel');
+      document.getElementById('encOut').innerHTML='<span class="cu">'+t.nm+'</span> — التقييم: '+t.blabel+'\n'+t.d;
+    };
+    w.appendChild(d);
+  });
+}
+buildTiers();
+
+/* S4: firewall */
+const fwTraffic=[
+  {desc:'محاولة تصفّح موقع آمن',port:443,allow:true},
+  {desc:'دخول SSH لإدارة جهاز',port:22,allow:true},
+  {desc:'محاولة دخول غريبة من الخارج',port:3389,allow:false},
+  {desc:'تصفّح موقع عادي',port:80,allow:true},
+  {desc:'برنامج يحاول فتح اتصال مشبوه',port:6667,allow:false}
+];
+let fwIdx=-1;
+function fwNext(){
+  if(fwIdx>=fwTraffic.length-1){document.getElementById('fwOut').innerHTML='<span class="hl">انتهت كل الاتصالات.</span> اضغط "إعادة" لتكرارها.';return;}
+  fwIdx++;
+  const t=fwTraffic[fwIdx];
+  const log=document.getElementById('fwLog');
+  const row=document.createElement('div');row.className='fw-row';
+  row.innerHTML='Port '+t.port+' · '+t.desc+'<span class="fw-verdict '+(t.allow?'allow':'block')+'">'+(t.allow?'✓ سُمح':'✗ مُنع')+'</span>';
+  log.appendChild(row);
+  document.getElementById('fwOut').innerHTML=t.allow
+    ?'المنفذ <span class="hl">'+t.port+'</span> ضمن القواعد المسموحة → <span class="hl">سُمح بالمرور.</span>'
+    :'المنفذ <span class="cu">'+t.port+'</span> ليس في القائمة المسموحة → <span class="cu">مُنع.</span> الحارس يحمي شبكتك.';
+}
+function fwReset(){fwIdx=-1;document.getElementById('fwLog').innerHTML='';document.getElementById('fwOut').innerHTML='اضغط لبدء فحص الاتصالات الواردة.';}
+
+/* S5: NAT */
+const natSteps=[
+  {t:'<span class="ch">جهازك (192.168.1.42)</span> <span class="arrow">→</span> يريد فتح موقع'},
+  {t:'الراوتر يطبّق <span class="arrow">NAT</span>: يبدّل المصدر إلى عنوانه العام <span class="ch">203.0.113.7</span>'},
+  {t:'الطلب يخرج للإنترنت باسم <span class="ch">203.0.113.7</span> — جهازك متخفٍّ خلفه'},
+  {t:'الموقع يردّ إلى <span class="ch">203.0.113.7</span> (لا يعرف عنوانك الخاص)'},
+  {t:'الراوتر يتذكّر ويعيد توجيه الردّ إلى <span class="ch">192.168.1.42</span> ✓'}
+];
+let natIdx=-1;
+function renderNat(){
+  const w=document.getElementById('natFlow');w.innerHTML='';
+  natSteps.forEach((s,i)=>{
+    const d=document.createElement('div');d.className='nat-box';
+    d.style.opacity=i<=natIdx?'1':'.3';
+    d.innerHTML=s.t;
+    w.appendChild(d);
+  });
+}
+function natStep(){if(natIdx<natSteps.length-1)natIdx++;renderNat();}
+function natReset(){natIdx=-1;renderNat();}
+renderNat();
+
+/* S6: threats */
+const threats=[
+  {ic:'🎣',label:'التصيّد (Phishing)',d:'رابط أو رسالة مزيّفة تطلب بياناتك. الحماية: لا تنقر روابط مشبوهة، تحقّق من المُرسِل.'},
+  {ic:'🔓',label:'كلمة مرور ضعيفة',d:'سهلة التخمين مثل 123456. الحماية: كلمات طويلة فريدة، ومدير كلمات مرور.'},
+  {ic:'📡',label:'شبكة عامة مفتوحة',d:'Wi-Fi مجاني بلا تشفير قد يتجسّس عليك. الحماية: تجنّب البيانات الحسّاسة، استخدم VPN.'},
+  {ic:'🐛',label:'برمجيات خبيثة',d:'برامج ضارة تُثبّت دون علمك. الحماية: حمّل من مصادر موثوقة، حدّث نظامك دائمًا.'},
+  {ic:'👤',label:'الهندسة الاجتماعية',d:'خداعك نفسيًا لتسليم معلومات. الحماية: تشكّك في الطلبات العاجلة غير المتوقّعة.'},
+  {ic:'🔄',label:'برامج قديمة',d:'ثغرات في برامج لم تُحدّث. الحماية: فعّل التحديثات التلقائية.'}
+];
+let revealed=0;
+function buildThreats(){
+  const g=document.getElementById('threatGrid');g.innerHTML='';revealed=0;
+  threats.forEach((t,i)=>{
+    const d=document.createElement('div');d.className='threat';d.id='th'+i;
+    d.innerHTML='<div class="ticon">'+t.ic+'</div><div class="tlabel">'+t.label+'</div><div class="tdesc">'+t.d+'</div>';
+    d.onclick=()=>{if(!d.classList.contains('revealed')){d.classList.add('revealed');revealed++;document.getElementById('threatOut').innerHTML='كُشف: <span class="hl">'+revealed+'</span> من '+threats.length+' تهديدات';}};
+    g.appendChild(d);
+  });
+}
+buildThreats();
+
+/* FINAL EXAM */
+const examQs=[
+  {q:'Wi-Fi ينقل البيانات عبر:',o:['أسلاك نحاسية','موجات راديو لاسلكية','أنابيب ضوئية'],a:1},
+  {q:'لماذا تضعف إشارة Wi-Fi مع المسافة؟',o:['طبيعة الموجات اللاسلكية','نفاد البطارية','طول الكابل'],a:0},
+  {q:'SSID هو:',o:['كلمة المرور','اسم شبكة Wi-Fi','نوع الكابل'],a:1},
+  {q:'لو بثّت شبكتان على نفس القناة:',o:['تتداخلان وتبطآن','تندمجان','تتسارعان'],a:0},
+  {q:'أي تشفير يجب تجنّبه؟',o:['WPA3','WPA2','WEP'],a:2},
+  {q:'وظيفة جدار الحماية:',o:['تسريع الإنترنت','السماح/المنع حسب قواعد','تخزين الملفات'],a:1},
+  {q:'ما الذي يتيح لأجهزة كثيرة مشاركة عنوان عام واحد؟',o:['NAT','WEP','SSID'],a:0},
+  {q:'المنفذ 443 يُستخدم لـ:',o:['التصفّح الآمن HTTPS','الطباعة','الألعاب'],a:0},
+  {q:'التصيّد (Phishing) هو:',o:['نوع كابل','خداعك عبر رابط مزيّف لسرقة بياناتك','بروتوكول تشفير'],a:1},
+  {q:'أكبر سبب لنجاح الاختراقات عادةً:',o:['قوة حاسوب المخترق','أخطاء بشرية بسيطة','سرعة الإنترنت'],a:1}
+];
+function buildExam(){
+  const b=document.getElementById('examBody');b.innerHTML='';
+  examQs.forEach((q,i)=>{
+    let opts='';q.o.forEach((o,j)=>{opts+='<button class="opt" data-ex="'+i+'" data-opt="'+j+'" onclick="pickExam('+i+','+j+')">'+o+'</button>';});
+    b.innerHTML+='<div class="eq" id="eq'+i+'"><div class="eqn">Q'+(i+1).toString().padStart(2,'0')+'</div><div class="eqq">'+q.q+'</div>'+opts+'</div>';
+  });
+}
+const examPick={};
+function pickExam(i,j){examPick[i]=j;document.querySelectorAll('[data-ex="'+i+'"]').forEach(b=>{b.style.borderColor=(+b.dataset.opt===j)?'var(--cyan)':'var(--line2)';b.style.color=(+b.dataset.opt===j)?'var(--ink)':'var(--ink2)';});}
+function gradeExam(){
+  let score=0;
+  examQs.forEach((q,i)=>{
+    document.querySelectorAll('[data-ex="'+i+'"]').forEach(b=>{b.disabled=true;const opt=+b.dataset.opt;b.classList.remove('correct','wrong');if(opt===q.a)b.classList.add('correct');else if(examPick[i]===opt)b.classList.add('wrong');});
+    if(examPick[i]===q.a)score++;
+  });
+  const s=document.getElementById('examScore');s.className='escore show';const pass=score>=7;
+  s.style.background=pass?'rgba(70,200,160,.1)':'rgba(224,179,79,.1)';
+  s.style.border='1px solid '+(pass?'rgba(70,200,160,.4)':'rgba(224,179,79,.4)');
+  s.innerHTML='<div class="big" style="color:'+(pass?'var(--good)':'var(--warn)')+'">'+score+'/10</div><div class="msg">'+(pass?'ممتاز! اجتزت المستوى الرابع. المستوى الأخير مفتوح. ✓':'قريب! راجع النقاط وأعد المحاولة — تحتاج 7 على الأقل.')+'</div>';
+  if(pass){document.getElementById('complete').classList.remove('locked');document.getElementById('lockMsg').innerHTML='✅ تم فتح المستوى الأخير — أحسنت!';}
+  s.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function resetExam(){for(const k in examPick)delete examPick[k];buildExam();document.getElementById('examScore').className='escore';}
+buildExam();
+</script>
+</body>
+</html>
