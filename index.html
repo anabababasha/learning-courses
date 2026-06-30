@@ -2,198 +2,260 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>المسارات التعليمية — الكهرباء والشبكات</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>مسارات تعليمية تفاعلية — الكهرباء · الشبكات · تصميم الأنظمة</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0e1116; --bg2:#141922; --panel:#1a212c; --panel2:#212b38;
-  --ink:#e8edf4; --ink2:#aab6c6; --muted:#79859a;
-  --line:#2a3442; --line2:#374556;
-  --copper:#d98a4f; --copper2:#f0a368; --cyan:#46c8d8; --cyan2:#6fe0ee;
-  --good:#46c8a0;
-  --radius:14px; --radius-sm:9px;
-  --shadow:0 10px 30px rgba(0,0,0,.35);
-  --maxw:960px;
+  --bg:#0d0f12; --bg2:#111418; --panel:#161a1f; --panel2:#1c2128;
+  --line:#252b33; --line2:#2f3742;
+  --ink:#e8edf2; --ink-dim:#aeb8c4; --ink-faint:#6b7682;
+  --copper:#c87f4a; --copper-bright:#e0975c;
+  --cyan:#3fb8c4; --cyan-bright:#5fd3df;
+  --amber:#e0a23c; --amber-bright:#f0b860;
+  --green:#5fbf7f; --red:#d65f5f;
+  --elec:#e0a23c; --net:#3fb8c4; --av:#c87f4a;
+  --radius:16px; --radius-sm:11px;
+  --sans:'IBM Plex Sans Arabic',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
 }
-*{box-sizing:border-box;margin:0;padding:0}
+*{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{
-  background:radial-gradient(1200px 600px at 80% -10%,#172030 0%,transparent 55%),
-             radial-gradient(900px 500px at 0% 10%,#16242a 0%,transparent 50%),
-             var(--bg);
-  color:var(--ink);
-  font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;
-  line-height:1.85;font-size:17px;font-weight:300;
-  -webkit-font-smoothing:antialiased;min-height:100vh;
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1040px;margin:0 auto;padding:0 22px}
+a{color:inherit;text-decoration:none}
+
+/* hero */
+.hero{padding:72px 0 44px;text-align:center;position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.hero::before{content:"";position:absolute;inset:0;background:
+  radial-gradient(900px 360px at 50% -10%,rgba(224,162,60,.10),transparent 60%),
+  radial-gradient(700px 320px at 15% 0%,rgba(63,184,196,.08),transparent 55%),
+  radial-gradient(700px 320px at 85% 10%,rgba(200,127,74,.08),transparent 55%);
+  pointer-events:none}
+.hero .eyebrow{font-family:var(--mono);color:var(--copper-bright);font-size:.82rem;letter-spacing:2px;margin-bottom:14px;position:relative}
+.hero h1{font-size:clamp(1.9rem,5vw,2.9rem);font-weight:700;line-height:1.25;margin-bottom:16px;position:relative}
+.hero h1 .g{background:linear-gradient(120deg,var(--amber-bright),var(--copper),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:var(--ink-dim);max-width:640px;margin:0 auto;font-size:1.04rem;position:relative}
+.hero .stats{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:24px;position:relative}
+.stat{background:var(--panel);border:1px solid var(--line2);border-radius:30px;padding:7px 16px;font-size:.84rem;color:var(--ink-dim)}
+.stat b{color:var(--amber-bright);font-family:var(--mono)}
+
+/* track */
+.track{padding:48px 0 8px}
+.track-head{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+.track-num{width:46px;height:46px;border-radius:13px;display:grid;place-items:center;font-family:var(--mono);font-size:1.25rem;font-weight:600;flex-shrink:0}
+.track-t1 .track-num{background:linear-gradient(135deg,rgba(224,162,60,.2),rgba(224,162,60,.06));border:1px solid rgba(224,162,60,.45);color:var(--amber-bright)}
+.track-t2 .track-num{background:linear-gradient(135deg,rgba(63,184,196,.2),rgba(63,184,196,.06));border:1px solid rgba(63,184,196,.45);color:var(--cyan-bright)}
+.track-t3 .track-num{background:linear-gradient(135deg,rgba(200,127,74,.2),rgba(200,127,74,.06));border:1px solid rgba(200,127,74,.45);color:var(--copper-bright)}
+.track-head h2{font-size:1.5rem;font-weight:700}
+.track-head .sub{color:var(--ink-faint);font-size:.9rem;margin-top:2px}
+.track-bar{height:3px;border-radius:3px;margin:14px 0 22px}
+.track-t1 .track-bar{background:linear-gradient(90deg,var(--amber),transparent)}
+.track-t2 .track-bar{background:linear-gradient(90deg,var(--cyan),transparent)}
+.track-t3 .track-bar{background:linear-gradient(90deg,var(--copper),transparent)}
+
+/* cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-sm);padding:20px;position:relative;transition:transform .18s,border-color .2s,box-shadow .25s;display:flex;flex-direction:column;min-height:152px}
+.card:hover{transform:translateY(-3px)}
+.card .lvl{font-family:var(--mono);font-size:.74rem;color:var(--ink-faint);letter-spacing:1px;margin-bottom:9px;display:flex;align-items:center;gap:8px}
+.card .lvl .dot{width:8px;height:8px;border-radius:50%}
+.card h3{font-size:1.08rem;font-weight:600;margin-bottom:7px;line-height:1.4}
+.card p{font-size:.875rem;color:var(--ink-dim);flex:1}
+.card .go{margin-top:12px;font-family:var(--mono);font-size:.8rem;display:flex;align-items:center;gap:6px;opacity:.85}
+.track-t1 .card:hover{border-color:rgba(224,162,60,.5);box-shadow:0 8px 26px rgba(224,162,60,.13)}
+.track-t1 .card .dot{background:var(--amber)} .track-t1 .card .go{color:var(--amber-bright)}
+.track-t2 .card:hover{border-color:rgba(63,184,196,.5);box-shadow:0 8px 26px rgba(63,184,196,.13)}
+.track-t2 .card .dot{background:var(--cyan)} .track-t2 .card .go{color:var(--cyan-bright)}
+.track-t3 .card:hover{border-color:rgba(200,127,74,.5);box-shadow:0 8px 26px rgba(200,127,74,.13)}
+.track-t3 .card .dot{background:var(--copper)} .track-t3 .card .go{color:var(--copper-bright)}
+.card .seq{position:absolute;top:16px;left:18px;font-family:var(--mono);font-size:2.1rem;font-weight:700;color:var(--line2);line-height:1}
+
+/* footer */
+footer{margin-top:54px;background:var(--bg2);border-top:1px solid var(--line);padding:34px 22px;text-align:center}
+footer p{font-size:.82rem;color:var(--ink-faint);max-width:600px;margin:0 auto 8px}
+footer .mono{font-family:var(--mono);color:var(--copper)}
+
+@media (max-width:560px){
+  .hero{padding:54px 0 34px}
+  .track{padding:38px 0 4px}
+  .card .seq{font-size:1.7rem}
 }
-.mono{font-family:'IBM Plex Mono',monospace;direction:ltr}
-.wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px}
-
-.hero{padding:72px 0 40px;text-align:center}
-.kicker{color:var(--cyan2);font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;direction:ltr}
-h1{font-size:clamp(32px,7vw,54px);font-weight:700;line-height:1.25;margin-bottom:18px;background:linear-gradient(135deg,#fff 25%,var(--cyan2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.hero p{color:var(--ink2);font-size:clamp(17px,2.4vw,20px);max-width:640px;margin:0 auto}
-.hero-stats{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:28px}
-.hstat{background:var(--panel);border:1px solid var(--line2);border-radius:999px;padding:9px 18px;font-size:14px;color:var(--ink2)}
-.hstat b{color:var(--copper2)}
-
-.track{margin:30px 0 50px}
-.track-head{display:flex;align-items:center;gap:14px;margin-bottom:8px}
-.track-icon{width:54px;height:54px;border-radius:14px;display:grid;place-items:center;flex-shrink:0}
-.track-icon.elec{background:linear-gradient(135deg,rgba(224,179,79,.2),rgba(217,138,79,.12));border:1px solid rgba(224,179,79,.3)}
-.track-icon.net{background:linear-gradient(135deg,rgba(70,200,216,.2),rgba(70,200,160,.12));border:1px solid rgba(70,200,216,.3)}
-.track-title h2{font-size:clamp(22px,4vw,28px);font-weight:700}
-.track-title .tcount{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--muted);direction:ltr}
-.track-desc{color:var(--ink2);font-size:15px;margin:6px 0 22px;max-width:680px}
-
-.levels{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
-.lvl{display:block;text-decoration:none;background:var(--panel);border:1px solid var(--line2);border-radius:var(--radius);padding:22px;transition:.22s;position:relative;overflow:hidden}
-.lvl::before{content:'';position:absolute;top:0;right:0;width:4px;height:100%;transition:.22s}
-.lvl.elec::before{background:linear-gradient(180deg,var(--copper),var(--copper2))}
-.lvl.net::before{background:linear-gradient(180deg,var(--cyan),var(--cyan2))}
-.lvl:hover{transform:translateY(-4px);border-color:var(--cyan);box-shadow:var(--shadow)}
-.lvl-num{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--muted);direction:ltr;margin-bottom:10px}
-.lvl h3{font-size:18px;font-weight:600;color:var(--ink);margin-bottom:8px;line-height:1.4}
-.lvl p{font-size:14px;color:var(--ink2);margin-bottom:14px}
-.lvl .go{font-size:14px;color:var(--cyan2);font-weight:500;display:flex;align-items:center;gap:6px}
-.lvl-badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.lbadge{font-size:11px;font-family:'IBM Plex Mono',monospace;direction:ltr;background:var(--bg);border:1px solid var(--line2);border-radius:999px;padding:3px 9px;color:var(--muted)}
-
-.divider{height:1px;background:var(--line);margin:10px 0}
-
-footer{border-top:1px solid var(--line);padding:34px 0 56px;text-align:center;margin-top:30px}
-.disc{background:var(--panel);border:1px solid var(--line2);border-radius:var(--radius);padding:18px 22px;font-size:13px;color:var(--muted);max-width:640px;margin:0 auto 18px}
-.disc b{color:var(--ink2)}
-footer .copy{font-size:13px;color:var(--muted);font-family:'IBM Plex Mono',monospace;direction:ltr}
-
-@media(max-width:560px){body{font-size:16px}.levels{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
-<div class="wrap">
-  <header class="hero">
-    <div class="kicker">Interactive Learning Tracks</div>
-    <h1>تعلّم بالتفاعل، لا بالحفظ</h1>
-    <p>مسارات تعليمية عربية مبنية على المحاكيات الحيّة والاختبارات. كل مستوى يفتح التالي. ابدأ من أي مسار يناسبك.</p>
-    <div class="hero-stats">
-      <div class="hstat"><b>مساران</b> تعليميان</div>
-      <div class="hstat"><b>١٠</b> مستويات</div>
-      <div class="hstat"><b>محاكيات</b> تفاعلية</div>
-      <div class="hstat"><b>اختبارات</b> بعد كل مستوى</div>
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">INTERACTIVE LEARNING · تعلّم بالتفاعل</div>
+    <h1>مسارات تعليمية <span class="g">تفاعلية</span><br>من الأساس إلى الاحتراف</h1>
+    <p>ثلاثة مسارات متدرّجة بالعربية، كل مستوى فيه شروحات مبسّطة، محاكيات حيّة تقدر تجرّبها بنفسك، واختبار في النهاية. ابدأ من الكهرباء، ثم الشبكات، ثم تصميم أنظمة الصوت والصورة.</p>
+    <div class="stats">
+      <span class="stat"><b>3</b> مسارات</span>
+      <span class="stat"><b>15</b> مستوى</span>
+      <span class="stat"><b>+40</b> محاكي تفاعلي</span>
+      <span class="stat">عربي · RTL</span>
     </div>
-  </header>
+  </div>
+</header>
 
-  <!-- ===== TRACK 1: ELECTRICITY ===== -->
-  <section class="track">
+<main class="wrap">
+
+  <!-- TRACK 1: ELECTRICITY -->
+  <section class="track track-t1">
     <div class="track-head">
-      <div class="track-icon elec">
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" fill="#f0a368" stroke="#d98a4f" stroke-width="1.5" stroke-linejoin="round"/></svg>
-      </div>
-      <div class="track-title">
+      <div class="track-num">⚡</div>
+      <div>
         <h2>أساسيات الكهرباء</h2>
-        <div class="tcount">Electricity · 5 Levels</div>
+        <div class="sub">من الجهد والتيار إلى البوابات المنطقية والمحوّلات — 5 مستويات</div>
       </div>
     </div>
-    <p class="track-desc">من الجهد والتيار والمقاومة إلى الدوائر العملية والأمان الكهربائي. مسار يبني حدسك الكهربائي خطوة بخطوة عبر محاكيات حيّة.</p>
-    <div class="levels">
-      <a class="lvl elec" href="electricity-fundamentals/index.html">
-        <div class="lvl-num">LEVEL 01</div>
+    <div class="track-bar"></div>
+    <div class="cards">
+      <a class="card" href="electricity-fundamentals/index.html">
+        <span class="seq">1</span>
+        <div class="lvl"><span class="dot"></span>المستوى 1</div>
         <h3>أساسيات الكهرباء</h3>
-        <p>الجهد، التيار، المقاومة، وقانون أوم.</p>
-        <div class="go">ابدأ هنا ←</div>
+        <p>الجهد، التيار، المقاومة، قانون أوم، القدرة، التيار المستمر والمتردّد، والدوائر الكهربائية.</p>
+        <div class="go">ابدأ ←</div>
       </a>
-      <a class="lvl elec" href="electricity-level2/index.html">
-        <div class="lvl-num">LEVEL 02</div>
-        <h3>الدوائر الكهربائية</h3>
-        <p>التوالي والتوازي، وكيف تتوزّع الكهرباء.</p>
-        <div class="go">افتح ←</div>
+      <a class="card" href="electricity-level2/index.html">
+        <span class="seq">2</span>
+        <div class="lvl"><span class="dot"></span>المستوى 2</div>
+        <h3>المكثّفات والمفاتيح والقياس</h3>
+        <p>المكثّفات، المفاتيح والمرحّلات، حاسبة شبكات المقاومات، واستخدام المالتيميتر.</p>
+        <div class="go">ابدأ ←</div>
       </a>
-      <a class="lvl elec" href="electricity-level3/index.html">
-        <div class="lvl-num">LEVEL 03</div>
-        <h3>القدرة والطاقة</h3>
-        <p>الواط، الطاقة المستهلكة، والحسابات.</p>
-        <div class="go">افتح ←</div>
+      <a class="card" href="electricity-level3/index.html">
+        <span class="seq">3</span>
+        <div class="lvl"><span class="dot"></span>المستوى 3</div>
+        <h3>أشباه الموصلات</h3>
+        <p>الدايود والـLED، الترانزستور، الفيوزات، وقراءة دائرة كاملة خطوة بخطوة.</p>
+        <div class="go">ابدأ ←</div>
       </a>
-      <a class="lvl elec" href="electricity-level4/index.html">
-        <div class="lvl-num">LEVEL 04</div>
+      <a class="card" href="electricity-level4/index.html">
+        <span class="seq">4</span>
+        <div class="lvl"><span class="dot"></span>المستوى 4</div>
         <h3>البوابات المنطقية والإلكترونيات الرقمية</h3>
-        <p>المنطق الرقمي، البوابات، والإشارات الثنائية.</p>
-        <div class="go">افتح ←</div>
+        <p>بوابات NOT/AND/OR/XOR مع محاكي حيّ لجداول الحقيقة، وبناء دوائر منطقية تجميعية.</p>
+        <div class="go">ابدأ ←</div>
       </a>
-      <a class="lvl elec" href="electricity-level5/index.html">
-        <div class="lvl-num">LEVEL 05</div>
-        <h3>التيار المتردّد الواقعي</h3>
-        <p>المحوّلات، المحرّكات، وتمديدات المنزل.</p>
-        <div class="go">افتح ←</div>
+      <a class="card" href="electricity-level5/index.html">
+        <span class="seq">5</span>
+        <div class="lvl"><span class="dot"></span>المستوى 5</div>
+        <h3>الكهرباء في الواقع</h3>
+        <p>المحوّلات (نسبة اللفّات)، المحرّكات الكهربائية، أسلاك المنزل (حار/محايد/أرضي)، وفرق RMS عن الذروة.</p>
+        <div class="go">ابدأ ←</div>
       </a>
     </div>
   </section>
 
-  <div class="divider"></div>
-
-  <!-- ===== TRACK 2: NETWORKING ===== -->
-  <section class="track">
+  <!-- TRACK 2: NETWORKING -->
+  <section class="track track-t2">
     <div class="track-head">
-      <div class="track-icon net">
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><circle cx="5" cy="6" r="2.5" fill="#6fe0ee"/><circle cx="19" cy="6" r="2.5" fill="#46c8d8"/><circle cx="12" cy="18" r="2.5" fill="#46c8a0"/><path d="M5 8.5v3a2 2 0 002 2h3M19 8.5v3a2 2 0 01-2 2h-3M12 13.5v2" stroke="#46c8d8" stroke-width="1.5"/></svg>
-      </div>
-      <div class="track-title">
+      <div class="track-num">🌐</div>
+      <div>
         <h2>أساسيات الشبكات</h2>
-        <div class="tcount">Networking · 5 Levels</div>
+        <div class="sub">كيف تتكلّم الأجهزة، العنونة، التوجيه، اللاسلكي والأمان — 5 مستويات</div>
       </div>
     </div>
-    <p class="track-desc">من "ما هي الشبكة؟" إلى تشخيص الأعطال كالمحترفين. تعلّم كيف تتحدّث الأجهزة، تُعنون، تتّصل، وتُؤمَّن — عبر محاكيات تفاعلية في كل مفهوم.</p>
-    <div class="levels">
-      <a class="lvl net" href="networking-fundamentals/index.html">
-        <div class="lvl-num">LEVEL 01</div>
-        <h3>كيف تتحدّث الأجهزة؟</h3>
-        <p>الشبكة، طبقات OSI، الحزم، وعناوين MAC وIP.</p>
-        <div class="go">ابدأ هنا ←</div>
-        <div class="lvl-badges"><span class="lbadge">OSI</span><span class="lbadge">Packets</span><span class="lbadge">MAC/IP</span></div>
+    <div class="track-bar"></div>
+    <div class="cards">
+      <a class="card" href="networking-fundamentals/index.html">
+        <span class="seq">1</span>
+        <div class="lvl"><span class="dot"></span>المستوى 1</div>
+        <h3>كيف تتكلّم الشبكات</h3>
+        <p>نموذج OSI، الحُزم (Packets)، عناوين MAC وIP، ورحلة الرسالة من جهاز لآخر.</p>
+        <div class="go">ابدأ ←</div>
       </a>
-      <a class="lvl net" href="networking-level2/index.html">
-        <div class="lvl-num">LEVEL 02</div>
-        <h3>العناوين والشبكات الفرعية</h3>
-        <p>تشريح IP، العام والخاص، القناع، CIDR، وDHCP.</p>
-        <div class="go">افتح ←</div>
-        <div class="lvl-badges"><span class="lbadge">Subnet</span><span class="lbadge">CIDR</span><span class="lbadge">DHCP</span></div>
+      <a class="card" href="networking-level2/index.html">
+        <span class="seq">2</span>
+        <div class="lvl"><span class="dot"></span>المستوى 2</div>
+        <h3>عنونة IP والتقسيم الفرعي</h3>
+        <p>الأوكتت والثنائي، العناوين العامة والخاصة، قناع الشبكة، CIDR، DHCP، والبوابة الافتراضية.</p>
+        <div class="go">ابدأ ←</div>
       </a>
-      <a class="lvl net" href="networking-level3/index.html">
-        <div class="lvl-num">LEVEL 03</div>
-        <h3>الأجهزة التي تحرّك البيانات</h3>
-        <p>المُبدّل والراوتر، المنافذ، PoE، وVLAN.</p>
-        <div class="go">افتح ←</div>
-        <div class="lvl-badges"><span class="lbadge">Switch</span><span class="lbadge">PoE</span><span class="lbadge">VLAN</span></div>
+      <a class="card" href="networking-level3/index.html">
+        <span class="seq">3</span>
+        <div class="lvl"><span class="dot"></span>المستوى 3</div>
+        <h3>أجهزة نقل البيانات</h3>
+        <p>السويتش مقابل الراوتر، المنافذ، أنواع الكيبلات، PoE، الـVLAN، والسويتش المُدار.</p>
+        <div class="go">ابدأ ←</div>
       </a>
-      <a class="lvl net" href="networking-level4/index.html">
-        <div class="lvl-num">LEVEL 04</div>
+      <a class="card" href="networking-level4/index.html">
+        <span class="seq">4</span>
+        <div class="lvl"><span class="dot"></span>المستوى 4</div>
         <h3>اللاسلكي وأمن الشبكات</h3>
-        <p>Wi-Fi، التشفير، جدار الحماية، NAT، والتهديدات.</p>
-        <div class="go">افتح ←</div>
-        <div class="lvl-badges"><span class="lbadge">Wi-Fi</span><span class="lbadge">WPA3</span><span class="lbadge">Firewall</span></div>
+        <p>إشارة الواي فاي، SSID والقنوات، التشفير من WEP إلى WPA3، الجدار الناري، وNAT.</p>
+        <div class="go">ابدأ ←</div>
       </a>
-      <a class="lvl net" href="networking-level5/index.html">
-        <div class="lvl-num">LEVEL 05</div>
-        <h3>حلّ المشاكل كالمحترفين</h3>
-        <p>التشخيص المنهجي، ping، ipconfig، وtraceroute.</p>
-        <div class="go">افتح ←</div>
-        <div class="lvl-badges"><span class="lbadge">ping</span><span class="lbadge">tracert</span><span class="lbadge">Debug</span></div>
+      <a class="card" href="networking-level5/index.html">
+        <span class="seq">5</span>
+        <div class="lvl"><span class="dot"></span>المستوى 5</div>
+        <h3>تشخيص أعطال الشبكات</h3>
+        <p>منهجية تشخيص طبقة بطبقة، أوامر ping وipconfig وtraceroute تفاعلية، وشجرة قرار للأعطال.</p>
+        <div class="go">ابدأ ←</div>
       </a>
     </div>
   </section>
-</div>
+
+  <!-- TRACK 3: AV RACK & SYSTEM DESIGN -->
+  <section class="track track-t3">
+    <div class="track-head">
+      <div class="track-num">🎛️</div>
+      <div>
+        <h2>تصميم الأنظمة والكبائن (AV)</h2>
+        <div class="sub">المسار المتقدّم: الكبينة، الصوت، اللاسلكي، الفيديو، واللافتات — 5 مستويات</div>
+      </div>
+    </div>
+    <div class="track-bar"></div>
+    <div class="cards">
+      <a class="card" href="av-rack-fundamentals/index.html">
+        <span class="seq">1</span>
+        <div class="lvl"><span class="dot"></span>المستوى 1</div>
+        <h3>تشريح الكبينة (Rack)</h3>
+        <p>وحدات الراك RU والمقاس 19″، توزيع الوزن ومركز الثقل، التبريد والتهوية، تنظيم الكيبلات، والطاقة.</p>
+        <div class="go">ابدأ ←</div>
+      </a>
+      <a class="card" href="av-rack-level2/index.html">
+        <span class="seq">2</span>
+        <div class="lvl"><span class="dot"></span>المستوى 2</div>
+        <h3>الصوت والمعالجة الرقمية (DSP)</h3>
+        <p>ما يفعله الـCore، عائلة Q-SYS، صوت الشبكة (Dante/Q-LAN)، المكبّرات الذكية، وبنية الكسب.</p>
+        <div class="go">ابدأ ←</div>
+      </a>
+      <a class="card" href="av-rack-level3/index.html">
+        <span class="seq">3</span>
+        <div class="lvl"><span class="dot"></span>المستوى 3</div>
+        <h3>الكبينة اللاسلكية و RF</h3>
+        <p>أساسيات RF، المستقبلات (SLXD4Q/ULXD4Q/AD600)، توزيع الهوائيات UA845، تنسيق الترددات، والكبسولات.</p>
+        <div class="go">ابدأ ←</div>
+      </a>
+      <a class="card" href="av-rack-level4/index.html">
+        <span class="seq">4</span>
+        <div class="lvl"><span class="dot"></span>المستوى 4</div>
+        <h3>الفيديو والاجتماعات والتحكّم</h3>
+        <p>عائلة Logitech Rally، وحدة التحكّم Tap، إدارة Sync، ميزانية الطاقة عبر الشبكة PoE، وتوجيه المصادر.</p>
+        <div class="go">ابدأ ←</div>
+      </a>
+      <a class="card" href="av-rack-level5/index.html">
+        <span class="seq">5</span>
+        <div class="lvl"><span class="dot"></span>المستوى 5</div>
+        <h3>اللافتات والتكامل والسيناريوهات</h3>
+        <p>إعداد Samsung MagicInfo، سيناريوهات الأنظمة الكاملة، التوثيق As-Built، الموثوقية، والتسليم النهائي.</p>
+        <div class="go">ابدأ ←</div>
+      </a>
+    </div>
+  </section>
+
+</main>
 
 <footer>
-  <div class="wrap">
-    <div class="disc">
-      <b>تنبيه:</b> هذه المسارات تعليمية تبسيطية للمبتدئين، هدفها بناء الحدس والفهم العملي. للعمل الاحترافي ارجع دائمًا إلى المراجع والشهادات المعتمدة في كل مجال.
-    </div>
-    <div class="copy">// Interactive Learning Tracks · Electricity + Networking</div>
-  </div>
+  <p>هذه المواد تعليمية لمساعدة المتعلّمين على فهم الأساسيات، وليست بديلاً عن التدريب المعتمد أو الكتيّبات الرسمية للأجهزة.</p>
+  <p>أسماء الأجهزة والعلامات التجارية مذكورة لأغراض تعليمية فقط وهي ملك لأصحابها.</p>
+  <p class="mono">مسارات تعليمية تفاعلية · الكهرباء · الشبكات · تصميم الأنظمة</p>
 </footer>
 
 </body>

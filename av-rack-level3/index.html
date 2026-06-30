@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>المستوى 3: الكبينة اللاسلكية و RF — تصميم الأنظمة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0f12;
+  --bg2:#13161b;
+  --panel:#181c22;
+  --panel2:#1e232b;
+  --line:#2a313b;
+  --line2:#363f4b;
+  --ink:#e8ebef;
+  --ink-dim:#a8b1bd;
+  --ink-faint:#6c7682;
+  --copper:#c87f4a;
+  --copper-bright:#e0975c;
+  --cyan:#3fb8c4;
+  --cyan-bright:#5fd6e2;
+  --amber:#e0a23c;
+  --amber-bright:#f3bd5e;
+  --green:#5fbf72;
+  --red:#d65f5f;
+  --blue:#5a8fd6;
+  --purple:#9a7fc8;
+  --radius:14px;
+  --radius-sm:9px;
+  --maxw:880px;
+  --shadow:0 8px 30px rgba(0,0,0,.4);
+  --mono:'IBM Plex Mono',monospace;
+  --sans:'IBM Plex Sans Arabic',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--sans);
+  background:var(--bg);
+  color:var(--ink);
+  line-height:1.85;
+  font-weight:400;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+/* progress rail */
+.rail{position:fixed;top:0;right:0;left:0;height:4px;background:rgba(255,255,255,.04);z-index:100}
+.rail-fill{height:100%;width:0;background:linear-gradient(90deg,var(--copper),var(--amber),var(--cyan));box-shadow:0 0 12px rgba(224,162,60,.5);transition:width .08s linear}
+/* breadcrumb */
+.crumb{position:sticky;top:4px;z-index:90;background:rgba(13,15,18,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:11px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.crumb a{color:var(--ink-dim);text-decoration:none;font-size:.82rem;transition:color .2s}
+.crumb a:hover{color:var(--cyan-bright)}
+.crumb .sep{color:var(--ink-faint);font-size:.7rem}
+.badge{background:linear-gradient(135deg,var(--copper),var(--amber));color:#1a1206;font-weight:700;font-size:.74rem;padding:4px 11px;border-radius:30px;font-family:var(--mono);letter-spacing:.3px;white-space:nowrap}
+.crumb .home{margin-inline-start:auto;font-weight:600}
+/* layout */
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px}
+section{padding:46px 0;border-bottom:1px solid rgba(42,49,59,.5)}
+section:last-of-type{border-bottom:none}
+/* hero */
+.hero{padding:64px 0 50px;text-align:center;position:relative}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(224,162,60,.10),transparent 70%);pointer-events:none}
+.eyebrow{font-family:var(--mono);color:var(--amber-bright);font-size:.8rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;font-weight:500}
+h1{font-size:clamp(2rem,6vw,3.1rem);font-weight:700;line-height:1.25;margin-bottom:18px;background:linear-gradient(120deg,#fff 20%,var(--amber-bright) 60%,var(--copper));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sub{font-size:clamp(1rem,2.5vw,1.18rem);color:var(--ink-dim);max-width:620px;margin:0 auto 26px;font-weight:300}
+.chips{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:26px}
+.chip{background:var(--panel);border:1px solid var(--line2);border-radius:30px;padding:7px 16px;font-size:.82rem;color:var(--ink-dim);display:flex;align-items:center;gap:7px}
+.chip b{color:var(--amber-bright);font-family:var(--mono);font-weight:600}
+.prereq{background:linear-gradient(135deg,rgba(63,184,196,.08),rgba(90,143,214,.05));border:1px solid rgba(63,184,196,.25);border-radius:var(--radius-sm);padding:14px 18px;max-width:560px;margin:0 auto 30px;font-size:.9rem;color:var(--ink-dim)}
+.prereq a{color:var(--cyan-bright);font-weight:600;text-decoration:none}
+.prereq a:hover{text-decoration:underline}
+/* toc */
+.toc{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px;max-width:560px;margin:0 auto;text-align:right}
+.toc h3{font-size:.78rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-faint);margin-bottom:14px;font-family:var(--mono)}
+.toc ol{list-style:none;counter-reset:toc}
+.toc li{counter-increment:toc;margin:9px 0}
+.toc a{color:var(--ink);text-decoration:none;display:flex;align-items:baseline;gap:11px;font-size:.96rem;transition:color .2s}
+.toc a:hover{color:var(--amber-bright)}
+.toc a::before{content:counter(toc,decimal-leading-zero);font-family:var(--mono);color:var(--copper);font-size:.8rem;font-weight:600;min-width:24px}
+.scrollcue{text-align:center;margin-top:34px;color:var(--ink-faint);font-size:.8rem;animation:bob 2s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
+/* section headers */
+.step-tag{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:.76rem;color:var(--amber-bright);letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;font-weight:500}
+.step-tag .n{background:linear-gradient(135deg,var(--copper),var(--amber));color:#1a1206;width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-weight:700;font-size:.82rem}
+h2{font-size:clamp(1.5rem,4vw,2rem);font-weight:700;margin-bottom:16px;color:#fff;line-height:1.3}
+h3.sub-h{font-size:1.15rem;font-weight:600;color:var(--amber-bright);margin:26px 0 12px}
+p{margin-bottom:15px;color:var(--ink-dim)}
+p strong,li strong{color:var(--ink);font-weight:600}
+.lead{font-size:1.08rem;color:var(--ink)}
+ul.bullets,ol.steps{margin:14px 0 18px;padding-inline-start:8px;list-style:none}
+ul.bullets li,ol.steps li{position:relative;padding-inline-start:26px;margin-bottom:11px;color:var(--ink-dim)}
+ul.bullets li::before{content:"";position:absolute;right:6px;top:12px;width:7px;height:7px;border-radius:2px;background:var(--copper)}
+ol.steps{counter-reset:st}
+ol.steps li{counter-increment:st}
+ol.steps li::before{content:counter(st);position:absolute;right:0;top:1px;font-family:var(--mono);color:var(--amber-bright);font-weight:600;font-size:.85rem;background:var(--panel2);width:22px;height:22px;border-radius:6px;display:grid;place-items:center}
+/* analogy / callout boxes */
+.analogy{background:linear-gradient(135deg,rgba(200,127,74,.09),rgba(224,162,60,.04));border-inline-start:3px solid var(--copper);border-radius:var(--radius-sm);padding:16px 20px;margin:18px 0}
+.analogy .label{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--copper-bright);margin-bottom:7px;font-weight:600}
+.note{background:rgba(63,184,196,.07);border-inline-start:3px solid var(--cyan);border-radius:var(--radius-sm);padding:14px 18px;margin:16px 0;font-size:.93rem}
+.note .label{font-family:var(--mono);font-size:.72rem;letter-spacing:1px;color:var(--cyan-bright);margin-bottom:6px;font-weight:600;text-transform:uppercase}
+.warn{background:rgba(214,95,95,.08);border-inline-start:3px solid var(--red);border-radius:var(--radius-sm);padding:14px 18px;margin:16px 0;font-size:.93rem}
+.warn .label{font-family:var(--mono);font-size:.72rem;letter-spacing:1px;color:#e88;margin-bottom:6px;font-weight:600;text-transform:uppercase}
+.pro{background:rgba(95,191,114,.07);border-inline-start:3px solid var(--green);border-radius:var(--radius-sm);padding:14px 18px;margin:16px 0;font-size:.93rem}
+.pro .label{font-family:var(--mono);font-size:.72rem;letter-spacing:1px;color:#7d9;margin-bottom:6px;font-weight:600;text-transform:uppercase}
+/* generic card / panel */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin:20px 0}
+.panel-h{font-size:.78rem;font-family:var(--mono);text-transform:uppercase;letter-spacing:1px;color:var(--ink-faint);margin-bottom:14px}
+/* simulator shell */
+.sim{background:linear-gradient(160deg,var(--panel2),var(--panel));border:1px solid var(--line2);border-radius:var(--radius);padding:24px;margin:24px 0;box-shadow:var(--shadow)}
+.sim-head{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.sim-head .dot{width:9px;height:9px;border-radius:50%;background:var(--amber);box-shadow:0 0 8px var(--amber)}
+.sim-title{font-family:var(--mono);font-size:.82rem;letter-spacing:.5px;color:var(--amber-bright);text-transform:uppercase;font-weight:600}
+.sim-sub{font-size:.86rem;color:var(--ink-faint);margin-bottom:18px}
+.ctrl-row{display:flex;align-items:center;gap:14px;margin:14px 0;flex-wrap:wrap}
+.ctrl-row label{min-width:120px;font-size:.9rem;color:var(--ink-dim)}
+input[type=range]{-webkit-appearance:none;appearance:none;flex:1;min-width:140px;height:6px;border-radius:5px;background:var(--line2);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--amber-bright),var(--copper));cursor:pointer;box-shadow:0 0 10px rgba(224,162,60,.6);border:2px solid #1a1206}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--amber-bright);cursor:pointer;border:2px solid #1a1206}
+.readout{font-family:var(--mono);font-size:1.05rem;color:var(--cyan-bright);min-width:74px;text-align:center;background:var(--bg);border:1px solid var(--line2);border-radius:7px;padding:5px 10px;font-weight:600}
+.btn{background:linear-gradient(135deg,var(--copper),var(--amber));color:#1a1206;border:none;border-radius:8px;padding:10px 20px;font-family:var(--sans);font-weight:600;font-size:.92rem;cursor:pointer;transition:transform .15s,box-shadow .2s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 5px 16px rgba(224,162,60,.35)}
+.btn:active{transform:translateY(0)}
+.btn.ghost{background:transparent;border:1px solid var(--line2);color:var(--ink-dim)}
+.btn.ghost:hover{border-color:var(--cyan);color:var(--cyan-bright);box-shadow:none}
+.btn.sm{padding:7px 14px;font-size:.84rem}
+.toggle-grid{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+.tog{background:var(--bg);border:1px solid var(--line2);border-radius:8px;padding:9px 16px;cursor:pointer;font-size:.88rem;color:var(--ink-dim);transition:all .2s;user-select:none}
+.tog.on{background:linear-gradient(135deg,rgba(95,191,114,.2),rgba(95,191,114,.08));border-color:var(--green);color:#9ee5ab}
+.tog.off{opacity:.7}
+/* rack visual (RU stack) */
+.rackbox{background:#0a0c0f;border:2px solid var(--line2);border-radius:8px;padding:8px;margin:14px 0;display:flex;flex-direction:column;gap:3px}
+.ru{height:34px;border-radius:5px;display:flex;align-items:center;padding:0 12px;font-size:.82rem;font-family:var(--mono);position:relative;transition:all .25s;cursor:default}
+.ru .ru-rails{position:absolute;inset:0;pointer-events:none;border-radius:5px;border-inline-start:6px solid rgba(0,0,0,.4);border-inline-end:6px solid rgba(0,0,0,.4)}
+.ru.empty{background:repeating-linear-gradient(45deg,#111418,#111418 8px,#0d1014 8px,#0d1014 16px);color:var(--ink-faint);border:1px dashed var(--line2)}
+.ru.amp{background:linear-gradient(90deg,#1c2128,#23292f);color:var(--ink);border:1px solid var(--line2)}
+.ru.dsp{background:linear-gradient(90deg,#1a2530,#1e2d3a);color:#bfe3ea;border:1px solid rgba(63,184,196,.4)}
+.ru.rf{background:linear-gradient(90deg,#2a2030,#33283c);color:#e0cdf0;border:1px solid rgba(154,127,200,.4)}
+.ru.net{background:linear-gradient(90deg,#2a2618,#332f1c);color:#f0e3b8;border:1px solid rgba(224,162,60,.4)}
+.ru.pwr{background:linear-gradient(90deg,#2a1818,#331c1c);color:#f0c8c8;border:1px solid rgba(214,95,95,.4)}
+.ru.video{background:linear-gradient(90deg,#182a22,#1c3329);color:#c8f0d8;border:1px solid rgba(95,191,114,.4)}
+.ru .tag{margin-inline-start:auto;font-size:.68rem;opacity:.7}
+.ru.heavy{box-shadow:inset 0 0 0 1px rgba(214,95,95,.3)}
+/* meters */
+.meter{height:12px;background:var(--bg);border-radius:7px;overflow:hidden;border:1px solid var(--line2);margin:8px 0}
+.meter-fill{height:100%;border-radius:7px;transition:width .3s,background .3s}
+.gauge-label{display:flex;justify-content:space-between;font-size:.8rem;color:var(--ink-faint);font-family:var(--mono);margin-bottom:4px}
+.status{display:inline-flex;align-items:center;gap:7px;font-size:.85rem;font-family:var(--mono);padding:5px 12px;border-radius:30px;font-weight:600}
+.status.ok{background:rgba(95,191,114,.15);color:#8fe6a0}
+.status.bad{background:rgba(214,95,95,.15);color:#f0a0a0}
+.status.warn-s{background:rgba(224,162,60,.15);color:#f3cf8e}
+/* tables */
+.tbl-wrap{overflow-x:auto;margin:18px 0;border-radius:var(--radius-sm);border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:.9rem;min-width:480px}
+th,td{padding:12px 14px;text-align:right;border-bottom:1px solid var(--line)}
+th{background:var(--panel2);color:var(--amber-bright);font-weight:600;font-family:var(--mono);font-size:.8rem;letter-spacing:.3px;text-transform:uppercase}
+td{color:var(--ink-dim)}
+tr:last-child td{border-bottom:none}
+td code,p code,li code{font-family:var(--mono);background:var(--bg);color:var(--cyan-bright);padding:2px 7px;border-radius:5px;font-size:.85em;border:1px solid var(--line2)}
+.gloss td:first-child{color:var(--amber-bright);font-weight:600;font-family:var(--mono);white-space:nowrap}
+/* symbols grid */
+.sym-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin:20px 0}
+.sym{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-sm);padding:16px;text-align:center;transition:border-color .2s}
+.sym:hover{border-color:var(--copper)}
+.sym .ico{font-size:1.8rem;margin-bottom:8px;color:var(--amber-bright)}
+.sym .nm{font-size:.82rem;color:var(--ink);font-weight:600;margin-bottom:3px}
+.sym .ds{font-size:.74rem;color:var(--ink-faint)}
+/* mini quiz */
+.quiz{background:var(--panel);border:1px solid var(--line2);border-radius:var(--radius);padding:20px 22px;margin:22px 0}
+.quiz .q-label{font-family:var(--mono);font-size:.72rem;color:var(--cyan-bright);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;font-weight:600}
+.quiz .q-text{font-size:1rem;color:var(--ink);font-weight:500;margin-bottom:14px}
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:12px 16px;cursor:pointer;font-size:.92rem;color:var(--ink-dim);transition:all .18s;text-align:right}
+.opt:hover{border-color:var(--copper);color:var(--ink)}
+.opt.correct{background:rgba(95,191,114,.14);border-color:var(--green);color:#9ee5ab}
+.opt.wrong{background:rgba(214,95,95,.12);border-color:var(--red);color:#f0a0a0}
+.opt.disabled{pointer-events:none;opacity:.85}
+.q-fb{margin-top:12px;font-size:.9rem;padding:11px 15px;border-radius:8px;display:none}
+.q-fb.show{display:block}
+.q-fb.good{background:rgba(95,191,114,.1);color:#9ee5ab;border-inline-start:3px solid var(--green)}
+.q-fb.bad{background:rgba(214,95,95,.1);color:#f0a0a0;border-inline-start:3px solid var(--red)}
+/* final exam */
+.exam{background:linear-gradient(160deg,var(--panel2),var(--bg2));border:1px solid var(--line2);border-radius:var(--radius);padding:26px;margin:26px 0}
+.exam-head{text-align:center;margin-bottom:22px}
+.exam-head .ico{font-size:2rem;margin-bottom:8px}
+.exq{border-top:1px solid var(--line);padding:18px 0}
+.exq:first-of-type{border-top:none}
+.exq .qn{font-family:var(--mono);color:var(--copper);font-size:.8rem;font-weight:600;margin-bottom:7px}
+.exq .qt{font-size:.98rem;color:var(--ink);font-weight:500;margin-bottom:13px}
+.exam-result{text-align:center;padding:24px;border-radius:var(--radius);margin-top:20px;display:none}
+.exam-result.show{display:block}
+.exam-result.pass{background:linear-gradient(135deg,rgba(95,191,114,.15),rgba(63,184,196,.08));border:1px solid var(--green)}
+.exam-result.fail{background:linear-gradient(135deg,rgba(214,95,95,.12),rgba(224,162,60,.06));border:1px solid var(--amber)}
+.exam-result .score{font-family:var(--mono);font-size:2.4rem;font-weight:700;margin:8px 0}
+.exam-result.pass .score{color:#8fe6a0}
+.exam-result.fail .score{color:var(--amber-bright)}
+/* completion card */
+.done{background:linear-gradient(160deg,rgba(224,162,60,.1),rgba(63,184,196,.06));border:1px solid var(--line2);border-radius:var(--radius);padding:32px;margin:30px 0;text-align:center}
+.done .ico{font-size:2.6rem;margin-bottom:12px}
+.done h2{font-size:1.5rem;margin-bottom:10px}
+.done p{max-width:480px;margin:0 auto 20px}
+.next-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--copper),var(--amber));color:#1a1206;text-decoration:none;font-weight:700;padding:14px 28px;border-radius:10px;font-size:1rem;transition:transform .15s,box-shadow .2s}
+.next-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(224,162,60,.4)}
+.next-btn.locked{background:var(--panel2);color:var(--ink-faint);cursor:not-allowed;border:1px solid var(--line2)}
+.back-link{display:inline-block;margin-top:16px;color:var(--ink-dim);text-decoration:none;font-size:.9rem}
+.back-link:hover{color:var(--cyan-bright)}
+/* footer */
+footer{background:var(--bg2);border-top:1px solid var(--line);padding:30px 20px;text-align:center;margin-top:20px}
+footer p{font-size:.82rem;color:var(--ink-faint);max-width:560px;margin:0 auto 8px}
+/* diagram helpers */
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;margin:20px 0}
+.flow-node{background:var(--panel2);border:1px solid var(--line2);border-radius:9px;padding:11px 16px;font-size:.85rem;text-align:center;min-width:84px;transition:all .25s}
+.flow-node.active{border-color:var(--amber);box-shadow:0 0 14px rgba(224,162,60,.4);color:var(--amber-bright)}
+.flow-node.err{border-color:var(--red);box-shadow:0 0 14px rgba(214,95,95,.4);color:#f0a0a0}
+.flow-arrow{color:var(--copper);font-size:1.2rem}
+.svg-box{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-sm);padding:18px;margin:18px 0;text-align:center}
+svg{max-width:100%;height:auto}
+.tag-pill{display:inline-block;font-family:var(--mono);font-size:.72rem;padding:3px 9px;border-radius:20px;background:var(--panel2);border:1px solid var(--line2);color:var(--ink-dim);margin:2px}
+@media (max-width:560px){
+  .ctrl-row label{min-width:90px;font-size:.84rem}
+  section{padding:38px 0}
+  .sim{padding:18px}
+  .ru{height:30px;font-size:.74rem}
+}
+/* L5 capstone components */
+.flow-node .ds{display:block;font-size:.72rem;color:var(--ink-faint);margin-top:3px;font-weight:400}
+.flow-node .nm{display:block;font-weight:600;color:var(--ink)}
+.scn{background:var(--panel);border:1px solid var(--line);border-inline-start:3px solid var(--amber);border-radius:var(--radius-sm);padding:16px 18px;margin:16px 0}
+.scn-h{font-size:1.02rem;font-weight:700;color:var(--ink);margin-bottom:8px;display:flex;align-items:center;gap:9px}
+.scn-ico{font-size:1.3rem}
+.scn-need{color:var(--cyan-bright)!important}
+.scn p{margin:6px 0;color:var(--ink-dim);font-size:.92rem;line-height:1.7}
+.scn-tags{margin-top:10px}
+.chklist{margin:16px 0;display:flex;flex-direction:column;gap:9px}
+.chk{display:flex;align-items:flex-start;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:11px 14px;color:var(--ink-dim);font-size:.9rem;line-height:1.6}
+.chk .cb{color:var(--cyan-bright);font-size:1.05rem;flex-shrink:0;line-height:1.4}
+.comp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px;margin:10px 0}
+.comp{background:var(--bg);border:1px solid var(--line2);border-radius:8px;padding:11px 12px;font-size:.85rem;color:var(--ink-dim);text-align:center;cursor:pointer;transition:all .18s;user-select:none}
+.comp:hover{border-color:var(--copper);color:var(--ink)}
+.comp.on{background:linear-gradient(135deg,rgba(224,162,60,.18),rgba(200,127,74,.12));border-color:var(--amber);color:var(--amber-bright);font-weight:600;box-shadow:0 0 12px rgba(224,162,60,.25)}
+.cert-line{font-family:var(--mono);font-size:.9rem;color:var(--cyan-bright);background:var(--bg);border:1px solid var(--line2);border-radius:8px;padding:12px 16px;margin:16px auto;max-width:480px}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+<div class="rail"><div class="rail-fill" id="railFill"></div></div>
+<!-- ===== BREADCRUMB ===== -->
+<nav class="crumb">
+  <span class="badge">المستوى 3 من 5</span>
+  <span class="sep">•</span>
+  <a href="../index.html">الرئيسية</a>
+  <span class="sep">›</span>
+  <a href="../av-rack-level2/index.html">المستوى 2</a>
+  <span class="sep">›</span>
+  <span style="color:var(--ink-faint);font-size:.82rem">الكبينة اللاسلكية و RF</span>
+  <a href="../index.html" class="home">كل المسارات ←</a>
+</nav>
+
+<!-- ===== HERO ===== -->
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">مسار تصميم الأنظمة · المستوى الثالث</div>
+    <h1>الكبينة اللاسلكية و RF</h1>
+    <p class="sub">الميكروفونات اللاسلكية قلب أي حدث حي. هنا نفهم أنظمة Shure — من ريسيفر SLXD4Q + Beta 58 إلى ULXD4Q و Axient AD600 — وتوزيع الهوائيات UA845UWB، وتنسيق الترددات لتفادي التداخل.</p>
+    <div class="chips">
+      <span class="chip">⏱️ <b>~35</b> دقيقة</span>
+      <span class="chip">🧩 <b>7</b> أقسام</span>
+      <span class="chip">📡 <b>3</b> محاكيات</span>
+      <span class="chip">📝 اختبار <b>10</b> أسئلة</span>
+    </div>
+    <div class="prereq">
+      💡 يفترض إنك أنهيت <a href="../av-rack-level2/index.html">المستوى 2</a>. الترددات والموجات مفاهيم لمسناها في <a href="../electricity-fundamentals/index.html">مسار الكهرباء</a> (التيار المتردد والتردد) — رح نبني عليها هنا.
+    </div>
+    <nav class="toc">
+      <h3>محتوى المستوى</h3>
+      <ol>
+        <li><a href="#rf">أساسيات الإشارة اللاسلكية (RF)</a></li>
+        <li><a href="#receivers">الريسيفرات: SLXD4Q و ULXD4Q و AD600</a></li>
+        <li><a href="#antenna">توزيع الهوائيات: UA845UWB</a></li>
+        <li><a href="#coordination">تنسيق الترددات والمجموعات</a></li>
+        <li><a href="#mics">الميكروفونات والكبسولات (Beta 58)</a></li>
+        <li><a href="#sim">محاكي: نسّق الترددات</a></li>
+        <li><a href="#exam">الاختبار النهائي</a></li>
+      </ol>
+    </nav>
+    <div class="scrollcue">انزل للأسفل لتبدأ ↓</div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- 1. RF -->
+<section id="rf">
+  <div class="step-tag"><span class="n">1</span> موجات في الهواء</div>
+  <h2>أساسيات الإشارة اللاسلكية (RF)</h2>
+  <p class="lead"><strong>RF</strong> اختصار Radio Frequency — تردد راديوي. الميك اللاسلكي يحوّل صوتك إلى موجة راديوية، يرسلها في الهواء، والريسيفر يلتقطها ويحوّلها صوتاً مرة ثانية.</p>
+  <p>الموجة الراديوية تشتغل على <strong>تردد</strong> معيّن يُقاس بالميجاهرتز (MHz). مثلاً في صور الأجهزة الاحترافية تشوف نطاق مكتوب مثل <code>L50: 632–696 MHz</code> — هذا مدى الترددات اللي يشتغل عليها الجهاز.</p>
+  <div class="analogy">
+    <div class="label">شبّهها بـ</div>
+    محطات الراديو في سيارتك: كل محطة على تردد مختلف عشان ما تتداخل. الميكات اللاسلكية نفس الفكرة — كل ميك لازم يكون على «محطة» (تردد) خاصة فيه، وإلا صار تشويش.
+  </div>
+  <h3 class="sub-h">مفاهيم لازم تعرفها</h3>
+  <ul class="bullets">
+    <li><strong>التردد (Frequency):</strong> «محطة» الميك بالميجاهرتز. ميكين على نفس التردد = كارثة.</li>
+    <li><strong>التنوّع (Diversity):</strong> هوائيان (ANT A و ANT B) بدل واحد، عشان لو ضعفت الإشارة في مكان، الثاني يلتقطها. شفت ANT A / ANT B في صورة جهاز Shure.</li>
+    <li><strong>التداخل البيني (Intermodulation):</strong> ترددات تتفاعل وتولّد ترددات جديدة غير متوقّعة تشوّش — لهذا التنسيق مهم.</li>
+    <li><strong>المدى الديناميكي للطيف:</strong> عدد الميكات اللي تقدر تشغّلها بنفس الوقت محدود بالمساحة الطيفية المتاحة.</li>
+  </ul>
+  <div class="warn">
+    <div class="label">القانون مهم</div>
+    الترددات المسموح بها <strong>تختلف من دولة لدولة</strong> — جزء من الطيف محجوز للتلفزيون والطوارئ. لازم تستخدم النطاق المرخّص في بلدك (مثلاً النطاقات الأوروبية تختلف عن الأمريكية).
+  </div>
+  <div class="quiz">
+    <div class="q-label">سؤال سريع</div>
+    <div class="q-text">ماذا يحدث لو شغّلت ميكين لاسلكيين على نفس التردد بالضبط؟</div>
+    <div class="opts">
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">يشتغلان بشكل أوضح</div>
+      <div class="opt" data-correct="1" onclick="pickOpt(this,true)">تداخل وتشويش — لا يمكن استخدامهما معاً</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">يتناوبان تلقائياً</div>
+    </div>
+    <div class="q-fb">صح. كل ميك يحتاج تردداً منفصلاً، تماماً مثل محطات الراديو.</div>
+  </div>
+</section>
+
+<!-- 2. RECEIVERS -->
+<section id="receivers">
+  <div class="step-tag"><span class="n">2</span> الملتقِطات</div>
+  <h2>الريسيفرات: SLXD4Q و ULXD4Q و AD600</h2>
+  <p class="lead">الريسيفر هو الجهاز اللي يتركّب في الراك ويلتقط إشارات الميكات. شركة Shure عندها عائلات مختلفة حسب مستوى الاحتراف والميزانية.</p>
+  <div class="tbl-wrap">
+  <table>
+    <tr><th>الجهاز</th><th>الفئة</th><th>ملاحظات</th></tr>
+    <tr><td>SLXD4 / SLXD4Q</td><td>رقمي احترافي متوسط</td><td>جودة عالية بسعر معقول؛ الحرف Q يعني رباعي (4 قنوات في جهاز واحد)</td></tr>
+    <tr><td>ULXD4 / ULXD4Q</td><td>رقمي متقدّم</td><td>تشفير، موثوقية عالية، شائع في التركيبات الثابتة (شفته في الصور: G:01 CH:01)</td></tr>
+    <tr><td>Axient AD600</td><td>إدارة طيف متقدّمة</td><td>«مدير الطيف» — يراقب الطيف ويكتشف التداخل ويقترح ترددات نظيفة</td></tr>
+  </table>
+  </div>
+  <h3 class="sub-h">معنى «Q» والقنوات الرباعية</h3>
+  <p>جهاز مكتوب عليه <strong>4Q</strong> (مثل SLXD4Q أو ULXD4Q) يعني <strong>4 ريسيفرات في صندوق واحد بحجم 1U</strong>. بدل ما تاخذ 4 وحدات راك، تاخذ وحدة واحدة لأربع ميكات — توفير كبير في مساحة الراك (مفهوم من المستوى 1).</p>
+  <div class="rackbox">
+    <div class="ru rf">UA845UWB — توزيع هوائيات وطاقة <span class="tag">فوق</span></div>
+    <div class="ru rf">AD600 — مدير الطيف (Axient)</div>
+    <div class="ru rf">ULXD4Q — ريسيفر رباعي (قنوات 1-4)</div>
+    <div class="ru rf">ULXD4Q — ريسيفر رباعي (قنوات 5-8)</div>
+    <div class="ru rf">SLXD4Q — ريسيفر رباعي (قنوات 9-12)</div>
+    <div class="ru pwr heavy">منظّم الطاقة <span class="tag">تحت</span></div>
+  </div>
+  <div class="note">
+    <div class="label">من الصور</div>
+    رمز مثل <code>G:01 CH:01</code> على شاشة الريسيفر يعني <strong>المجموعة (Group) 01، القناة (Channel) 01</strong>. المجموعة هي حزمة ترددات منسّقة مسبقاً لتفادي التداخل — رح نشرحها في القسم القادم.
+  </div>
+  <div class="quiz">
+    <div class="q-label">سؤال سريع</div>
+    <div class="q-text">ماذا يعني الحرف Q في اسم جهاز ULXD4Q؟</div>
+    <div class="opts">
+      <div class="opt" data-correct="1" onclick="pickOpt(this,true)">رباعي — 4 ريسيفرات في وحدة 1U واحدة</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">جودة (Quality)</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">سريع (Quick)</div>
+    </div>
+    <div class="q-fb">صح. Q = Quad. أربع قنوات في جهاز واحد لتوفير مساحة الراك.</div>
+  </div>
+</section>
+
+<!-- 3. ANTENNA -->
+<section id="antenna">
+  <div class="step-tag"><span class="n">3</span> توزيع الإشارة</div>
+  <h2>توزيع الهوائيات: UA845UWB</h2>
+  <p class="lead">لو عندك 8 ريسيفرات، تحتاج 16 هوائي (هوائيان لكل واحد)؟ لا! هنا يجي دور <strong>موزّع الهوائيات</strong> مثل Shure UA845UWB — ياخذ زوج هوائيات واحد ويوزّعه على عدّة ريسيفرات.</p>
+  <p>الجهاز اللي شفته في الصورة مكتوب عليه <strong>«Antenna/Power Distribution System»</strong> — يعني يوزّع الهوائي والطاقة معاً. مدخلان ANT A و ANT B (للتنوّع)، ومخارج لكل ريسيفر.</p>
+  <div class="svg-box">
+    <svg viewBox="0 0 360 200" width="360" height="200">
+      <!-- antennas -->
+      <line x1="60" y1="20" x2="60" y2="55" stroke="#e0a23c" stroke-width="2"/>
+      <circle cx="60" cy="18" r="4" fill="#e0a23c"/>
+      <text x="60" y="14" fill="#a8b1bd" font-size="9" text-anchor="middle" font-family="monospace">ANT A</text>
+      <line x1="300" y1="20" x2="300" y2="55" stroke="#3fb8c4" stroke-width="2"/>
+      <circle cx="300" cy="18" r="4" fill="#3fb8c4"/>
+      <text x="300" y="14" fill="#a8b1bd" font-size="9" text-anchor="middle" font-family="monospace">ANT B</text>
+      <!-- distributor -->
+      <rect x="100" y="55" width="160" height="34" rx="6" fill="#2a2030" stroke="#9a7fc8" stroke-width="1.5"/>
+      <text x="180" y="76" fill="#e0cdf0" font-size="11" text-anchor="middle" font-family="monospace">UA845UWB</text>
+      <line x1="60" y1="55" x2="120" y2="55" stroke="#e0a23c" stroke-width="2"/>
+      <line x1="300" y1="55" x2="240" y2="55" stroke="#3fb8c4" stroke-width="2"/>
+      <!-- receivers -->
+      <g font-family="monospace" font-size="9">
+      <rect x="40" y="120" width="62" height="26" rx="4" fill="#181c22" stroke="#363f4b"/>
+      <text x="71" y="137" fill="#e8ebef" text-anchor="middle">RX 1</text>
+      <rect x="118" y="120" width="62" height="26" rx="4" fill="#181c22" stroke="#363f4b"/>
+      <text x="149" y="137" fill="#e8ebef" text-anchor="middle">RX 2</text>
+      <rect x="196" y="120" width="62" height="26" rx="4" fill="#181c22" stroke="#363f4b"/>
+      <text x="227" y="137" fill="#e8ebef" text-anchor="middle">RX 3</text>
+      <rect x="274" y="120" width="46" height="26" rx="4" fill="#181c22" stroke="#363f4b"/>
+      <text x="297" y="137" fill="#e8ebef" text-anchor="middle">RX 4</text>
+      </g>
+      <!-- distribution lines -->
+      <line x1="160" y1="89" x2="71" y2="120" stroke="#6c7682" stroke-width="1.2"/>
+      <line x1="170" y1="89" x2="149" y2="120" stroke="#6c7682" stroke-width="1.2"/>
+      <line x1="190" y1="89" x2="227" y2="120" stroke="#6c7682" stroke-width="1.2"/>
+      <line x1="200" y1="89" x2="297" y2="120" stroke="#6c7682" stroke-width="1.2"/>
+      <text x="180" y="172" fill="#6c7682" font-size="9" text-anchor="middle">زوج هوائيات واحد ← يوزّع على كل الريسيفرات</text>
+    </svg>
+  </div>
+  <h3 class="sub-h">فوائد الموزّع</h3>
+  <ul class="bullets">
+    <li><strong>هوائيان فقط:</strong> بدل عشرات الهوائيات، زوج واحد يخدم كل الريسيفرات.</li>
+    <li><strong>تنظيم الراك:</strong> أقل كوابل وفوضى خلف الراك (المستوى 1).</li>
+    <li><strong>طاقة موحّدة:</strong> الموزّع يغذّي الريسيفرات بالكهرباء عبر نفس الكيبل أحياناً.</li>
+    <li><strong>هوائيات بعيدة:</strong> تقدر تحط الهوائيات في مكان أفضل للاستقبال (قرب المسرح) وتوصلها للراك.</li>
+  </ul>
+  <div class="quiz">
+    <div class="q-label">سؤال سريع</div>
+    <div class="q-text">ما فائدة جهاز توزيع الهوائيات مثل UA845UWB؟</div>
+    <div class="opts">
+      <div class="opt" data-correct="1" onclick="pickOpt(this,true)">يوزّع زوج هوائيات واحد على عدّة ريسيفرات بدل هوائيات منفصلة لكل واحد</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">يكبّر الصوت</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">يخزّن الترددات</div>
+    </div>
+    <div class="q-fb">صح. الموزّع يقلّل عدد الهوائيات وينظّم الراك ويسمح بوضع الهوائيات في مكان أمثل.</div>
+  </div>
+</section>
+
+<!-- 4. COORDINATION -->
+<section id="coordination">
+  <div class="step-tag"><span class="n">4</span> الفن الصعب</div>
+  <h2>تنسيق الترددات والمجموعات</h2>
+  <p class="lead">أصعب جزء في الأنظمة اللاسلكية: لما تشغّل 12 ميك مع بعض، كيف تضمن إنها كلها على ترددات «نظيفة» لا تتداخل؟ هذا اسمه <strong>تنسيق الترددات (Frequency Coordination)</strong>.</p>
+  <h3 class="sub-h">المجموعات والقنوات (Groups & Channels)</h3>
+  <p>Shure (وغيرها) توفّر <strong>مجموعات جاهزة (Groups)</strong> — كل مجموعة فيها ترددات محسوبة مسبقاً تشتغل مع بعض بدون تداخل بيني. تختار مجموعة، وكل ميك ياخذ «قناة» منها. لهذا شفت <code>G:01 CH:01</code> إلى <code>CH:04</code> في الصور.</p>
+  <div class="analogy">
+    <div class="label">شبّهها بـ</div>
+    المجموعة مثل قائمة طعام منسّقة في مطعم: الشيف اختار أطباق تتكامل ولا تتعارض نكهاتها. أنت بس تطلب من القائمة (المجموعة) وتضمن إنها «تشتغل مع بعض». لو خلطت أطباق عشوائية بنفسك، ممكن تتعارض.
+  </div>
+  <h3 class="sub-h">الإدارة الذكية للطيف (AD600)</h3>
+  <p>الأنظمة المتقدّمة مثل <strong>Axient AD600 Spectrum Manager</strong> تسوّي التنسيق تلقائياً: تراقب الطيف باستمرار، تكتشف لو تردد صار مزدحماً أو فيه تشويش، وتنقل الميك تلقائياً لتردد نظيف <strong>دون انقطاع الصوت</strong>. هذا حيوي في الأحداث المباشرة الكبيرة.</p>
+  <div class="sim" id="scanSim">
+    <div class="sim-head"><span class="dot"></span><span class="sim-title">محاكي مسح الطيف</span></div>
+    <div class="sim-sub">اضغط «امسح الطيف» لترى الترددات المزدحمة (حمراء) والنظيفة (خضراء)، ثم وزّع ميكاتك على النظيفة.</div>
+    <div id="scanBars" style="display:flex;gap:3px;align-items:flex-end;height:90px;margin:14px 0;padding:10px;background:var(--bg);border-radius:8px;border:1px solid var(--line2)"></div>
+    <div class="ctrl-row">
+      <button class="btn" onclick="doScan()">📡 امسح الطيف</button>
+      <span id="scanMsg" style="color:var(--ink-faint);font-size:.85rem">اضغط للمسح</span>
+    </div>
+  </div>
+  <div class="quiz">
+    <div class="q-label">سؤال سريع</div>
+    <div class="q-text">ما فائدة استخدام «مجموعة (Group)» جاهزة من ترددات Shure؟</div>
+    <div class="opts">
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">تجعل الصوت أعلى</div>
+      <div class="opt" data-correct="1" onclick="pickOpt(this,true)">ترددات محسوبة مسبقاً تشتغل معاً بدون تداخل بيني</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">توفّر البطارية</div>
+    </div>
+    <div class="q-fb">صح. المجموعة تضمن توافق الترددات وتجنّبك حسابات التداخل المعقّدة يدوياً.</div>
+  </div>
+</section>
+
+<!-- 5. MICS -->
+<section id="mics">
+  <div class="step-tag"><span class="n">5</span> الكبسولة</div>
+  <h2>الميكروفونات والكبسولات (Beta 58)</h2>
+  <p class="lead">الريسيفر شي، والميك نفسه شي ثاني. في الأنظمة الاحترافية، تقدر تركّب <strong>كبسولات (Capsules)</strong> مختلفة على نفس جسم الميك اللاسلكي حسب الاستخدام.</p>
+  <h3 class="sub-h">Beta 58 — معيار الغناء</h3>
+  <p>كبسولة <strong>Shure Beta 58A</strong> من أشهر كبسولات الغناء في العالم. نمط التقاطها <strong>Supercardioid</strong> (فوق-قلبي) — يعني تركّز على الصوت اللي قدّامها مباشرة وترفض الأصوات الجانبية، مثالي للمسرح لتقليل صفير الميكروفون (Feedback).</p>
+  <div class="tbl-wrap">
+  <table>
+    <tr><th>المصطلح</th><th>المعنى في اختيار الميك</th></tr>
+    <tr><td>نمط الالتقاط (Polar Pattern)</td><td>من أي اتجاه يلتقط الميك الصوت (قلبي، فوق-قلبي، كروي...)</td></tr>
+    <tr><td>Supercardioid</td><td>تركيز أمامي قوي ورفض جانبي — يقلّل الـ Feedback على المسرح</td></tr>
+    <tr><td>Dynamic مقابل Condenser</td><td>الديناميكي متين للمسرح؛ الكوندنسر أحسّ وأدق للاستوديو</td></tr>
+    <tr><td>Handheld مقابل Lavalier</td><td>محمول باليد للغناء؛ صغير على الياقة (Lav) للخطابة والتقديم</td></tr>
+  </table>
+  </div>
+  <div class="pro">
+    <div class="label">قرار التصميم</div>
+    اختيار الكبسولة جزء من تصميم النظام: مقدّم برنامج يحتاج Lavalier خفيف؛ مغنّي يحتاج Beta 58 محمول. الريسيفر نفسه (SLXD4Q مثلاً) يدعم كبسولات متعددة، فتختار حسب كل استخدام.
+  </div>
+  <div class="quiz">
+    <div class="q-label">سؤال سريع</div>
+    <div class="q-text">لماذا تُفضّل كبسولة Supercardioid مثل Beta 58 على المسرح؟</div>
+    <div class="opts">
+      <div class="opt" data-correct="1" onclick="pickOpt(this,true)">تركّز على الصوت الأمامي وترفض الجانبي، فتقلّل صفير الميكروفون (Feedback)</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">تلتقط من كل الاتجاهات بالتساوي</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">لأنها أرخص</div>
+    </div>
+    <div class="q-fb">صح. الرفض الجانبي يقلّل التقاط صوت السماعات ويمنع الـ Feedback.</div>
+  </div>
+</section>
+
+<!-- 6. SIM -->
+<section id="sim">
+  <div class="step-tag"><span class="n">6</span> طبّق بنفسك</div>
+  <h2>محاكي: نسّق الترددات</h2>
+  <p class="lead">عندك 4 ميكات تحتاج تخصّص لكل واحد تردداً. وزّعها على الترددات المتاحة وتفادى التداخل. لو حطّيت ميكين قريبين جداً، رح تشوف تحذير التداخل.</p>
+  <div class="sim" id="coordSim">
+    <div class="sim-head"><span class="dot"></span><span class="sim-title">منضدة تنسيق الترددات</span></div>
+    <div class="sim-sub">اسحب كل ميك لتردد مختلف. حافظ على مسافة كافية بين الترددات لتفادي التداخل البيني.</div>
+    <div id="coordMics" style="margin-top:12px"></div>
+    <div style="margin-top:14px">
+      <div class="gauge-label"><span>حالة التنسيق</span><span id="coordCount">0 / 4 مخصّصة</span></div>
+    </div>
+    <div id="coordVerdict" class="status warn-s" style="margin-top:10px">خصّص تردداً لكل ميك</div>
+  </div>
+</section>
+
+<!-- GLOSSARY -->
+<section id="gloss">
+  <div class="step-tag"><span class="n">★</span> مرجع</div>
+  <h2>قاموس المصطلحات</h2>
+  <div class="tbl-wrap">
+  <table class="gloss">
+    <tr><th>المصطلح</th><th>المعنى</th></tr>
+    <tr><td>RF</td><td>تردد راديوي (Radio Frequency)</td></tr>
+    <tr><td>Receiver</td><td>الجهاز اللي يلتقط إشارة الميك اللاسلكي</td></tr>
+    <tr><td>4Q / Quad</td><td>أربع قنوات ريسيفر في وحدة 1U واحدة</td></tr>
+    <tr><td>Diversity</td><td>هوائيان (ANT A/B) لاستقبال أوثق</td></tr>
+    <tr><td>Intermodulation</td><td>تداخل بيني يولّد ترددات تشويش جديدة</td></tr>
+    <tr><td>Group / Channel</td><td>مجموعة ترددات منسّقة مسبقاً وقناة منها</td></tr>
+    <tr><td>Spectrum Manager</td><td>جهاز يراقب الطيف ويختار ترددات نظيفة (AD600)</td></tr>
+    <tr><td>Capsule</td><td>رأس الميك القابل للتبديل (مثل Beta 58)</td></tr>
+    <tr><td>Supercardioid</td><td>نمط التقاط بتركيز أمامي ورفض جانبي</td></tr>
+    <tr><td>Feedback</td><td>صفير ناتج عن التقاط الميك لصوت السماعة</td></tr>
+  </table>
+  </div>
+  <h3 class="sub-h">أجهزة Shure في الراك (من الصور)</h3>
+  <div class="sym-grid">
+    <div class="sym"><div class="ico">📡</div><div class="nm">UA845UWB</div><div class="ds">توزيع هوائيات وطاقة</div></div>
+    <div class="sym"><div class="ico">🧭</div><div class="nm">AD600</div><div class="ds">مدير الطيف Axient</div></div>
+    <div class="sym"><div class="ico">📻</div><div class="nm">ULXD4Q</div><div class="ds">ريسيفر رباعي متقدّم</div></div>
+    <div class="sym"><div class="ico">📻</div><div class="nm">SLXD4Q</div><div class="ds">ريسيفر رباعي احترافي</div></div>
+    <div class="sym"><div class="ico">🎤</div><div class="nm">Beta 58A</div><div class="ds">كبسولة غناء Supercardioid</div></div>
+    <div class="sym"><div class="ico">🔋</div><div class="nm">شواحن</div><div class="ds">قواعد شحن البطاريات</div></div>
+  </div>
+</section>
+
+<!-- EXAM -->
+<section id="exam">
+  <div class="step-tag"><span class="n">✓</span> قيّم نفسك</div>
+  <h2>الاختبار النهائي — المستوى 3</h2>
+  <p>عشر أسئلة. تحتاج <strong>7 صحيحة</strong> على الأقل لفتح المستوى الرابع.</p>
+  <div class="exam" id="examBox">
+    <div class="exam-head"><div class="ico">📡</div><div style="font-family:var(--mono);color:var(--amber-bright);letter-spacing:1px">WIRELESS RF · FINAL</div></div>
+
+    <div class="exq">
+      <div class="qn">سؤال 1 / 10</div>
+      <div class="qt">ماذا يعني اختصار RF؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="1" onclick="examPick(this,0,true)">Radio Frequency (تردد راديوي)</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,0,false)">Real Fast</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,0,false)">Rack Frame</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 2 / 10</div>
+      <div class="qt">ماذا يحدث لو شغّلت ميكين على نفس التردد بالضبط؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="0" onclick="examPick(this,1,false)">صوت أوضح</div>
+        <div class="opt" data-correct="1" onclick="examPick(this,1,true)">تداخل وتشويش</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,1,false)">يتناوبان تلقائياً</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 3 / 10</div>
+      <div class="qt">ماذا يعني الحرف Q في ULXD4Q؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="1" onclick="examPick(this,2,true)">رباعي — 4 قنوات في وحدة واحدة</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,2,false)">جودة</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,2,false)">سريع</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 4 / 10</div>
+      <div class="qt">ما وظيفة جهاز UA845UWB؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="0" onclick="examPick(this,3,false)">تكبير الصوت</div>
+        <div class="opt" data-correct="1" onclick="examPick(this,3,true)">توزيع الهوائيات والطاقة على عدّة ريسيفرات</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,3,false)">تخزين الإعدادات</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 5 / 10</div>
+      <div class="qt">ما معنى ANT A و ANT B على الجهاز؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="1" onclick="examPick(this,4,true)">هوائيان للتنوّع (Diversity) لاستقبال أوثق</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,4,false)">قناتان صوتيتان</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,4,false)">مدخلا طاقة</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 6 / 10</div>
+      <div class="qt">ماذا يعني <code>G:01 CH:01</code> على شاشة الريسيفر؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="1" onclick="examPick(this,5,true)">المجموعة 01، القناة 01</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,5,false)">مستوى الصوت</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,5,false)">نسبة البطارية</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 7 / 10</div>
+      <div class="qt">ما فائدة استخدام مجموعة ترددات (Group) جاهزة؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="1" onclick="examPick(this,6,true)">ترددات محسوبة مسبقاً تعمل معاً بدون تداخل بيني</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,6,false)">رفع مستوى الصوت</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,6,false)">توفير الطاقة</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 8 / 10</div>
+      <div class="qt">ما الذي يفعله Axient AD600 Spectrum Manager؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="0" onclick="examPick(this,7,false)">يكبّر الصوت فقط</div>
+        <div class="opt" data-correct="1" onclick="examPick(this,7,true)">يراقب الطيف ويختار/ينقل لترددات نظيفة تلقائياً</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,7,false)">يشحن البطاريات</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 9 / 10</div>
+      <div class="qt">لماذا تُفضّل كبسولة Supercardioid (مثل Beta 58) على المسرح؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="1" onclick="examPick(this,8,true)">تركيز أمامي ورفض جانبي يقلّل الـ Feedback</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,8,false)">تلتقط من كل الاتجاهات</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,8,false)">لأنها كروية</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 10 / 10</div>
+      <div class="qt">لماذا تختلف الترددات المسموح بها من دولة لأخرى؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="1" onclick="examPick(this,9,true)">لأن أجزاء من الطيف محجوزة للتلفزيون والطوارئ وتُنظَّم محلياً</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,9,false)">لأن الأجهزة مختلفة الحجم</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,9,false)">لا يوجد سبب، عشوائي</div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:22px">
+      <button class="btn" onclick="gradeExam('examBox',10)">احسب النتيجة</button>
+    </div>
+    <div class="exam-result"></div>
+  </div>
+</section>
+
+<!-- DONE -->
+<section id="done">
+  <div class="done">
+    <div class="ico">🎚️</div>
+    <h2>أنهيت المستوى الثالث</h2>
+    <p>الحين تفهم العالم اللاسلكي: الـ RF، ريسيفرات Shure، توزيع الهوائيات، تنسيق الترددات، والكبسولات. المستوى الرابع ينتقل لغرفة الاجتماعات — الفيديو والمؤتمرات وأنظمة Logitech Rally.</p>
+    <a href="../av-rack-level4/index.html" class="next-btn locked" id="nextBtn" aria-disabled="true">المستوى 4: الفيديو والمؤتمرات والتحكّم ←</a>
+    <br><a href="../index.html" class="back-link">← رجوع لكل المسارات</a>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ===== L3 simulators =====
+// spectrum scan
+(function(){
+  var bars=document.getElementById('scanBars');
+  var N=24;var data=[];
+  function build(){
+    bars.innerHTML='';data=[];
+    for(var i=0;i<N;i++){var v=Math.random();data.push(v);var b=document.createElement('div');b.style.flex='1';b.style.height='8%';b.style.background='var(--line2)';b.style.borderRadius='2px';b.style.transition='height .4s,background .4s';bars.appendChild(b);}
+  }
+  build();
+  window.doScan=function(){
+    var msg=document.getElementById('scanMsg');msg.textContent='جاري المسح...';
+    var els=bars.children;var clean=0;
+    for(var i=0;i<N;i++){
+      (function(idx){
+        setTimeout(function(){
+          var v=data[idx]=Math.random();var h=10+v*85;els[idx].style.height=h+'%';
+          if(v>0.62){els[idx].style.background='var(--red)';}
+          else if(v>0.4){els[idx].style.background='var(--amber)';}
+          else{els[idx].style.background='var(--green)';}
+        },idx*40);
+      })(i);
+    }
+    setTimeout(function(){
+      var c=data.filter(function(v){return v<=0.4;}).length;
+      msg.textContent='اكتمل المسح — '+c+' ترددات نظيفة (خضراء) متاحة لميكاتك';
+    },N*40+200);
+  };
+})();
+// frequency coordination
+(function(){
+  var wrap=document.getElementById('coordMics');
+  var mics=[{id:1,f:0},{id:2,f:0},{id:3,f:0},{id:4,f:0}];
+  var freqs=[470,488,506,524,542,560,578,596];
+  function render(){
+    wrap.innerHTML='';
+    mics.forEach(function(m){
+      var row=document.createElement('div');row.className='ctrl-row';row.style.margin='10px 0';
+      var lbl=document.createElement('label');lbl.textContent='🎤 ميك '+m.id;lbl.style.minWidth='80px';
+      var sel=document.createElement('input');sel.type='range';sel.min='0';sel.max=String(freqs.length-1);sel.step='1';sel.value=String(m.f);
+      var out=document.createElement('span');out.className='readout';out.textContent=freqs[m.f]+' MHz';
+      sel.addEventListener('input',function(){m.f=+sel.value;out.textContent=freqs[m.f]+' MHz';check();});
+      row.appendChild(lbl);row.appendChild(sel);row.appendChild(out);wrap.appendChild(row);
+    });
+  }
+  function check(){
+    var used={};var clash=false;var assigned=0;
+    mics.forEach(function(m){assigned++;if(used[m.f])clash=true;used[m.f]=1;});
+    // also flag adjacency (too close)
+    var vals=mics.map(function(m){return m.f;}).sort(function(a,b){return a-b;});
+    var adj=false;for(var i=0;i<vals.length-1;i++){if(vals[i+1]-vals[i]===0){clash=true;}else if(vals[i+1]-vals[i]===1){adj=true;}}
+    var cnt=document.getElementById('coordCount');var v=document.getElementById('coordVerdict');
+    cnt.textContent=Object.keys(used).length+' / 4 ترددات فريدة';
+    if(clash){v.className='status bad';v.textContent='✗ تداخل! ميكان على نفس التردد — افصل بينهما';}
+    else if(adj){v.className='status warn-s';v.textContent='⚠ ترددان متجاوران جداً — قد يحدث تداخل بيني، باعد أكثر';}
+    else{v.className='status ok';v.textContent='✓ تنسيق نظيف — كل الميكات على ترددات آمنة ومتباعدة';}
+  }
+  render();check();
+})();
+</script>
+<footer>
+<p>هذه المادة تعليمية لمساعدة فنيي الصوت والصورة على فهم تصميم الأنظمة، وليست بديلاً عن التدريب المعتمد من الشركات المصنّعة أو عن قراءة الكتيّبات الرسمية للأجهزة.</p>
+<p>أسماء الأجهزة والعلامات التجارية (QSC، Q-SYS، Shure، L-Acoustics، Logitech، Samsung، وغيرها) مذكورة لأغراض تعليمية فقط وهي ملك لأصحابها.</p>
+<p style="margin-top:14px;font-family:var(--mono);color:var(--copper)">مسار تصميم الأنظمة والكبائن · المستوى 3 من 5</p>
+</footer>
+<script>
+// progress rail
+(function(){
+  var rf=document.getElementById('railFill');
+  function upd(){
+    var h=document.documentElement;
+    var sc=h.scrollTop||document.body.scrollTop;
+    var max=(h.scrollHeight-h.clientHeight)||1;
+    rf.style.width=(sc/max*100)+'%';
+  }
+  window.addEventListener('scroll',upd,{passive:true});
+  window.addEventListener('resize',upd);upd();
+})();
+// mini quiz
+function pickOpt(el,correct){
+  var box=el.closest('.quiz');
+  if(box.dataset.done)return;
+  box.dataset.done='1';
+  var opts=box.querySelectorAll('.opt');
+  opts.forEach(function(o){o.classList.add('disabled')});
+  var fb=box.querySelector('.q-fb');
+  if(correct){
+    el.classList.add('correct');
+    fb.classList.add('show','good');
+  }else{
+    el.classList.add('wrong');
+    opts.forEach(function(o){if(o.dataset.correct==='1')o.classList.add('correct')});
+    fb.classList.add('show','bad');
+  }
+}
+// final exam
+function gradeExam(id,total){
+  var ex=document.getElementById(id);
+  var qs=ex.querySelectorAll('.exq');
+  var score=0,answered=0;
+  qs.forEach(function(q){
+    if(q.dataset.ans){
+      answered++;
+      if(q.dataset.ans==='1')score++;
+    }
+  });
+  if(answered<total){
+    alert('أجب عن كل الأسئلة أولاً — أجبت عن '+answered+' من '+total);
+    return;
+  }
+  var res=ex.querySelector('.exam-result');
+  var pass=score>=Math.ceil(total*0.7);
+  res.className='exam-result show '+(pass?'pass':'fail');
+  var msg=pass
+    ? 'ممتاز! اجتزت اختبار هذا المستوى. تقدر تكمل للمستوى التالي.'
+    : 'قريب! راجع الأقسام اللي أخطأت فيها وأعد المحاولة — تحتاج '+Math.ceil(total*0.7)+' إجابات صحيحة على الأقل.';
+  res.innerHTML='<div class="score">'+score+' / '+total+'</div><p>'+msg+'</p>';
+  if(pass){
+    var nb=document.getElementById('nextBtn');
+    if(nb){nb.classList.remove('locked');nb.removeAttribute('aria-disabled');}
+  }
+  res.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function examPick(el,qi,correct){
+  var q=el.closest('.exq');
+  if(q.dataset.locked)return;
+  q.dataset.locked='1';
+  q.dataset.ans=correct?'1':'0';
+  var opts=q.querySelectorAll('.opt');
+  opts.forEach(function(o){o.classList.add('disabled')});
+  if(correct){el.classList.add('correct');}
+  else{el.classList.add('wrong');opts.forEach(function(o){if(o.dataset.correct==='1')o.classList.add('correct')});}
+}
+</script>
+</body>
+</html>

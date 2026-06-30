@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>المستوى 4: الفيديو والاجتماعات والتحكم — تصميم الأنظمة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0f12;
+  --bg2:#13161b;
+  --panel:#181c22;
+  --panel2:#1e232b;
+  --line:#2a313b;
+  --line2:#363f4b;
+  --ink:#e8ebef;
+  --ink-dim:#a8b1bd;
+  --ink-faint:#6c7682;
+  --copper:#c87f4a;
+  --copper-bright:#e0975c;
+  --cyan:#3fb8c4;
+  --cyan-bright:#5fd6e2;
+  --amber:#e0a23c;
+  --amber-bright:#f3bd5e;
+  --green:#5fbf72;
+  --red:#d65f5f;
+  --blue:#5a8fd6;
+  --purple:#9a7fc8;
+  --radius:14px;
+  --radius-sm:9px;
+  --maxw:880px;
+  --shadow:0 8px 30px rgba(0,0,0,.4);
+  --mono:'IBM Plex Mono',monospace;
+  --sans:'IBM Plex Sans Arabic',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--sans);
+  background:var(--bg);
+  color:var(--ink);
+  line-height:1.85;
+  font-weight:400;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+/* progress rail */
+.rail{position:fixed;top:0;right:0;left:0;height:4px;background:rgba(255,255,255,.04);z-index:100}
+.rail-fill{height:100%;width:0;background:linear-gradient(90deg,var(--copper),var(--amber),var(--cyan));box-shadow:0 0 12px rgba(224,162,60,.5);transition:width .08s linear}
+/* breadcrumb */
+.crumb{position:sticky;top:4px;z-index:90;background:rgba(13,15,18,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:11px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.crumb a{color:var(--ink-dim);text-decoration:none;font-size:.82rem;transition:color .2s}
+.crumb a:hover{color:var(--cyan-bright)}
+.crumb .sep{color:var(--ink-faint);font-size:.7rem}
+.badge{background:linear-gradient(135deg,var(--copper),var(--amber));color:#1a1206;font-weight:700;font-size:.74rem;padding:4px 11px;border-radius:30px;font-family:var(--mono);letter-spacing:.3px;white-space:nowrap}
+.crumb .home{margin-inline-start:auto;font-weight:600}
+/* layout */
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px}
+section{padding:46px 0;border-bottom:1px solid rgba(42,49,59,.5)}
+section:last-of-type{border-bottom:none}
+/* hero */
+.hero{padding:64px 0 50px;text-align:center;position:relative}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(224,162,60,.10),transparent 70%);pointer-events:none}
+.eyebrow{font-family:var(--mono);color:var(--amber-bright);font-size:.8rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;font-weight:500}
+h1{font-size:clamp(2rem,6vw,3.1rem);font-weight:700;line-height:1.25;margin-bottom:18px;background:linear-gradient(120deg,#fff 20%,var(--amber-bright) 60%,var(--copper));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sub{font-size:clamp(1rem,2.5vw,1.18rem);color:var(--ink-dim);max-width:620px;margin:0 auto 26px;font-weight:300}
+.chips{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:26px}
+.chip{background:var(--panel);border:1px solid var(--line2);border-radius:30px;padding:7px 16px;font-size:.82rem;color:var(--ink-dim);display:flex;align-items:center;gap:7px}
+.chip b{color:var(--amber-bright);font-family:var(--mono);font-weight:600}
+.prereq{background:linear-gradient(135deg,rgba(63,184,196,.08),rgba(90,143,214,.05));border:1px solid rgba(63,184,196,.25);border-radius:var(--radius-sm);padding:14px 18px;max-width:560px;margin:0 auto 30px;font-size:.9rem;color:var(--ink-dim)}
+.prereq a{color:var(--cyan-bright);font-weight:600;text-decoration:none}
+.prereq a:hover{text-decoration:underline}
+/* toc */
+.toc{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px;max-width:560px;margin:0 auto;text-align:right}
+.toc h3{font-size:.78rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-faint);margin-bottom:14px;font-family:var(--mono)}
+.toc ol{list-style:none;counter-reset:toc}
+.toc li{counter-increment:toc;margin:9px 0}
+.toc a{color:var(--ink);text-decoration:none;display:flex;align-items:baseline;gap:11px;font-size:.96rem;transition:color .2s}
+.toc a:hover{color:var(--amber-bright)}
+.toc a::before{content:counter(toc,decimal-leading-zero);font-family:var(--mono);color:var(--copper);font-size:.8rem;font-weight:600;min-width:24px}
+.scrollcue{text-align:center;margin-top:34px;color:var(--ink-faint);font-size:.8rem;animation:bob 2s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
+/* section headers */
+.step-tag{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:.76rem;color:var(--amber-bright);letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;font-weight:500}
+.step-tag .n{background:linear-gradient(135deg,var(--copper),var(--amber));color:#1a1206;width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-weight:700;font-size:.82rem}
+h2{font-size:clamp(1.5rem,4vw,2rem);font-weight:700;margin-bottom:16px;color:#fff;line-height:1.3}
+h3.sub-h{font-size:1.15rem;font-weight:600;color:var(--amber-bright);margin:26px 0 12px}
+p{margin-bottom:15px;color:var(--ink-dim)}
+p strong,li strong{color:var(--ink);font-weight:600}
+.lead{font-size:1.08rem;color:var(--ink)}
+ul.bullets,ol.steps{margin:14px 0 18px;padding-inline-start:8px;list-style:none}
+ul.bullets li,ol.steps li{position:relative;padding-inline-start:26px;margin-bottom:11px;color:var(--ink-dim)}
+ul.bullets li::before{content:"";position:absolute;right:6px;top:12px;width:7px;height:7px;border-radius:2px;background:var(--copper)}
+ol.steps{counter-reset:st}
+ol.steps li{counter-increment:st}
+ol.steps li::before{content:counter(st);position:absolute;right:0;top:1px;font-family:var(--mono);color:var(--amber-bright);font-weight:600;font-size:.85rem;background:var(--panel2);width:22px;height:22px;border-radius:6px;display:grid;place-items:center}
+/* analogy / callout boxes */
+.analogy{background:linear-gradient(135deg,rgba(200,127,74,.09),rgba(224,162,60,.04));border-inline-start:3px solid var(--copper);border-radius:var(--radius-sm);padding:16px 20px;margin:18px 0}
+.analogy .label{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--copper-bright);margin-bottom:7px;font-weight:600}
+.note{background:rgba(63,184,196,.07);border-inline-start:3px solid var(--cyan);border-radius:var(--radius-sm);padding:14px 18px;margin:16px 0;font-size:.93rem}
+.note .label{font-family:var(--mono);font-size:.72rem;letter-spacing:1px;color:var(--cyan-bright);margin-bottom:6px;font-weight:600;text-transform:uppercase}
+.warn{background:rgba(214,95,95,.08);border-inline-start:3px solid var(--red);border-radius:var(--radius-sm);padding:14px 18px;margin:16px 0;font-size:.93rem}
+.warn .label{font-family:var(--mono);font-size:.72rem;letter-spacing:1px;color:#e88;margin-bottom:6px;font-weight:600;text-transform:uppercase}
+.pro{background:rgba(95,191,114,.07);border-inline-start:3px solid var(--green);border-radius:var(--radius-sm);padding:14px 18px;margin:16px 0;font-size:.93rem}
+.pro .label{font-family:var(--mono);font-size:.72rem;letter-spacing:1px;color:#7d9;margin-bottom:6px;font-weight:600;text-transform:uppercase}
+/* generic card / panel */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin:20px 0}
+.panel-h{font-size:.78rem;font-family:var(--mono);text-transform:uppercase;letter-spacing:1px;color:var(--ink-faint);margin-bottom:14px}
+/* simulator shell */
+.sim{background:linear-gradient(160deg,var(--panel2),var(--panel));border:1px solid var(--line2);border-radius:var(--radius);padding:24px;margin:24px 0;box-shadow:var(--shadow)}
+.sim-head{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.sim-head .dot{width:9px;height:9px;border-radius:50%;background:var(--amber);box-shadow:0 0 8px var(--amber)}
+.sim-title{font-family:var(--mono);font-size:.82rem;letter-spacing:.5px;color:var(--amber-bright);text-transform:uppercase;font-weight:600}
+.sim-sub{font-size:.86rem;color:var(--ink-faint);margin-bottom:18px}
+.ctrl-row{display:flex;align-items:center;gap:14px;margin:14px 0;flex-wrap:wrap}
+.ctrl-row label{min-width:120px;font-size:.9rem;color:var(--ink-dim)}
+input[type=range]{-webkit-appearance:none;appearance:none;flex:1;min-width:140px;height:6px;border-radius:5px;background:var(--line2);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--amber-bright),var(--copper));cursor:pointer;box-shadow:0 0 10px rgba(224,162,60,.6);border:2px solid #1a1206}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--amber-bright);cursor:pointer;border:2px solid #1a1206}
+.readout{font-family:var(--mono);font-size:1.05rem;color:var(--cyan-bright);min-width:74px;text-align:center;background:var(--bg);border:1px solid var(--line2);border-radius:7px;padding:5px 10px;font-weight:600}
+.btn{background:linear-gradient(135deg,var(--copper),var(--amber));color:#1a1206;border:none;border-radius:8px;padding:10px 20px;font-family:var(--sans);font-weight:600;font-size:.92rem;cursor:pointer;transition:transform .15s,box-shadow .2s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 5px 16px rgba(224,162,60,.35)}
+.btn:active{transform:translateY(0)}
+.btn.ghost{background:transparent;border:1px solid var(--line2);color:var(--ink-dim)}
+.btn.ghost:hover{border-color:var(--cyan);color:var(--cyan-bright);box-shadow:none}
+.btn.sm{padding:7px 14px;font-size:.84rem}
+.toggle-grid{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+.tog{background:var(--bg);border:1px solid var(--line2);border-radius:8px;padding:9px 16px;cursor:pointer;font-size:.88rem;color:var(--ink-dim);transition:all .2s;user-select:none}
+.tog.on{background:linear-gradient(135deg,rgba(95,191,114,.2),rgba(95,191,114,.08));border-color:var(--green);color:#9ee5ab}
+.tog.off{opacity:.7}
+/* rack visual (RU stack) */
+.rackbox{background:#0a0c0f;border:2px solid var(--line2);border-radius:8px;padding:8px;margin:14px 0;display:flex;flex-direction:column;gap:3px}
+.ru{height:34px;border-radius:5px;display:flex;align-items:center;padding:0 12px;font-size:.82rem;font-family:var(--mono);position:relative;transition:all .25s;cursor:default}
+.ru .ru-rails{position:absolute;inset:0;pointer-events:none;border-radius:5px;border-inline-start:6px solid rgba(0,0,0,.4);border-inline-end:6px solid rgba(0,0,0,.4)}
+.ru.empty{background:repeating-linear-gradient(45deg,#111418,#111418 8px,#0d1014 8px,#0d1014 16px);color:var(--ink-faint);border:1px dashed var(--line2)}
+.ru.amp{background:linear-gradient(90deg,#1c2128,#23292f);color:var(--ink);border:1px solid var(--line2)}
+.ru.dsp{background:linear-gradient(90deg,#1a2530,#1e2d3a);color:#bfe3ea;border:1px solid rgba(63,184,196,.4)}
+.ru.rf{background:linear-gradient(90deg,#2a2030,#33283c);color:#e0cdf0;border:1px solid rgba(154,127,200,.4)}
+.ru.net{background:linear-gradient(90deg,#2a2618,#332f1c);color:#f0e3b8;border:1px solid rgba(224,162,60,.4)}
+.ru.pwr{background:linear-gradient(90deg,#2a1818,#331c1c);color:#f0c8c8;border:1px solid rgba(214,95,95,.4)}
+.ru.video{background:linear-gradient(90deg,#182a22,#1c3329);color:#c8f0d8;border:1px solid rgba(95,191,114,.4)}
+.ru .tag{margin-inline-start:auto;font-size:.68rem;opacity:.7}
+.ru.heavy{box-shadow:inset 0 0 0 1px rgba(214,95,95,.3)}
+/* meters */
+.meter{height:12px;background:var(--bg);border-radius:7px;overflow:hidden;border:1px solid var(--line2);margin:8px 0}
+.meter-fill{height:100%;border-radius:7px;transition:width .3s,background .3s}
+.gauge-label{display:flex;justify-content:space-between;font-size:.8rem;color:var(--ink-faint);font-family:var(--mono);margin-bottom:4px}
+.status{display:inline-flex;align-items:center;gap:7px;font-size:.85rem;font-family:var(--mono);padding:5px 12px;border-radius:30px;font-weight:600}
+.status.ok{background:rgba(95,191,114,.15);color:#8fe6a0}
+.status.bad{background:rgba(214,95,95,.15);color:#f0a0a0}
+.status.warn-s{background:rgba(224,162,60,.15);color:#f3cf8e}
+/* tables */
+.tbl-wrap{overflow-x:auto;margin:18px 0;border-radius:var(--radius-sm);border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:.9rem;min-width:480px}
+th,td{padding:12px 14px;text-align:right;border-bottom:1px solid var(--line)}
+th{background:var(--panel2);color:var(--amber-bright);font-weight:600;font-family:var(--mono);font-size:.8rem;letter-spacing:.3px;text-transform:uppercase}
+td{color:var(--ink-dim)}
+tr:last-child td{border-bottom:none}
+td code,p code,li code{font-family:var(--mono);background:var(--bg);color:var(--cyan-bright);padding:2px 7px;border-radius:5px;font-size:.85em;border:1px solid var(--line2)}
+.gloss td:first-child{color:var(--amber-bright);font-weight:600;font-family:var(--mono);white-space:nowrap}
+/* symbols grid */
+.sym-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin:20px 0}
+.sym{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-sm);padding:16px;text-align:center;transition:border-color .2s}
+.sym:hover{border-color:var(--copper)}
+.sym .ico{font-size:1.8rem;margin-bottom:8px;color:var(--amber-bright)}
+.sym .nm{font-size:.82rem;color:var(--ink);font-weight:600;margin-bottom:3px}
+.sym .ds{font-size:.74rem;color:var(--ink-faint)}
+/* mini quiz */
+.quiz{background:var(--panel);border:1px solid var(--line2);border-radius:var(--radius);padding:20px 22px;margin:22px 0}
+.quiz .q-label{font-family:var(--mono);font-size:.72rem;color:var(--cyan-bright);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;font-weight:600}
+.quiz .q-text{font-size:1rem;color:var(--ink);font-weight:500;margin-bottom:14px}
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:12px 16px;cursor:pointer;font-size:.92rem;color:var(--ink-dim);transition:all .18s;text-align:right}
+.opt:hover{border-color:var(--copper);color:var(--ink)}
+.opt.correct{background:rgba(95,191,114,.14);border-color:var(--green);color:#9ee5ab}
+.opt.wrong{background:rgba(214,95,95,.12);border-color:var(--red);color:#f0a0a0}
+.opt.disabled{pointer-events:none;opacity:.85}
+.q-fb{margin-top:12px;font-size:.9rem;padding:11px 15px;border-radius:8px;display:none}
+.q-fb.show{display:block}
+.q-fb.good{background:rgba(95,191,114,.1);color:#9ee5ab;border-inline-start:3px solid var(--green)}
+.q-fb.bad{background:rgba(214,95,95,.1);color:#f0a0a0;border-inline-start:3px solid var(--red)}
+/* final exam */
+.exam{background:linear-gradient(160deg,var(--panel2),var(--bg2));border:1px solid var(--line2);border-radius:var(--radius);padding:26px;margin:26px 0}
+.exam-head{text-align:center;margin-bottom:22px}
+.exam-head .ico{font-size:2rem;margin-bottom:8px}
+.exq{border-top:1px solid var(--line);padding:18px 0}
+.exq:first-of-type{border-top:none}
+.exq .qn{font-family:var(--mono);color:var(--copper);font-size:.8rem;font-weight:600;margin-bottom:7px}
+.exq .qt{font-size:.98rem;color:var(--ink);font-weight:500;margin-bottom:13px}
+.exam-result{text-align:center;padding:24px;border-radius:var(--radius);margin-top:20px;display:none}
+.exam-result.show{display:block}
+.exam-result.pass{background:linear-gradient(135deg,rgba(95,191,114,.15),rgba(63,184,196,.08));border:1px solid var(--green)}
+.exam-result.fail{background:linear-gradient(135deg,rgba(214,95,95,.12),rgba(224,162,60,.06));border:1px solid var(--amber)}
+.exam-result .score{font-family:var(--mono);font-size:2.4rem;font-weight:700;margin:8px 0}
+.exam-result.pass .score{color:#8fe6a0}
+.exam-result.fail .score{color:var(--amber-bright)}
+/* completion card */
+.done{background:linear-gradient(160deg,rgba(224,162,60,.1),rgba(63,184,196,.06));border:1px solid var(--line2);border-radius:var(--radius);padding:32px;margin:30px 0;text-align:center}
+.done .ico{font-size:2.6rem;margin-bottom:12px}
+.done h2{font-size:1.5rem;margin-bottom:10px}
+.done p{max-width:480px;margin:0 auto 20px}
+.next-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--copper),var(--amber));color:#1a1206;text-decoration:none;font-weight:700;padding:14px 28px;border-radius:10px;font-size:1rem;transition:transform .15s,box-shadow .2s}
+.next-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(224,162,60,.4)}
+.next-btn.locked{background:var(--panel2);color:var(--ink-faint);cursor:not-allowed;border:1px solid var(--line2)}
+.back-link{display:inline-block;margin-top:16px;color:var(--ink-dim);text-decoration:none;font-size:.9rem}
+.back-link:hover{color:var(--cyan-bright)}
+/* footer */
+footer{background:var(--bg2);border-top:1px solid var(--line);padding:30px 20px;text-align:center;margin-top:20px}
+footer p{font-size:.82rem;color:var(--ink-faint);max-width:560px;margin:0 auto 8px}
+/* diagram helpers */
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;margin:20px 0}
+.flow-node{background:var(--panel2);border:1px solid var(--line2);border-radius:9px;padding:11px 16px;font-size:.85rem;text-align:center;min-width:84px;transition:all .25s}
+.flow-node.active{border-color:var(--amber);box-shadow:0 0 14px rgba(224,162,60,.4);color:var(--amber-bright)}
+.flow-node.err{border-color:var(--red);box-shadow:0 0 14px rgba(214,95,95,.4);color:#f0a0a0}
+.flow-arrow{color:var(--copper);font-size:1.2rem}
+.svg-box{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-sm);padding:18px;margin:18px 0;text-align:center}
+svg{max-width:100%;height:auto}
+.tag-pill{display:inline-block;font-family:var(--mono);font-size:.72rem;padding:3px 9px;border-radius:20px;background:var(--panel2);border:1px solid var(--line2);color:var(--ink-dim);margin:2px}
+@media (max-width:560px){
+  .ctrl-row label{min-width:90px;font-size:.84rem}
+  section{padding:38px 0}
+  .sim{padding:18px}
+  .ru{height:30px;font-size:.74rem}
+}
+/* L5 capstone components */
+.flow-node .ds{display:block;font-size:.72rem;color:var(--ink-faint);margin-top:3px;font-weight:400}
+.flow-node .nm{display:block;font-weight:600;color:var(--ink)}
+.scn{background:var(--panel);border:1px solid var(--line);border-inline-start:3px solid var(--amber);border-radius:var(--radius-sm);padding:16px 18px;margin:16px 0}
+.scn-h{font-size:1.02rem;font-weight:700;color:var(--ink);margin-bottom:8px;display:flex;align-items:center;gap:9px}
+.scn-ico{font-size:1.3rem}
+.scn-need{color:var(--cyan-bright)!important}
+.scn p{margin:6px 0;color:var(--ink-dim);font-size:.92rem;line-height:1.7}
+.scn-tags{margin-top:10px}
+.chklist{margin:16px 0;display:flex;flex-direction:column;gap:9px}
+.chk{display:flex;align-items:flex-start;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:11px 14px;color:var(--ink-dim);font-size:.9rem;line-height:1.6}
+.chk .cb{color:var(--cyan-bright);font-size:1.05rem;flex-shrink:0;line-height:1.4}
+.comp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px;margin:10px 0}
+.comp{background:var(--bg);border:1px solid var(--line2);border-radius:8px;padding:11px 12px;font-size:.85rem;color:var(--ink-dim);text-align:center;cursor:pointer;transition:all .18s;user-select:none}
+.comp:hover{border-color:var(--copper);color:var(--ink)}
+.comp.on{background:linear-gradient(135deg,rgba(224,162,60,.18),rgba(200,127,74,.12));border-color:var(--amber);color:var(--amber-bright);font-weight:600;box-shadow:0 0 12px rgba(224,162,60,.25)}
+.cert-line{font-family:var(--mono);font-size:.9rem;color:var(--cyan-bright);background:var(--bg);border:1px solid var(--line2);border-radius:8px;padding:12px 16px;margin:16px auto;max-width:480px}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+<div class="rail"><div class="rail-fill" id="railFill"></div></div>
+<!-- ===== BREADCRUMB ===== -->
+<nav class="crumb">
+  <span class="badge">المستوى 4 من 5</span>
+  <span class="sep">•</span>
+  <a href="../index.html">الرئيسية</a>
+  <span class="sep">›</span>
+  <a href="../av-rack-level3/index.html">المستوى 3</a>
+  <span class="sep">›</span>
+  <span style="color:var(--ink-faint);font-size:.82rem">الفيديو والمؤتمرات</span>
+  <a href="../index.html" class="home">كل المسارات ←</a>
+</nav>
+
+<!-- ===== HERO ===== -->
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">مسار تصميم الأنظمة · المستوى الرابع</div>
+    <h1>الفيديو والمؤتمرات والتحكّم</h1>
+    <p class="sub">غرفة الاجتماعات الحديثة نظام متكامل: كاميرا وميكات وشاشة وتحكّم. هنا نفهم عائلة Logitech Rally، وحدة التحكّم Tap، إدارة Logitech Sync، ميزانية الطاقة عبر الشبكة (PoE)، وتوجيه المصادر.</p>
+    <div class="chips">
+      <span class="chip">⏱️ <b>~40</b> دقيقة</span>
+      <span class="chip">🧩 <b>7</b> أقسام</span>
+      <span class="chip">🖥️ <b>3</b> محاكيات</span>
+      <span class="chip">📝 اختبار <b>10</b> أسئلة</span>
+    </div>
+    <div class="prereq">
+      💡 يفترض إنك أنهيت <a href="../av-rack-level3/index.html">المستوى 3</a>، ومرتاح مع الـ <a href="../networking-fundamentals/index.html">PoE والسويتش</a> من مسار الشبكات — رح نحسب ميزانية طاقة PoE هنا.
+    </div>
+    <nav class="toc">
+      <h3>محتوى المستوى</h3>
+      <ol>
+        <li><a href="#room">تشريح غرفة المؤتمرات الحديثة</a></li>
+        <li><a href="#rally">عائلة Logitech Rally</a></li>
+        <li><a href="#tap">وحدة التحكّم Tap و Logitech Sync</a></li>
+        <li><a href="#poe">ميزانية الطاقة عبر الشبكة (PoE)</a></li>
+        <li><a href="#switching">توجيه المصادر وتبديل الفيديو</a></li>
+        <li><a href="#sim">محاكي: جهّز غرفة Rally</a></li>
+        <li><a href="#exam">الاختبار النهائي</a></li>
+      </ol>
+    </nav>
+    <div class="scrollcue">انزل للأسفل لتبدأ ↓</div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- 1. ROOM -->
+<section id="room">
+  <div class="step-tag"><span class="n">1</span> النظام المتكامل</div>
+  <h2>تشريح غرفة المؤتمرات الحديثة</h2>
+  <p class="lead">غرفة الاجتماعات اليوم مو بس شاشة وكاميرا. هي نظام صوت وصورة وتحكّم وشبكة، كلها تشتغل مع بعض عشان الاجتماع عن بُعد يكون سلس.</p>
+  <h3 class="sub-h">المكوّنات الأساسية</h3>
+  <div class="tbl-wrap">
+  <table>
+    <tr><th>المكوّن</th><th>دوره</th></tr>
+    <tr><td>الكاميرا</td><td>تصوّر الغرفة، غالباً مع تتبّع تلقائي للمتحدّث (Auto-framing)</td></tr>
+    <tr><td>ميكات السقف/الطاولة</td><td>تلتقط أصوات الحاضرين بوضوح من كل مكان</td></tr>
+    <tr><td>السماعات</td><td>تشغّل صوت الطرف البعيد بوضوح</td></tr>
+    <tr><td>الشاشة/العرض</td><td>تعرض المشاركين والمحتوى المشترك</td></tr>
+    <tr><td>وحدة التحكّم (Touch)</td><td>لوحة لمس لبدء وإدارة الاجتماع بضغطة</td></tr>
+    <tr><td>الحاسب/المعالج</td><td>يشغّل منصّة الاجتماعات (Teams / Zoom) ويربط كل شي</td></tr>
+    <tr><td>السويتش الشبكي</td><td>يربط الأجهزة ويغذّي بعضها بالطاقة (PoE)</td></tr>
+  </table>
+  </div>
+  <div class="analogy">
+    <div class="label">شبّهها بـ</div>
+    غرفة المؤتمرات مثل استوديو تلفزيوني مصغّر: كاميرا، صوت، إضاءة محتوى، ومخرج (المعالج) يدير كل شي. الفرق إن كل هذا لازم يشتغل بضغطة زر من شخص مو متخصّص.
+  </div>
+  <h3 class="sub-h">منصّات الاجتماعات</h3>
+  <p>الأنظمة تُبنى حول منصّة: <strong>Microsoft Teams Rooms (MTR)</strong> أو <strong>Zoom Rooms</strong> هما الأشهر. الأجهزة لازم تكون <strong>معتمدة (Certified)</strong> للمنصّة عشان تشتغل بسلاسة — مفهوم مهم في اختيار المعدّات.</p>
+  <div class="quiz">
+    <div class="q-label">سؤال سريع</div>
+    <div class="q-text">لماذا يهم أن تكون أجهزة الغرفة «معتمدة» لمنصّة مثل Teams؟</div>
+    <div class="opts">
+      <div class="opt" data-correct="1" onclick="pickOpt(this,true)">لضمان التوافق والتشغيل السلس مع المنصّة بدون مشاكل</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">لأنها أرخص</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">لا يهم، أي جهاز يشتغل</div>
+    </div>
+    <div class="q-fb">صح. الاعتماد يضمن إن الكاميرا والصوت والتحكّم تشتغل مع المنصّة بدون أخطاء توافق.</div>
+  </div>
+</section>
+
+<!-- 2. RALLY -->
+<section id="rally">
+  <div class="step-tag"><span class="n">2</span> نظام متكامل</div>
+  <h2>عائلة Logitech Rally</h2>
+  <p class="lead">Logitech Rally من أشهر أنظمة المؤتمرات. بدل تجميع أجهزة من شركات مختلفة، Rally نظام متكامل مصمّم ليشتغل مع بعض.</p>
+  <div class="tbl-wrap">
+  <table>
+    <tr><th>الجهاز</th><th>الوصف</th></tr>
+    <tr><td>Rally Bar</td><td>وحدة «الكل في واحد» — كاميرا + ميكات + سماعات في شريط واحد فوق/تحت الشاشة. مناسب للغرف المتوسطة.</td></tr>
+    <tr><td>Rally Bar Mini</td><td>نسخة أصغر للغرف الصغيرة (Huddle Rooms).</td></tr>
+    <tr><td>Rally Plus</td><td>نظام منفصل المكوّنات: كاميرا + وحدات ميك + سماعات منفصلة، للغرف الكبيرة.</td></tr>
+    <tr><td>Rally Camera</td><td>كاميرا PTZ (تدور وتقرّب) للتغطية الواسعة.</td></tr>
+    <tr><td>Mic Pods</td><td>وحدات ميك توضع على الطاولة وتُربط ببعض لتغطية أكبر.</td></tr>
+  </table>
+  </div>
+  <div class="note">
+    <div class="label">اختيار حسب الغرفة</div>
+    الغرفة الصغيرة (4-6 أشخاص) → Rally Bar Mini. المتوسطة (6-10) → Rally Bar. الكبيرة (10+) → Rally Plus مع ميكات إضافية. اختيار الحجم الصحيح جزء من التصميم.
+  </div>
+  <h3 class="sub-h">الكاميرا الذكية (Auto-framing)</h3>
+  <p>كاميرات Rally فيها <strong>تأطير تلقائي</strong> — تكتشف الأشخاص في الغرفة وتضبط الإطار تلقائياً، وبعضها يركّز على المتحدّث الحالي. هذا يخلّي الطرف البعيد يحسّ إنه «في الغرفة».</p>
+  <div class="sim" id="roomSizeSim">
+    <div class="sim-head"><span class="dot"></span><span class="sim-title">محاكي اختيار نظام Rally</span></div>
+    <div class="sim-sub">حرّك عدد الأشخاص وشوف أي نظام Rally يناسب الغرفة.</div>
+    <div class="ctrl-row">
+      <label>عدد الأشخاص</label>
+      <input type="range" id="roomPpl" min="2" max="20" value="6" step="1">
+      <span class="readout" id="roomPplV">6</span>
+    </div>
+    <div class="panel" style="margin-top:8px;text-align:center">
+      <div style="font-size:.8rem;color:var(--ink-faint);font-family:var(--mono);margin-bottom:6px">النظام المقترح</div>
+      <div id="roomRec" style="font-size:1.3rem;color:var(--amber-bright);font-weight:600">Rally Bar</div>
+      <div id="roomReason" style="font-size:.85rem;color:var(--ink-dim);margin-top:6px">غرفة متوسطة — وحدة الكل في واحد مثالية</div>
+    </div>
+  </div>
+  <div class="quiz">
+    <div class="q-label">سؤال سريع</div>
+    <div class="q-text">ما الفرق الأساسي بين Rally Bar و Rally Plus؟</div>
+    <div class="opts">
+      <div class="opt" data-correct="1" onclick="pickOpt(this,true)">Rally Bar وحدة مدمجة للغرف المتوسطة، Rally Plus منفصل المكوّنات للغرف الكبيرة</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">لا فرق سوى اللون</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">Rally Plus أقدم</div>
+    </div>
+    <div class="q-fb">صح. المدمج للغرف الأصغر، والمنفصل يغطّي الغرف الكبيرة بمرونة أكثر.</div>
+  </div>
+</section>
+
+<!-- 3. TAP -->
+<section id="tap">
+  <div class="step-tag"><span class="n">3</span> نقطة التحكّم</div>
+  <h2>وحدة التحكّم Tap و Logitech Sync</h2>
+  <p class="lead">المستخدم ما يبي يتعامل مع إعدادات معقّدة — يبي يضغط زر «انضمّ» ويبدأ الاجتماع. هنا يجي دور <strong>Logitech Tap</strong>: شاشة لمس مخصّصة للتحكّم بالغرفة.</p>
+  <h3 class="sub-h">ما هي Tap؟</h3>
+  <p>Tap شاشة لمس (touch controller) توضع على طاولة الاجتماع أو تُثبّت. منها يبدأ المستخدم الاجتماع، يشارك المحتوى، يضبط الصوت، وينهي. تتصل بالمعالج بكيبل واحد يحمل <strong>الفيديو والبيانات والطاقة معاً</strong> (تقنية تمديد عبر كيبل واحد حتى مسافات طويلة).</p>
+  <div class="analogy">
+    <div class="label">شبّهها بـ</div>
+    Tap مثل ريموت التلفزيون بس ذكي وبشاشة: يخفي كل التعقيد خلفه ويعطي المستخدم أزرار بسيطة. التقنية المعقّدة في الراك/المعالج، والـ Tap بس الواجهة الودودة.
+  </div>
+  <h3 class="sub-h">Logitech Sync — الإدارة عن بُعد</h3>
+  <p><strong>Logitech Sync</strong> منصّة إدارة سحابية. تخيّل إنك مسؤول عن 50 غرفة اجتماعات في مبنى — Sync يخلّيك:</p>
+  <ul class="bullets">
+    <li><strong>مراقبة الحالة:</strong> تشوف أي غرفة فيها مشكلة (كاميرا مفصولة، جهاز معطّل) من مكان واحد.</li>
+    <li><strong>التحديثات:</strong> تحدّث برامج كل الأجهزة عن بُعد بدون زيارة كل غرفة.</li>
+    <li><strong>التنبيهات:</strong> ينبّهك لو جهاز فُصل أو احتاج صيانة.</li>
+    <li><strong>الإحصائيات:</strong> كم غرفة مستخدمة، ومتى الذروة — يساعد في التخطيط.</li>
+  </ul>
+  <div class="pro">
+    <div class="label">لماذا هذا مهم للفني</div>
+    الإدارة عن بُعد توفّر وقت هائل. بدل ما تلف على كل غرفة، تراقب الكل من لوحة واحدة وتتصرّف قبل ما يشتكي المستخدم. هذا يفرّق المحترف في صيانة الأنظمة الكبيرة.
+  </div>
+  <div class="quiz">
+    <div class="q-label">سؤال سريع</div>
+    <div class="q-text">ما فائدة منصّة Logitech Sync لمسؤول عن عشرات الغرف؟</div>
+    <div class="opts">
+      <div class="opt" data-correct="1" onclick="pickOpt(this,true)">مراقبة وتحديث وإدارة كل الغرف عن بُعد من لوحة واحدة</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">تكبير صوت الاجتماع</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">استبدال الكاميرا</div>
+    </div>
+    <div class="q-fb">صح. Sync يوفّر إدارة مركزية عن بُعد — مراقبة، تحديثات، وتنبيهات لكل الغرف.</div>
+  </div>
+</section>
+
+<!-- 4. POE -->
+<section id="poe">
+  <div class="step-tag"><span class="n">4</span> طاقة عبر الشبكة</div>
+  <h2>ميزانية الطاقة عبر الشبكة (PoE)</h2>
+  <p class="lead"><strong>PoE</strong> (Power over Ethernet) يخلّي كيبل الشبكة يحمل الطاقة والبيانات معاً — درسناه في مسار الشبكات. في غرف الاجتماعات، كثير أجهزة تتغذّى بالـ PoE: الكاميرا، Tap، نقاط الوصول، الميكات.</p>
+  <h3 class="sub-h">معايير PoE والطاقة</h3>
+  <div class="tbl-wrap">
+  <table>
+    <tr><th>المعيار</th><th>الطاقة لكل منفذ (تقريباً)</th><th>الاستخدام</th></tr>
+    <tr><td>PoE (802.3af)</td><td>~15 واط</td><td>أجهزة خفيفة: هاتف، نقطة وصول صغيرة</td></tr>
+    <tr><td>PoE+ (802.3at)</td><td>~30 واط</td><td>كاميرات PTZ، شاشات تحكّم</td></tr>
+    <tr><td>PoE++ (802.3bt)</td><td>~60-90 واط</td><td>أجهزة ثقيلة، شاشات، إضاءة</td></tr>
+  </table>
+  </div>
+  <div class="warn">
+    <div class="label">مفهوم الميزانية</div>
+    السويتش عنده <strong>ميزانية طاقة إجمالية (Power Budget)</strong> — مثلاً 370 واط موزّعة على كل المنافذ. لو جمعت استهلاك الأجهزة وتجاوز الميزانية، بعض الأجهزة ما تشتغل! لازم تحسب قبل التركيب.
+  </div>
+  <div class="sim" id="poeSim">
+    <div class="sim-head"><span class="dot"></span><span class="sim-title">محاسبة ميزانية PoE</span></div>
+    <div class="sim-sub">شغّل/أطفئ الأجهزة وراقب هل تتجاوز ميزانية السويتش (370 واط).</div>
+    <div class="toggle-grid" id="poeDevices" style="margin-top:6px"></div>
+    <div style="margin-top:16px">
+      <div class="gauge-label"><span>الاستهلاك / الميزانية</span><span id="poeUsed">0 / 370 واط</span></div>
+      <div class="meter"><div class="meter-fill" id="poeBar" style="width:0%;background:var(--green)"></div></div>
+    </div>
+    <div id="poeStatus" class="status ok" style="margin-top:12px">✓ ضمن الميزانية</div>
+  </div>
+  <div class="quiz">
+    <div class="q-label">سؤال سريع</div>
+    <div class="q-text">ماذا يحدث لو تجاوز مجموع استهلاك الأجهزة ميزانية طاقة السويتش؟</div>
+    <div class="opts">
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">يزيد السرعة</div>
+      <div class="opt" data-correct="1" onclick="pickOpt(this,true)">بعض الأجهزة لن تحصل على طاقة كافية ولن تعمل</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">لا شيء، السويتش يولّد طاقة إضافية</div>
+    </div>
+    <div class="q-fb">صح. الميزانية محدودة — لازم تحسب الاستهلاك الكلي قبل التركيب.</div>
+  </div>
+</section>
+
+<!-- 5. SWITCHING -->
+<section id="switching">
+  <div class="step-tag"><span class="n">5</span> توجيه الصورة</div>
+  <h2>توجيه المصادر وتبديل الفيديو</h2>
+  <p class="lead">في الغرف المتقدّمة، عندك عدّة مصادر فيديو (لابتوب، كاميرا، مشغّل) وعدّة شاشات. <strong>مبدّل/مصفوفة الفيديو</strong> يقرّر أي مصدر يظهر على أي شاشة.</p>
+  <h3 class="sub-h">مفاهيم أساسية</h3>
+  <ul class="bullets">
+    <li><strong>المبدّل (Switcher):</strong> يختار مصدراً واحداً من عدّة مصادر لعرضه.</li>
+    <li><strong>المصفوفة (Matrix):</strong> توجّه أي مصدر لأي شاشة بشكل مستقل — مرونة كاملة.</li>
+    <li><strong>BYOM (أحضر جهازك):</strong> المستخدم يوصّل لابتوبه ويستخدم كاميرا وميكات الغرفة عبر USB أو عبر الشبكة.</li>
+    <li><strong>USB عبر الشبكة:</strong> تمديد إشارة USB (للكاميرا والميك) مسافات طويلة عبر كيبل الشبكة بدل USB القصير.</li>
+  </ul>
+  <div class="note">
+    <div class="label">الاتجاه الحديث</div>
+    كثير أنظمة انتقلت من كوابل HDMI الطويلة إلى <strong>توزيع الفيديو عبر IP</strong> (AV-over-IP) — الصورة تمشي على الشبكة مثل الصوت تماماً. هذا يبسّط الكوابل ويزيد المرونة، لكنه يحتاج شبكة قوية ومُدارة.
+  </div>
+  <h3 class="sub-h">منطق التحكّم بالغرفة</h3>
+  <p>المعالج (مثل Q-SYS من المستوى 2، أو معالج مخصّص) يقدر يربط الأحداث: «لما يبدأ الاجتماع → شغّل الشاشة، أنزل الستارة، خفّف الإضاءة». هذا <strong>منطق الغرفة (Room Logic)</strong> ويجعل التجربة بضغطة زر.</p>
+  <div class="quiz">
+    <div class="q-label">سؤال سريع</div>
+    <div class="q-text">ما الفرق بين «المبدّل» و«المصفوفة» في توجيه الفيديو؟</div>
+    <div class="opts">
+      <div class="opt" data-correct="1" onclick="pickOpt(this,true)">المبدّل يعرض مصدراً واحداً، المصفوفة توجّه أي مصدر لأي شاشة بشكل مستقل</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">لا فرق بينهما</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">المصفوفة أقدم وأبطأ</div>
+    </div>
+    <div class="q-fb">صح. المصفوفة تعطي مرونة كاملة في توجيه كل مصدر لكل شاشة.</div>
+  </div>
+</section>
+
+<!-- 6. SIM -->
+<section id="sim">
+  <div class="step-tag"><span class="n">6</span> طبّق بنفسك</div>
+  <h2>محاكي: جهّز غرفة Rally</h2>
+  <p class="lead">ركّب مكوّنات غرفة اجتماعات كاملة وتأكّد إن كل التوصيلات صحيحة وميزانية الـ PoE كافية. أكمل الغرفة لتصبح جاهزة للاجتماع.</p>
+  <div class="sim" id="buildRoomSim">
+    <div class="sim-head"><span class="dot"></span><span class="sim-title">منضدة تجهيز الغرفة</span></div>
+    <div class="sim-sub">فعّل كل مكوّن مطلوب. الغرفة تصير «جاهزة» لما تكتمل المكوّنات الأساسية وتكون الطاقة ضمن الحد.</div>
+    <div class="toggle-grid" id="roomBuildItems" style="margin-top:6px"></div>
+    <div class="flow" id="roomFlow" style="margin-top:18px">
+      <div class="flow-node" data-need="camera">كاميرا</div>
+      <div class="flow-arrow">←</div>
+      <div class="flow-node" data-need="mic">ميكات</div>
+      <div class="flow-arrow">←</div>
+      <div class="flow-node" data-need="compute">المعالج</div>
+      <div class="flow-arrow">←</div>
+      <div class="flow-node" data-need="display">شاشة</div>
+      <div class="flow-arrow">←</div>
+      <div class="flow-node" data-need="tap">Tap</div>
+    </div>
+    <div id="roomBuildVerdict" class="status warn-s" style="margin-top:16px">فعّل المكوّنات لتجهيز الغرفة</div>
+  </div>
+</section>
+
+<!-- GLOSSARY -->
+<section id="gloss">
+  <div class="step-tag"><span class="n">★</span> مرجع</div>
+  <h2>قاموس المصطلحات</h2>
+  <div class="tbl-wrap">
+  <table class="gloss">
+    <tr><td>MTR</td><td>Microsoft Teams Rooms — منصّة غرف اجتماعات</td></tr>
+    <tr><td>Rally Bar</td><td>وحدة مؤتمرات «كل في واحد» للغرف المتوسطة</td></tr>
+    <tr><td>Rally Plus</td><td>نظام مؤتمرات منفصل المكوّنات للغرف الكبيرة</td></tr>
+    <tr><td>Tap</td><td>شاشة لمس للتحكّم بالغرفة</td></tr>
+    <tr><td>Logitech Sync</td><td>منصّة إدارة الغرف عن بُعد</td></tr>
+    <tr><td>Auto-framing</td><td>تأطير الكاميرا التلقائي للأشخاص/المتحدّث</td></tr>
+    <tr><td>PoE / PoE+ / PoE++</td><td>معايير الطاقة عبر كيبل الشبكة</td></tr>
+    <tr><td>Power Budget</td><td>إجمالي الطاقة التي يوفّرها السويتش</td></tr>
+    <tr><td>BYOM</td><td>أحضر جهازك واستخدم معدّات الغرفة</td></tr>
+    <tr><td>Matrix Switch</td><td>توجيه أي مصدر فيديو لأي شاشة</td></tr>
+    <tr><td>Room Logic</td><td>أتمتة أحداث الغرفة (إضاءة، شاشة، صوت)</td></tr>
+  </table>
+  </div>
+  <h3 class="sub-h">رموز ومنافذ الغرفة</h3>
+  <div class="sym-grid">
+    <div class="sym"><div class="ico">📹</div><div class="nm">كاميرا PTZ</div><div class="ds">تدور وتقرّب</div></div>
+    <div class="sym"><div class="ico">🎙️</div><div class="nm">Mic Pod</div><div class="ds">وحدة ميك طاولة</div></div>
+    <div class="sym"><div class="ico">📱</div><div class="nm">Tap</div><div class="ds">شاشة تحكّم</div></div>
+    <div class="sym"><div class="ico">🖥️</div><div class="nm">شاشة عرض</div><div class="ds">Display</div></div>
+    <div class="sym"><div class="ico">🔌</div><div class="nm">PoE</div><div class="ds">طاقة عبر الشبكة</div></div>
+    <div class="sym"><div class="ico">☁️</div><div class="nm">Sync</div><div class="ds">إدارة سحابية</div></div>
+  </div>
+</section>
+
+<!-- EXAM -->
+<section id="exam">
+  <div class="step-tag"><span class="n">✓</span> قيّم نفسك</div>
+  <h2>الاختبار النهائي — المستوى 4</h2>
+  <p>عشر أسئلة. تحتاج <strong>7 صحيحة</strong> على الأقل لفتح المستوى الخامس.</p>
+  <div class="exam" id="examBox">
+    <div class="exam-head"><div class="ico">🖥️</div><div style="font-family:var(--mono);color:var(--amber-bright);letter-spacing:1px">VIDEO & CONTROL · FINAL</div></div>
+
+    <div class="exq">
+      <div class="qn">سؤال 1 / 10</div>
+      <div class="qt">لماذا يجب أن تكون أجهزة الغرفة «معتمدة» لمنصّة Teams؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="1" onclick="examPick(this,0,true)">لضمان التوافق والتشغيل السلس</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,0,false)">لأنها أرخص</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,0,false)">لا يهم</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 2 / 10</div>
+      <div class="qt">أي نظام Rally يناسب غرفة صغيرة (4-6 أشخاص)؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="0" onclick="examPick(this,1,false)">Rally Plus</div>
+        <div class="opt" data-correct="1" onclick="examPick(this,1,true)">Rally Bar Mini</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,1,false)">لا شيء يناسبها</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 3 / 10</div>
+      <div class="qt">ما هي Logitech Tap؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="1" onclick="examPick(this,2,true)">شaشة لمس للتحكّم بالغرفة وبدء الاجتماع</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,2,false)">نوع كاميرا</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,2,false)">سماعة</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 4 / 10</div>
+      <div class="qt">ما فائدة Logitech Sync؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="0" onclick="examPick(this,3,false)">تكبير الصوت</div>
+        <div class="opt" data-correct="1" onclick="examPick(this,3,true)">إدارة ومراقبة وتحديث الغرف عن بُعد من لوحة واحدة</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,3,false)">تسجيل الفيديو محلياً</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 5 / 10</div>
+      <div class="qt">ماذا يعني PoE؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="1" onclick="examPick(this,4,true)">الطاقة عبر كيبل الشبكة (Power over Ethernet)</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,4,false)">Port of Entry</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,4,false)">Power off Everything</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 6 / 10</div>
+      <div class="qt">ماذا يحدث لو تجاوزت الأجهزة ميزانية طاقة السويتش؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="1" onclick="examPick(this,5,true)">بعض الأجهزة لن تعمل لنقص الطاقة</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,5,false)">تزيد السرعة</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,5,false)">لا شيء</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 7 / 10</div>
+      <div class="qt">أي معيار PoE يوفّر طاقة أكبر للأجهزة الثقيلة؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="0" onclick="examPick(this,6,false)">802.3af (PoE العادي)</div>
+        <div class="opt" data-correct="1" onclick="examPick(this,6,true)">802.3bt (PoE++)</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,6,false)">كلها متساوية</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 8 / 10</div>
+      <div class="qt">ما الفرق بين المبدّل والمصفوفة؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="1" onclick="examPick(this,7,true)">المبدّل يعرض مصدراً واحداً، المصفوفة توجّه أي مصدر لأي شاشة</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,7,false)">لا فرق</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,7,false)">المصفوفة للصوت فقط</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 9 / 10</div>
+      <div class="qt">ماذا يعني BYOM؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="1" onclick="examPick(this,8,true)">أحضر جهازك واستخدم كاميرا وميكات الغرفة</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,8,false)">نوع كيبل</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,8,false)">بروتوكول شبكة</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 10 / 10</div>
+      <div class="qt">ما هو «منطق الغرفة» (Room Logic)؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="1" onclick="examPick(this,9,true)">أتمتة أحداث الغرفة كالشاشة والإضاءة عند بدء الاجتماع</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,9,false)">نوع كاميرا</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,9,false)">حساب الترددات</div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:22px">
+      <button class="btn" onclick="gradeExam('examBox',10)">احسب النتيجة</button>
+    </div>
+    <div class="exam-result"></div>
+  </div>
+</section>
+
+<!-- DONE -->
+<section id="done">
+  <div class="done">
+    <div class="ico">🎚️</div>
+    <h2>أنهيت المستوى الرابع</h2>
+    <p>الحين تفهم غرفة المؤتمرات الحديثة: عائلة Rally، وحدة Tap، إدارة Sync، ميزانية PoE، وتوجيه الفيديو. المستوى الخامس والأخير يجمع كل شي — اللافتات الرقمية (MagicInfo)، السيناريوهات الكاملة، والتسليم الاحترافي.</p>
+    <a href="../av-rack-level5/index.html" class="next-btn locked" id="nextBtn" aria-disabled="true">المستوى 5: اللافتات والتكامل والسيناريوهات ←</a>
+    <br><a href="../index.html" class="back-link">← رجوع لكل المسارات</a>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ===== L4 simulators =====
+// room size recommender
+(function(){
+  var p=document.getElementById('roomPpl'),pv=document.getElementById('roomPplV'),rec=document.getElementById('roomRec'),reason=document.getElementById('roomReason');
+  function upd(){
+    var n=+p.value;pv.textContent=n;
+    if(n<=6){rec.textContent='Rally Bar Mini';reason.textContent='غرفة صغيرة (Huddle) — وحدة مدمجة صغيرة تكفي';}
+    else if(n<=10){rec.textContent='Rally Bar';reason.textContent='غرفة متوسطة — وحدة الكل في واحد مثالية';}
+    else if(n<=14){rec.textContent='Rally Plus';reason.textContent='غرفة كبيرة — مكوّنات منفصلة لتغطية أوسع';}
+    else{rec.textContent='Rally Plus + ميكات إضافية';reason.textContent='غرفة كبيرة جداً — أضف Mic Pods لتغطية الجميع';}
+  }
+  p.addEventListener('input',upd);upd();
+})();
+// PoE budget
+(function(){
+  var wrap=document.getElementById('poeDevices');
+  var BUDGET=370;
+  var devs=[
+    {n:'كاميرا PTZ',w:30,on:true},
+    {n:'Tap تحكّم',w:25,on:true},
+    {n:'نقطة وصول WiFi',w:15,on:false},
+    {n:'ميك سقف 1',w:20,on:true},
+    {n:'ميك سقف 2',w:20,on:false},
+    {n:'شاشة لمس إضافية',w:60,on:false},
+    {n:'إضاءة PoE',w:45,on:false},
+    {n:'هاتف مؤتمرات',w:13,on:false}
+  ];
+  function render(){
+    wrap.innerHTML='';
+    devs.forEach(function(d,i){
+      var b=document.createElement('div');b.className='tog '+(d.on?'on':'off');b.textContent=d.n+' ('+d.w+'w)';
+      b.onclick=function(){d.on=!d.on;render();calc();};
+      wrap.appendChild(b);
+    });
+  }
+  function calc(){
+    var used=devs.reduce(function(a,d){return a+(d.on?d.w:0);},0);
+    var pct=Math.min(100,Math.round(used/BUDGET*100));
+    document.getElementById('poeUsed').textContent=used+' / '+BUDGET+' واط';
+    var bar=document.getElementById('poeBar'),st=document.getElementById('poeStatus');
+    bar.style.width=pct+'%';
+    if(used<=BUDGET*0.8){bar.style.background='var(--green)';st.className='status ok';st.textContent='✓ ضمن الميزانية بأمان';}
+    else if(used<=BUDGET){bar.style.background='var(--amber)';st.className='status warn-s';st.textContent='⚠ قريب من الحد — احذر إضافة أجهزة';}
+    else{bar.style.background='var(--red)';st.className='status bad';st.textContent='✗ تجاوزت الميزانية! بعض الأجهزة لن تعمل';}
+  }
+  render();calc();
+})();
+// build room
+(function(){
+  var wrap=document.getElementById('roomBuildItems');
+  var items=[
+    {k:'camera',n:'كاميرا',need:true,on:false},
+    {k:'mic',n:'ميكات',need:true,on:false},
+    {k:'compute',n:'المعالج',need:true,on:false},
+    {k:'display',n:'شاشة',need:true,on:false},
+    {k:'tap',n:'Tap',need:true,on:false},
+    {k:'sync',n:'Sync (اختياري)',need:false,on:false}
+  ];
+  function render(){
+    wrap.innerHTML='';
+    items.forEach(function(it){
+      var b=document.createElement('div');b.className='tog '+(it.on?'on':'off');b.textContent=it.n;
+      b.onclick=function(){it.on=!it.on;render();check();};
+      wrap.appendChild(b);
+    });
+  }
+  function check(){
+    document.querySelectorAll('#roomFlow .flow-node').forEach(function(node){
+      var k=node.getAttribute('data-need');var it=items.find(function(x){return x.k===k;});
+      if(it&&it.on)node.classList.add('active');else node.classList.remove('active');
+    });
+    var v=document.getElementById('roomBuildVerdict');
+    var missing=items.filter(function(it){return it.need&&!it.on;});
+    if(missing.length===0){v.className='status ok';v.textContent='✓ الغرفة جاهزة للاجتماع! كل المكوّنات الأساسية متصلة';}
+    else{v.className='status warn-s';v.textContent='⚠ ناقص: '+missing.map(function(m){return m.n;}).join('، ');}
+  }
+  render();check();
+})();
+</script>
+<footer>
+<p>هذه المادة تعليمية لمساعدة فنيي الصوت والصورة على فهم تصميم الأنظمة، وليست بديلاً عن التدريب المعتمد من الشركات المصنّعة أو عن قراءة الكتيّبات الرسمية للأجهزة.</p>
+<p>أسماء الأجهزة والعلامات التجارية (QSC، Q-SYS، Shure، L-Acoustics، Logitech، Samsung، وغيرها) مذكورة لأغراض تعليمية فقط وهي ملك لأصحابها.</p>
+<p style="margin-top:14px;font-family:var(--mono);color:var(--copper)">مسار تصميم الأنظمة والكبائن · المستوى 4 من 5</p>
+</footer>
+<script>
+// progress rail
+(function(){
+  var rf=document.getElementById('railFill');
+  function upd(){
+    var h=document.documentElement;
+    var sc=h.scrollTop||document.body.scrollTop;
+    var max=(h.scrollHeight-h.clientHeight)||1;
+    rf.style.width=(sc/max*100)+'%';
+  }
+  window.addEventListener('scroll',upd,{passive:true});
+  window.addEventListener('resize',upd);upd();
+})();
+// mini quiz
+function pickOpt(el,correct){
+  var box=el.closest('.quiz');
+  if(box.dataset.done)return;
+  box.dataset.done='1';
+  var opts=box.querySelectorAll('.opt');
+  opts.forEach(function(o){o.classList.add('disabled')});
+  var fb=box.querySelector('.q-fb');
+  if(correct){
+    el.classList.add('correct');
+    fb.classList.add('show','good');
+  }else{
+    el.classList.add('wrong');
+    opts.forEach(function(o){if(o.dataset.correct==='1')o.classList.add('correct')});
+    fb.classList.add('show','bad');
+  }
+}
+// final exam
+function gradeExam(id,total){
+  var ex=document.getElementById(id);
+  var qs=ex.querySelectorAll('.exq');
+  var score=0,answered=0;
+  qs.forEach(function(q){
+    if(q.dataset.ans){
+      answered++;
+      if(q.dataset.ans==='1')score++;
+    }
+  });
+  if(answered<total){
+    alert('أجب عن كل الأسئلة أولاً — أجبت عن '+answered+' من '+total);
+    return;
+  }
+  var res=ex.querySelector('.exam-result');
+  var pass=score>=Math.ceil(total*0.7);
+  res.className='exam-result show '+(pass?'pass':'fail');
+  var msg=pass
+    ? 'ممتاز! اجتزت اختبار هذا المستوى. تقدر تكمل للمستوى التالي.'
+    : 'قريب! راجع الأقسام اللي أخطأت فيها وأعد المحاولة — تحتاج '+Math.ceil(total*0.7)+' إجابات صحيحة على الأقل.';
+  res.innerHTML='<div class="score">'+score+' / '+total+'</div><p>'+msg+'</p>';
+  if(pass){
+    var nb=document.getElementById('nextBtn');
+    if(nb){nb.classList.remove('locked');nb.removeAttribute('aria-disabled');}
+  }
+  res.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function examPick(el,qi,correct){
+  var q=el.closest('.exq');
+  if(q.dataset.locked)return;
+  q.dataset.locked='1';
+  q.dataset.ans=correct?'1':'0';
+  var opts=q.querySelectorAll('.opt');
+  opts.forEach(function(o){o.classList.add('disabled')});
+  if(correct){el.classList.add('correct');}
+  else{el.classList.add('wrong');opts.forEach(function(o){if(o.dataset.correct==='1')o.classList.add('correct')});}
+}
+</script>
+</body>
+</html>

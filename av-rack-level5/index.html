@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>المستوى 5: اللافتات والتكامل والسيناريوهات — تصميم الأنظمة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0f12;
+  --bg2:#13161b;
+  --panel:#181c22;
+  --panel2:#1e232b;
+  --line:#2a313b;
+  --line2:#363f4b;
+  --ink:#e8ebef;
+  --ink-dim:#a8b1bd;
+  --ink-faint:#6c7682;
+  --copper:#c87f4a;
+  --copper-bright:#e0975c;
+  --cyan:#3fb8c4;
+  --cyan-bright:#5fd6e2;
+  --amber:#e0a23c;
+  --amber-bright:#f3bd5e;
+  --green:#5fbf72;
+  --red:#d65f5f;
+  --blue:#5a8fd6;
+  --purple:#9a7fc8;
+  --radius:14px;
+  --radius-sm:9px;
+  --maxw:880px;
+  --shadow:0 8px 30px rgba(0,0,0,.4);
+  --mono:'IBM Plex Mono',monospace;
+  --sans:'IBM Plex Sans Arabic',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--sans);
+  background:var(--bg);
+  color:var(--ink);
+  line-height:1.85;
+  font-weight:400;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+/* progress rail */
+.rail{position:fixed;top:0;right:0;left:0;height:4px;background:rgba(255,255,255,.04);z-index:100}
+.rail-fill{height:100%;width:0;background:linear-gradient(90deg,var(--copper),var(--amber),var(--cyan));box-shadow:0 0 12px rgba(224,162,60,.5);transition:width .08s linear}
+/* breadcrumb */
+.crumb{position:sticky;top:4px;z-index:90;background:rgba(13,15,18,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:11px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.crumb a{color:var(--ink-dim);text-decoration:none;font-size:.82rem;transition:color .2s}
+.crumb a:hover{color:var(--cyan-bright)}
+.crumb .sep{color:var(--ink-faint);font-size:.7rem}
+.badge{background:linear-gradient(135deg,var(--copper),var(--amber));color:#1a1206;font-weight:700;font-size:.74rem;padding:4px 11px;border-radius:30px;font-family:var(--mono);letter-spacing:.3px;white-space:nowrap}
+.crumb .home{margin-inline-start:auto;font-weight:600}
+/* layout */
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px}
+section{padding:46px 0;border-bottom:1px solid rgba(42,49,59,.5)}
+section:last-of-type{border-bottom:none}
+/* hero */
+.hero{padding:64px 0 50px;text-align:center;position:relative}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(224,162,60,.10),transparent 70%);pointer-events:none}
+.eyebrow{font-family:var(--mono);color:var(--amber-bright);font-size:.8rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;font-weight:500}
+h1{font-size:clamp(2rem,6vw,3.1rem);font-weight:700;line-height:1.25;margin-bottom:18px;background:linear-gradient(120deg,#fff 20%,var(--amber-bright) 60%,var(--copper));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sub{font-size:clamp(1rem,2.5vw,1.18rem);color:var(--ink-dim);max-width:620px;margin:0 auto 26px;font-weight:300}
+.chips{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:26px}
+.chip{background:var(--panel);border:1px solid var(--line2);border-radius:30px;padding:7px 16px;font-size:.82rem;color:var(--ink-dim);display:flex;align-items:center;gap:7px}
+.chip b{color:var(--amber-bright);font-family:var(--mono);font-weight:600}
+.prereq{background:linear-gradient(135deg,rgba(63,184,196,.08),rgba(90,143,214,.05));border:1px solid rgba(63,184,196,.25);border-radius:var(--radius-sm);padding:14px 18px;max-width:560px;margin:0 auto 30px;font-size:.9rem;color:var(--ink-dim)}
+.prereq a{color:var(--cyan-bright);font-weight:600;text-decoration:none}
+.prereq a:hover{text-decoration:underline}
+/* toc */
+.toc{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px;max-width:560px;margin:0 auto;text-align:right}
+.toc h3{font-size:.78rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-faint);margin-bottom:14px;font-family:var(--mono)}
+.toc ol{list-style:none;counter-reset:toc}
+.toc li{counter-increment:toc;margin:9px 0}
+.toc a{color:var(--ink);text-decoration:none;display:flex;align-items:baseline;gap:11px;font-size:.96rem;transition:color .2s}
+.toc a:hover{color:var(--amber-bright)}
+.toc a::before{content:counter(toc,decimal-leading-zero);font-family:var(--mono);color:var(--copper);font-size:.8rem;font-weight:600;min-width:24px}
+.scrollcue{text-align:center;margin-top:34px;color:var(--ink-faint);font-size:.8rem;animation:bob 2s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
+/* section headers */
+.step-tag{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:.76rem;color:var(--amber-bright);letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;font-weight:500}
+.step-tag .n{background:linear-gradient(135deg,var(--copper),var(--amber));color:#1a1206;width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-weight:700;font-size:.82rem}
+h2{font-size:clamp(1.5rem,4vw,2rem);font-weight:700;margin-bottom:16px;color:#fff;line-height:1.3}
+h3.sub-h{font-size:1.15rem;font-weight:600;color:var(--amber-bright);margin:26px 0 12px}
+p{margin-bottom:15px;color:var(--ink-dim)}
+p strong,li strong{color:var(--ink);font-weight:600}
+.lead{font-size:1.08rem;color:var(--ink)}
+ul.bullets,ol.steps{margin:14px 0 18px;padding-inline-start:8px;list-style:none}
+ul.bullets li,ol.steps li{position:relative;padding-inline-start:26px;margin-bottom:11px;color:var(--ink-dim)}
+ul.bullets li::before{content:"";position:absolute;right:6px;top:12px;width:7px;height:7px;border-radius:2px;background:var(--copper)}
+ol.steps{counter-reset:st}
+ol.steps li{counter-increment:st}
+ol.steps li::before{content:counter(st);position:absolute;right:0;top:1px;font-family:var(--mono);color:var(--amber-bright);font-weight:600;font-size:.85rem;background:var(--panel2);width:22px;height:22px;border-radius:6px;display:grid;place-items:center}
+/* analogy / callout boxes */
+.analogy{background:linear-gradient(135deg,rgba(200,127,74,.09),rgba(224,162,60,.04));border-inline-start:3px solid var(--copper);border-radius:var(--radius-sm);padding:16px 20px;margin:18px 0}
+.analogy .label{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--copper-bright);margin-bottom:7px;font-weight:600}
+.note{background:rgba(63,184,196,.07);border-inline-start:3px solid var(--cyan);border-radius:var(--radius-sm);padding:14px 18px;margin:16px 0;font-size:.93rem}
+.note .label{font-family:var(--mono);font-size:.72rem;letter-spacing:1px;color:var(--cyan-bright);margin-bottom:6px;font-weight:600;text-transform:uppercase}
+.warn{background:rgba(214,95,95,.08);border-inline-start:3px solid var(--red);border-radius:var(--radius-sm);padding:14px 18px;margin:16px 0;font-size:.93rem}
+.warn .label{font-family:var(--mono);font-size:.72rem;letter-spacing:1px;color:#e88;margin-bottom:6px;font-weight:600;text-transform:uppercase}
+.pro{background:rgba(95,191,114,.07);border-inline-start:3px solid var(--green);border-radius:var(--radius-sm);padding:14px 18px;margin:16px 0;font-size:.93rem}
+.pro .label{font-family:var(--mono);font-size:.72rem;letter-spacing:1px;color:#7d9;margin-bottom:6px;font-weight:600;text-transform:uppercase}
+/* generic card / panel */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin:20px 0}
+.panel-h{font-size:.78rem;font-family:var(--mono);text-transform:uppercase;letter-spacing:1px;color:var(--ink-faint);margin-bottom:14px}
+/* simulator shell */
+.sim{background:linear-gradient(160deg,var(--panel2),var(--panel));border:1px solid var(--line2);border-radius:var(--radius);padding:24px;margin:24px 0;box-shadow:var(--shadow)}
+.sim-head{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.sim-head .dot{width:9px;height:9px;border-radius:50%;background:var(--amber);box-shadow:0 0 8px var(--amber)}
+.sim-title{font-family:var(--mono);font-size:.82rem;letter-spacing:.5px;color:var(--amber-bright);text-transform:uppercase;font-weight:600}
+.sim-sub{font-size:.86rem;color:var(--ink-faint);margin-bottom:18px}
+.ctrl-row{display:flex;align-items:center;gap:14px;margin:14px 0;flex-wrap:wrap}
+.ctrl-row label{min-width:120px;font-size:.9rem;color:var(--ink-dim)}
+input[type=range]{-webkit-appearance:none;appearance:none;flex:1;min-width:140px;height:6px;border-radius:5px;background:var(--line2);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--amber-bright),var(--copper));cursor:pointer;box-shadow:0 0 10px rgba(224,162,60,.6);border:2px solid #1a1206}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--amber-bright);cursor:pointer;border:2px solid #1a1206}
+.readout{font-family:var(--mono);font-size:1.05rem;color:var(--cyan-bright);min-width:74px;text-align:center;background:var(--bg);border:1px solid var(--line2);border-radius:7px;padding:5px 10px;font-weight:600}
+.btn{background:linear-gradient(135deg,var(--copper),var(--amber));color:#1a1206;border:none;border-radius:8px;padding:10px 20px;font-family:var(--sans);font-weight:600;font-size:.92rem;cursor:pointer;transition:transform .15s,box-shadow .2s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 5px 16px rgba(224,162,60,.35)}
+.btn:active{transform:translateY(0)}
+.btn.ghost{background:transparent;border:1px solid var(--line2);color:var(--ink-dim)}
+.btn.ghost:hover{border-color:var(--cyan);color:var(--cyan-bright);box-shadow:none}
+.btn.sm{padding:7px 14px;font-size:.84rem}
+.toggle-grid{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+.tog{background:var(--bg);border:1px solid var(--line2);border-radius:8px;padding:9px 16px;cursor:pointer;font-size:.88rem;color:var(--ink-dim);transition:all .2s;user-select:none}
+.tog.on{background:linear-gradient(135deg,rgba(95,191,114,.2),rgba(95,191,114,.08));border-color:var(--green);color:#9ee5ab}
+.tog.off{opacity:.7}
+/* rack visual (RU stack) */
+.rackbox{background:#0a0c0f;border:2px solid var(--line2);border-radius:8px;padding:8px;margin:14px 0;display:flex;flex-direction:column;gap:3px}
+.ru{height:34px;border-radius:5px;display:flex;align-items:center;padding:0 12px;font-size:.82rem;font-family:var(--mono);position:relative;transition:all .25s;cursor:default}
+.ru .ru-rails{position:absolute;inset:0;pointer-events:none;border-radius:5px;border-inline-start:6px solid rgba(0,0,0,.4);border-inline-end:6px solid rgba(0,0,0,.4)}
+.ru.empty{background:repeating-linear-gradient(45deg,#111418,#111418 8px,#0d1014 8px,#0d1014 16px);color:var(--ink-faint);border:1px dashed var(--line2)}
+.ru.amp{background:linear-gradient(90deg,#1c2128,#23292f);color:var(--ink);border:1px solid var(--line2)}
+.ru.dsp{background:linear-gradient(90deg,#1a2530,#1e2d3a);color:#bfe3ea;border:1px solid rgba(63,184,196,.4)}
+.ru.rf{background:linear-gradient(90deg,#2a2030,#33283c);color:#e0cdf0;border:1px solid rgba(154,127,200,.4)}
+.ru.net{background:linear-gradient(90deg,#2a2618,#332f1c);color:#f0e3b8;border:1px solid rgba(224,162,60,.4)}
+.ru.pwr{background:linear-gradient(90deg,#2a1818,#331c1c);color:#f0c8c8;border:1px solid rgba(214,95,95,.4)}
+.ru.video{background:linear-gradient(90deg,#182a22,#1c3329);color:#c8f0d8;border:1px solid rgba(95,191,114,.4)}
+.ru .tag{margin-inline-start:auto;font-size:.68rem;opacity:.7}
+.ru.heavy{box-shadow:inset 0 0 0 1px rgba(214,95,95,.3)}
+/* meters */
+.meter{height:12px;background:var(--bg);border-radius:7px;overflow:hidden;border:1px solid var(--line2);margin:8px 0}
+.meter-fill{height:100%;border-radius:7px;transition:width .3s,background .3s}
+.gauge-label{display:flex;justify-content:space-between;font-size:.8rem;color:var(--ink-faint);font-family:var(--mono);margin-bottom:4px}
+.status{display:inline-flex;align-items:center;gap:7px;font-size:.85rem;font-family:var(--mono);padding:5px 12px;border-radius:30px;font-weight:600}
+.status.ok{background:rgba(95,191,114,.15);color:#8fe6a0}
+.status.bad{background:rgba(214,95,95,.15);color:#f0a0a0}
+.status.warn-s{background:rgba(224,162,60,.15);color:#f3cf8e}
+/* tables */
+.tbl-wrap{overflow-x:auto;margin:18px 0;border-radius:var(--radius-sm);border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:.9rem;min-width:480px}
+th,td{padding:12px 14px;text-align:right;border-bottom:1px solid var(--line)}
+th{background:var(--panel2);color:var(--amber-bright);font-weight:600;font-family:var(--mono);font-size:.8rem;letter-spacing:.3px;text-transform:uppercase}
+td{color:var(--ink-dim)}
+tr:last-child td{border-bottom:none}
+td code,p code,li code{font-family:var(--mono);background:var(--bg);color:var(--cyan-bright);padding:2px 7px;border-radius:5px;font-size:.85em;border:1px solid var(--line2)}
+.gloss td:first-child{color:var(--amber-bright);font-weight:600;font-family:var(--mono);white-space:nowrap}
+/* symbols grid */
+.sym-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin:20px 0}
+.sym{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-sm);padding:16px;text-align:center;transition:border-color .2s}
+.sym:hover{border-color:var(--copper)}
+.sym .ico{font-size:1.8rem;margin-bottom:8px;color:var(--amber-bright)}
+.sym .nm{font-size:.82rem;color:var(--ink);font-weight:600;margin-bottom:3px}
+.sym .ds{font-size:.74rem;color:var(--ink-faint)}
+/* mini quiz */
+.quiz{background:var(--panel);border:1px solid var(--line2);border-radius:var(--radius);padding:20px 22px;margin:22px 0}
+.quiz .q-label{font-family:var(--mono);font-size:.72rem;color:var(--cyan-bright);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;font-weight:600}
+.quiz .q-text{font-size:1rem;color:var(--ink);font-weight:500;margin-bottom:14px}
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:12px 16px;cursor:pointer;font-size:.92rem;color:var(--ink-dim);transition:all .18s;text-align:right}
+.opt:hover{border-color:var(--copper);color:var(--ink)}
+.opt.correct{background:rgba(95,191,114,.14);border-color:var(--green);color:#9ee5ab}
+.opt.wrong{background:rgba(214,95,95,.12);border-color:var(--red);color:#f0a0a0}
+.opt.disabled{pointer-events:none;opacity:.85}
+.q-fb{margin-top:12px;font-size:.9rem;padding:11px 15px;border-radius:8px;display:none}
+.q-fb.show{display:block}
+.q-fb.good{background:rgba(95,191,114,.1);color:#9ee5ab;border-inline-start:3px solid var(--green)}
+.q-fb.bad{background:rgba(214,95,95,.1);color:#f0a0a0;border-inline-start:3px solid var(--red)}
+/* final exam */
+.exam{background:linear-gradient(160deg,var(--panel2),var(--bg2));border:1px solid var(--line2);border-radius:var(--radius);padding:26px;margin:26px 0}
+.exam-head{text-align:center;margin-bottom:22px}
+.exam-head .ico{font-size:2rem;margin-bottom:8px}
+.exq{border-top:1px solid var(--line);padding:18px 0}
+.exq:first-of-type{border-top:none}
+.exq .qn{font-family:var(--mono);color:var(--copper);font-size:.8rem;font-weight:600;margin-bottom:7px}
+.exq .qt{font-size:.98rem;color:var(--ink);font-weight:500;margin-bottom:13px}
+.exam-result{text-align:center;padding:24px;border-radius:var(--radius);margin-top:20px;display:none}
+.exam-result.show{display:block}
+.exam-result.pass{background:linear-gradient(135deg,rgba(95,191,114,.15),rgba(63,184,196,.08));border:1px solid var(--green)}
+.exam-result.fail{background:linear-gradient(135deg,rgba(214,95,95,.12),rgba(224,162,60,.06));border:1px solid var(--amber)}
+.exam-result .score{font-family:var(--mono);font-size:2.4rem;font-weight:700;margin:8px 0}
+.exam-result.pass .score{color:#8fe6a0}
+.exam-result.fail .score{color:var(--amber-bright)}
+/* completion card */
+.done{background:linear-gradient(160deg,rgba(224,162,60,.1),rgba(63,184,196,.06));border:1px solid var(--line2);border-radius:var(--radius);padding:32px;margin:30px 0;text-align:center}
+.done .ico{font-size:2.6rem;margin-bottom:12px}
+.done h2{font-size:1.5rem;margin-bottom:10px}
+.done p{max-width:480px;margin:0 auto 20px}
+.next-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--copper),var(--amber));color:#1a1206;text-decoration:none;font-weight:700;padding:14px 28px;border-radius:10px;font-size:1rem;transition:transform .15s,box-shadow .2s}
+.next-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(224,162,60,.4)}
+.next-btn.locked{background:var(--panel2);color:var(--ink-faint);cursor:not-allowed;border:1px solid var(--line2)}
+.back-link{display:inline-block;margin-top:16px;color:var(--ink-dim);text-decoration:none;font-size:.9rem}
+.back-link:hover{color:var(--cyan-bright)}
+/* footer */
+footer{background:var(--bg2);border-top:1px solid var(--line);padding:30px 20px;text-align:center;margin-top:20px}
+footer p{font-size:.82rem;color:var(--ink-faint);max-width:560px;margin:0 auto 8px}
+/* diagram helpers */
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;margin:20px 0}
+.flow-node{background:var(--panel2);border:1px solid var(--line2);border-radius:9px;padding:11px 16px;font-size:.85rem;text-align:center;min-width:84px;transition:all .25s}
+.flow-node.active{border-color:var(--amber);box-shadow:0 0 14px rgba(224,162,60,.4);color:var(--amber-bright)}
+.flow-node.err{border-color:var(--red);box-shadow:0 0 14px rgba(214,95,95,.4);color:#f0a0a0}
+.flow-arrow{color:var(--copper);font-size:1.2rem}
+.svg-box{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-sm);padding:18px;margin:18px 0;text-align:center}
+svg{max-width:100%;height:auto}
+.tag-pill{display:inline-block;font-family:var(--mono);font-size:.72rem;padding:3px 9px;border-radius:20px;background:var(--panel2);border:1px solid var(--line2);color:var(--ink-dim);margin:2px}
+@media (max-width:560px){
+  .ctrl-row label{min-width:90px;font-size:.84rem}
+  section{padding:38px 0}
+  .sim{padding:18px}
+  .ru{height:30px;font-size:.74rem}
+}
+/* L5 capstone components */
+.flow-node .ds{display:block;font-size:.72rem;color:var(--ink-faint);margin-top:3px;font-weight:400}
+.flow-node .nm{display:block;font-weight:600;color:var(--ink)}
+.scn{background:var(--panel);border:1px solid var(--line);border-inline-start:3px solid var(--amber);border-radius:var(--radius-sm);padding:16px 18px;margin:16px 0}
+.scn-h{font-size:1.02rem;font-weight:700;color:var(--ink);margin-bottom:8px;display:flex;align-items:center;gap:9px}
+.scn-ico{font-size:1.3rem}
+.scn-need{color:var(--cyan-bright)!important}
+.scn p{margin:6px 0;color:var(--ink-dim);font-size:.92rem;line-height:1.7}
+.scn-tags{margin-top:10px}
+.chklist{margin:16px 0;display:flex;flex-direction:column;gap:9px}
+.chk{display:flex;align-items:flex-start;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:11px 14px;color:var(--ink-dim);font-size:.9rem;line-height:1.6}
+.chk .cb{color:var(--cyan-bright);font-size:1.05rem;flex-shrink:0;line-height:1.4}
+.comp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px;margin:10px 0}
+.comp{background:var(--bg);border:1px solid var(--line2);border-radius:8px;padding:11px 12px;font-size:.85rem;color:var(--ink-dim);text-align:center;cursor:pointer;transition:all .18s;user-select:none}
+.comp:hover{border-color:var(--copper);color:var(--ink)}
+.comp.on{background:linear-gradient(135deg,rgba(224,162,60,.18),rgba(200,127,74,.12));border-color:var(--amber);color:var(--amber-bright);font-weight:600;box-shadow:0 0 12px rgba(224,162,60,.25)}
+.cert-line{font-family:var(--mono);font-size:.9rem;color:var(--cyan-bright);background:var(--bg);border:1px solid var(--line2);border-radius:8px;padding:12px 16px;margin:16px auto;max-width:480px}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+<div class="rail"><div class="rail-fill" id="railFill"></div></div>
+<!-- ===== BREADCRUMB ===== -->
+<nav class="crumb">
+  <span class="badge">المستوى 5 من 5</span>
+  <span class="sep">•</span>
+  <a href="../index.html">الرئيسية</a>
+  <span class="sep">›</span>
+  <a href="../av-rack-level4/index.html">المستوى 4</a>
+  <span class="sep">›</span>
+  <span style="color:var(--ink-faint);font-size:.82rem">اللافتات والتكامل</span>
+  <a href="../index.html" class="home">كل المسارات ←</a>
+</nav>
+
+<!-- ===== HERO ===== -->
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">مسار تصميم الأنظمة · المستوى الخامس والأخير</div>
+    <h1>اللافتات والتكامل والسيناريوهات</h1>
+    <p class="sub">المستوى الأخير يجمع كل ما تعلّمته في نظام واحد متكامل. نتعلّم اللافتات الرقمية مع Samsung MagicInfo، نصمّم أنظمة كاملة لقاعات حقيقية، نوثّق التركيب باحترافية (As-Built)، ونبني الموثوقية والتسليم النهائي (Commissioning).</p>
+    <div class="chips">
+      <span class="chip">⏱️ <b>~50</b> دقيقة</span>
+      <span class="chip">🧩 <b>8</b> أقسام</span>
+      <span class="chip">🖥️ <b>3</b> محاكيات</span>
+      <span class="chip">📝 اختبار <b>10</b> أسئلة</span>
+    </div>
+    <div class="prereq">
+      💡 هذا المستوى يبني على كل ما سبق: <a href="../av-rack-fundamentals/index.html">الكبينة</a>، <a href="../av-rack-level2/index.html">الصوت والـDSP</a>، <a href="../av-rack-level3/index.html">اللاسلكي</a>، و<a href="../av-rack-level4/index.html">الفيديو والتحكّم</a>. المحاكي الأخير رح يطلب منك تجمّع نظاماً كاملاً من الصفر.
+    </div>
+    <nav class="toc">
+      <h3>محتوى المستوى</h3>
+      <ol>
+        <li><a href="#signage">اللافتات الرقمية: الفكرة والمكوّنات</a></li>
+        <li><a href="#magicinfo">إعداد Samsung MagicInfo</a></li>
+        <li><a href="#register">تسجيل الأجهزة والجدولة والنشر</a></li>
+        <li><a href="#scenarios">سيناريوهات الأنظمة الكاملة</a></li>
+        <li><a href="#naming">التسمية والتوثيق (As-Built)</a></li>
+        <li><a href="#redundancy">الموثوقية والاحتياط (Redundancy)</a></li>
+        <li><a href="#commissioning">التسليم النهائي وحل المشاكل</a></li>
+        <li><a href="#sim">محاكي: صمّم النظام الكامل</a></li>
+        <li><a href="#exam">الاختبار النهائي</a></li>
+      </ol>
+    </nav>
+    <div class="scrollcue">انزل للأسفل لتبدأ ↓</div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- 1. SIGNAGE -->
+<section id="signage">
+  <div class="step-tag"><span class="n">1</span> اللافتات الرقمية</div>
+  <h2>اللافتات الرقمية: الفكرة والمكوّنات</h2>
+  <p class="lead">اللافتات الرقمية (Digital Signage) هي الشاشات اللي تعرض محتوى متغيّر — إعلانات، جداول، قوائم طعام، توجيهات، أو بثّ مباشر — في المطارات والفنادق والمتاجر وقاعات الشركات. بدل ملصق ورقي ثابت، صار عندنا شاشة تتحدّث محتواها عن بُعد.</p>
+
+  <div class="note">
+    <div class="label">الفكرة الأساسية</div>
+    شاشة + مشغّل (Player) يعرض المحتوى + خادم (Server) يدير ويوزّع المحتوى على كل الشاشات من مكان واحد. هذه الثلاثة هي قلب أي نظام لافتات.
+  </div>
+
+  <h3 class="sub-h">مكوّنات نظام اللافتات</h3>
+  <div class="tbl-wrap">
+  <table>
+    <tr><th>المكوّن</th><th>دوره</th></tr>
+    <tr><td>الشاشة (Display)</td><td>تعرض المحتوى — غالباً شاشات تجارية مصمّمة للعمل ساعات طويلة بدون توقف</td></tr>
+    <tr><td>المشغّل (Player)</td><td>الجهاز اللي يشغّل المحتوى ويرسله للشاشة — قد يكون مدمجاً داخل الشاشة أو صندوقاً منفصلاً</td></tr>
+    <tr><td>الخادم (Server / CMS)</td><td>نظام إدارة المحتوى المركزي — منه ترفع وتجدول وتراقب كل الشاشات</td></tr>
+    <tr><td>الشبكة</td><td>تربط المشغّلات بالخادم عشان تستقبل المحتوى والتحديثات</td></tr>
+  </table>
+  </div>
+
+  <h3 class="sub-h">المشغّل المدمج مقابل المنفصل</h3>
+  <p>عند Samsung في طريقتان لتشغيل المحتوى على الشاشة، وكل واحدة لها مكانها:</p>
+  <ul class="bullets">
+    <li><strong>RM (مشغّل مدمج):</strong> الشاشات التجارية من سامسونج فيها مشغّل داخلي اسمه System on Chip (SoC). ما تحتاج صندوقاً خارجياً — الشاشة نفسها تشغّل MagicInfo. أبسط وأنظف للتركيبات العادية.</li>
+    <li><strong>SBB / Box Player (منفصل):</strong> صندوق مشغّل منفصل يتوصّل بالشاشة عبر HDMI. تستخدمه لما تحتاج قوّة معالجة أكبر، محتوى ثقيل (فيديو 4K متعدّد)، أو لما الشاشة مو سامسونج.</li>
+  </ul>
+
+  <div class="quiz">
+    <div class="q-label">سؤال سريع</div>
+    <div class="q-text">شركة عندها 12 شاشة سامسونج تجارية وتبي تعرض محتوى بسيط (صور وجداول). ما الحل الأبسط؟</div>
+    <div class="opts">
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">صندوق مشغّل منفصل لكل شاشة</div>
+      <div class="opt" data-correct="1" onclick="pickOpt(this,true)">المشغّل المدمج (RM/SoC) داخل كل شاشة</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">حاسب مكتبي خلف كل شاشة</div>
+    </div>
+    <div class="q-fb">صح. لمحتوى بسيط على شاشات سامسونج تجارية، المشغّل المدمج يكفي ويوفّر صناديق وكيبلات إضافية.</div>
+  </div>
+</section>
+
+<!-- 2. MAGICINFO -->
+<section id="magicinfo">
+  <div class="step-tag"><span class="n">2</span> منصّة الإدارة</div>
+  <h2>إعداد Samsung MagicInfo</h2>
+  <p class="lead">MagicInfo هو نظام سامسونج لإدارة اللافتات الرقمية. منه تتحكّم بكل الشاشات: ترفع المحتوى، تسوّي الجداول، تراقب الحالة، وتحدّث عن بُعد. فهمه يبدأ من معرفة أجزائه.</p>
+
+  <h3 class="sub-h">معماريّة MagicInfo: الخادم والمشغّل</h3>
+  <div class="flow">
+    <div class="flow-node nm">MagicInfo Server<br><span class="ds">الخادم المركزي · CMS</span></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node nm">Player (RM/SBB)<br><span class="ds">داخل/مع الشاشة</span></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node nm">الشاشة<br><span class="ds">العرض النهائي</span></div>
+  </div>
+
+  <div class="tbl-wrap">
+  <table>
+    <tr><th>الجزء</th><th>وين يعمل</th><th>وظيفته</th></tr>
+    <tr><td><strong>MagicInfo Server</strong></td><td>سيرفر مركزي (محلي أو سحابي)</td><td>إدارة المحتوى، الجداول، المستخدمين، ومراقبة كل الأجهزة</td></tr>
+    <tr><td><strong>MagicInfo Player</strong></td><td>داخل الشاشة (RM) أو صندوق (SBB)</td><td>يستقبل المحتوى من الخادم ويعرضه حسب الجدول</td></tr>
+    <tr><td><strong>Author / المحرّر</strong></td><td>أداة على الخادم</td><td>تصميم المحتوى: تقسيم الشاشة، نص، صور، فيديو، ساعة، طقس</td></tr>
+  </table>
+  </div>
+
+  <div class="analogy">
+    <div class="label">المفتاح الذهني</div>
+    الخادم يفكّر ويدير، المشغّل يعرض. لو عندك 50 شاشة في مبنى، تدير الـ50 كلها من خادم MagicInfo واحد — مو شاشة شاشة.
+  </div>
+
+  <h3 class="sub-h">أنواع نشر الخادم</h3>
+  <ul class="bullets">
+    <li><strong>On-Premise (محلي):</strong> الخادم على جهاز داخل شبكة المنشأة. تحكّم كامل وأمان أعلى، لكن تحتاج تدير الجهاز بنفسك. مناسب للشركات الكبيرة والبيئات الحسّاسة.</li>
+    <li><strong>Cloud (سحابي):</strong> الخادم على سحابة سامسونج. ما تحتاج جهاز خادم خاص، وتدير من أي مكان. أبسط للبدء، لكن يحتاج اتصال إنترنت دائم.</li>
+  </ul>
+
+  <div class="quiz">
+    <div class="q-label">سؤال سريع</div>
+    <div class="q-text">من أين تدير محتوى 30 شاشة موزّعة على ثلاثة طوابق؟</div>
+    <div class="opts">
+      <div class="opt" data-correct="1" onclick="pickOpt(this,true)">من خادم MagicInfo مركزي واحد</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">تروح لكل شاشة وتحدّثها يدوياً</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">كل طابق يحتاج خادماً منفصلاً</div>
+    </div>
+    <div class="q-fb">صح. قوّة MagicInfo إنك تدير كل الشاشات مهما كثرت من خادم مركزي واحد.</div>
+  </div>
+</section>
+
+<!-- 3. REGISTER -->
+<section id="register">
+  <div class="step-tag"><span class="n">3</span> سير العمل</div>
+  <h2>تسجيل الأجهزة والجدولة والنشر</h2>
+  <p class="lead">بعد ما يكون عندك خادم وشاشات، الخطوات العملية ثلاثة: تربط الشاشة بالخادم (تسجيل)، تصمّم المحتوى، تجدوله للعرض. هذا سير العمل اليومي لفنّي اللافتات.</p>
+
+  <h3 class="sub-h">الخطوات بالترتيب</h3>
+  <ol class="steps">
+    <li><strong>الشبكة والـIP:</strong> تأكّد إن الشاشة/المشغّل على نفس الشبكة وتقدر توصل للخادم. ضبط الـIP والبوابة صحيح (راجع مسار الشبكات).</li>
+    <li><strong>تسجيل الجهاز (Device Approval):</strong> الشاشة تظهر في الخادم كجهاز ينتظر الموافقة. توافق عليه فيصير تحت إدارتك. كل شاشة تاخذ اسماً ومجموعة.</li>
+    <li><strong>تصميم المحتوى:</strong> في الـAuthor تبني المحتوى — تقسّم الشاشة لمناطق (Regions)، تحط فيديو في منطقة ونص متحرّك في أخرى وساعة في الزاوية.</li>
+    <li><strong>بناء قائمة التشغيل (Playlist):</strong> ترتّب المحتويات بالتسلسل ومدّة كل واحد — صورة 10 ثوانٍ، فيديو دقيقة، وهكذا.</li>
+    <li><strong>الجدولة (Schedule):</strong> تربط القائمة بوقت وأيام — مثلاً قائمة الصباح من 8-12 وقائمة المساء من 12-8، وتعيّنها لمجموعة شاشات.</li>
+    <li><strong>النشر والمراقبة:</strong> الخادم يدفع الجدول للشاشات. تراقب الحالة (متصلة؟ تعرض الصح؟) من لوحة المراقبة.</li>
+  </ol>
+
+  <div class="pro">
+    <div class="label">قوّة المجموعات</div>
+    بدل تجدول شاشة شاشة، تحطّ الشاشات في مجموعات (لوبي، مطعم، مصاعد) وتجدول للمجموعة كلها مرة واحدة. هذا اللي يخلّي إدارة 100 شاشة ممكنة عملياً.
+  </div>
+
+  <h3 class="sub-h">مناطق الشاشة (Regions)</h3>
+  <p>MagicInfo يسمح تقسّم الشاشة لمناطق، كل منطقة تعرض محتوى مختلف في نفس الوقت — مثلاً فيديو رئيسي كبير، شريط أخبار يتحرّك تحته، وزاوية للساعة والطقس. كل منطقة لها قائمة تشغيل خاصة.</p>
+
+  <div class="quiz">
+    <div class="q-label">سؤال سريع</div>
+    <div class="q-text">تبي شاشة لوبي الفندق تعرض ترحيباً صباحاً وعروضاً مساءً تلقائياً. ما الأداة؟</div>
+    <div class="opts">
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">تغيّر المحتوى يدوياً مرتين باليوم</div>
+      <div class="opt" data-correct="1" onclick="pickOpt(this,true)">الجدولة (Schedule) — قائمتان مربوطتان بأوقات مختلفة</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">شاشتان منفصلتان</div>
+    </div>
+    <div class="q-fb">صح. الجدولة تبدّل المحتوى تلقائياً حسب الوقت بدون أي تدخّل يدوي.</div>
+  </div>
+</section>
+
+<!-- 4. SCENARIOS -->
+<section id="scenarios">
+  <div class="step-tag"><span class="n">4</span> التطبيق الكامل</div>
+  <h2>سيناريوهات الأنظمة الكاملة</h2>
+  <p class="lead">الآن نجمع كل المسارات. كل قاعة لها احتياجات مختلفة تحدّد أي أجهزة تختار من الكبينة. هذه أربعة سيناريوهات حقيقية يقابلها فنّي الأنظمة، من الأبسط للأعقد.</p>
+
+  <div class="scn">
+    <div class="scn-h"><span class="scn-ico">💼</span> قاعة اجتماعات تنفيذية (Boardroom)</div>
+    <p class="scn-need"><strong>الحاجة:</strong> اجتماعات Teams/Zoom عالية الجودة، صوت واضح، تحكّم بسيط لـ6 أشخاص.</p>
+    <p><strong>النظام:</strong> كاميرا Rally Bar + ميكات سقف + وحدة Tap للتحكّم + شاشة عرض + سويتش PoE صغير. كبينة صغيرة أو حامل خلف الشاشة. لا يحتاج لاسلكي أو DSP كبير.</p>
+    <div class="scn-tags"><span class="tag-pill">Rally Bar</span><span class="tag-pill">PoE Switch</span><span class="tag-pill">Tap</span></div>
+  </div>
+
+  <div class="scn">
+    <div class="scn-h"><span class="scn-ico">🎤</span> قاعة محاضرات / مؤتمرات (Auditorium)</div>
+    <p class="scn-need"><strong>الحاجة:</strong> صوت قوي لجمهور كبير (500 شخص)، ميكات لاسلكية للمتحدّثين، عرض على شاشات كبيرة.</p>
+    <p><strong>النظام:</strong> معالج Q-SYS Core + مكبّرات L-Acoustics + سماعات موزّعة + مستقبلات لاسلكية ULXD4Q + توزيع هوائيات UA845UWB + ميكروفونات Beta 58. كبينة كاملة (Full Rack) مع تنظيم طاقة وتبريد. هنا تستخدم كل ما تعلّمته في المستويات السابقة.</p>
+    <div class="scn-tags"><span class="tag-pill">Q-SYS Core</span><span class="tag-pill">L-Acoustics</span><span class="tag-pill">ULXD4Q</span><span class="tag-pill">UA845UWB</span></div>
+  </div>
+
+  <div class="scn">
+    <div class="scn-h"><span class="scn-ico">⛪</span> دار عبادة / قاعة كبيرة (Worship)</div>
+    <p class="scn-need"><strong>الحاجة:</strong> صوت متوازن لمساحة واسعة، ميكات متعدّدة، بثّ مباشر، لافتات للنصوص.</p>
+    <p><strong>النظام:</strong> Q-SYS Core + شبكة Dante + مكبّرات ذكية + مستقبلات لاسلكية + كاميرا بثّ + شاشات MagicInfo للنصوص. نظام هجين صوت+فيديو+لافتات. الموثوقية مهمّة جداً (لا يصحّ يفشل أثناء حدث مباشر).</p>
+    <div class="scn-tags"><span class="tag-pill">Dante</span><span class="tag-pill">Smart Amps</span><span class="tag-pill">MagicInfo</span><span class="tag-pill">Wireless</span></div>
+  </div>
+
+  <div class="scn">
+    <div class="scn-h"><span class="scn-ico">📡</span> استوديو بثّ / إنتاج (Broadcast)</div>
+    <p class="scn-need"><strong>الحاجة:</strong> أعلى موثوقية، صوت احترافي، احتياط كامل، تأخير شبه صفر.</p>
+    <p><strong>النظام:</strong> Q-SYS + Dante مع احتياط (Redundancy) + مصادر طاقة مزدوجة + UPS + مستقبلات لاسلكية احترافية AD600 مع إدارة طيف. كل شي مكرّر — لو فشل جهاز، البديل يشتغل فوراً. هنا الموثوقية أهم من التكلفة.</p>
+    <div class="scn-tags"><span class="tag-pill">Q-SYS Redundant</span><span class="tag-pill">AD600</span><span class="tag-pill">Dual PSU + UPS</span></div>
+  </div>
+
+  <div class="quiz">
+    <div class="q-label">سؤال سريع</div>
+    <div class="q-text">قاعة محاضرات لـ500 شخص مع متحدّثين متنقّلين. أي مكوّن أساسي لا غنى عنه؟</div>
+    <div class="opts">
+      <div class="opt" data-correct="1" onclick="pickOpt(this,true)">مستقبلات لاسلكية + توزيع هوائيات لتغطية موثوقة</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">شاشة لمس Tap فقط</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">مشغّل MagicInfo واحد</div>
+    </div>
+    <div class="q-fb">صح. المتحدّث المتنقّل يحتاج ميك لاسلكي، والتغطية الموثوقة لمساحة كبيرة تحتاج توزيع هوائيات.</div>
+  </div>
+</section>
+
+<!-- 5. NAMING -->
+<section id="naming">
+  <div class="step-tag"><span class="n">5</span> الاحتراف</div>
+  <h2>التسمية والتوثيق (As-Built)</h2>
+  <p class="lead">الفرق بين هاوٍ ومحترف هو التوثيق. نظام بدون توثيق كابوس للصيانة. التسمية المنظّمة والمخطّطات الدقيقة هي ما يميّز العمل الاحترافي ويوفّر ساعات عند أي عطل.</p>
+
+  <h3 class="sub-h">قواعد التسمية (Labeling)</h3>
+  <div class="tbl-wrap">
+  <table>
+    <tr><th>العنصر</th><th>القاعدة</th><th>مثال</th></tr>
+    <tr><td>الكيبلات</td><td>لصق على الطرفين باسم المصدر والوجهة</td><td>MIC1 → CORE-IN3</td></tr>
+    <tr><td>الأجهزة</td><td>اسم واضح ورقم في الكبينة</td><td>RACK-A / AMP-01</td></tr>
+    <tr><td>الشاشات</td><td>الموقع + الرقم</td><td>LOBBY-DISP-02</td></tr>
+    <tr><td>منافذ الشبكة</td><td>رقم السويتش والمنفذ</td><td>SW1-P12</td></tr>
+  </table>
+  </div>
+
+  <div class="pro">
+    <div class="label">قاعدة ذهبية</div>
+    اسم الكيبل يقول من وين لوين. لو لقيت كيبل مكتوب عليه «MIC1 → CORE-IN3» تعرف فوراً مساره بدون تتبّع. هذا يختصر تشخيص الأعطال من ساعات لدقائق.
+  </div>
+
+  <h3 class="sub-h">ما هو الـAs-Built؟</h3>
+  <p>الـAs-Built هو التوثيق النهائي للنظام <strong>كما رُكّب فعلاً</strong> (مو كما خُطّط فقط). يشمل أربع وثائق أساسية:</p>
+  <ul class="bullets">
+    <li><strong>مخطّط الإشارة (Signal Flow):</strong> رسم يوضّح مسار الصوت والصورة من المصدر للوجهة عبر كل جهاز. خريطة النظام كله في صفحة.</li>
+    <li><strong>مخطّط الكبينة (Rack Elevation):</strong> رسم لكل جهاز في مكانه داخل الكبينة بالترتيب الصحيح — يساعد أي فنّي يجي بعدك.</li>
+    <li><strong>جدول الكيبلات (Cable Schedule):</strong> قائمة بكل كيبل: من، إلى، النوع، الرقم. مرجع كامل لكل توصيلة في النظام.</li>
+    <li><strong>خطّة الشبكة (IP Plan):</strong> كل جهاز وعنوان IP الخاص به والمجموعة (VLAN). ضروري لإدارة الشبكة والصيانة.</li>
+  </ul>
+
+  <div class="quiz">
+    <div class="q-label">سؤال سريع</div>
+    <div class="q-text">لماذا نوثّق النظام «كما رُكّب فعلاً» وليس «كما خُطّط»؟</div>
+    <div class="opts">
+      <div class="opt" data-correct="1" onclick="pickOpt(this,true)">لأن التركيب الفعلي قد يختلف عن الخطّة، والصيانة تعتمد على الواقع</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">لأن المخطّط الأصلي ممنوع استخدامه</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">لا فرق بينهما أبداً</div>
+    </div>
+    <div class="q-fb">صح. في الموقع تصير تعديلات، والتوثيق لازم يعكس الواقع عشان الصيانة تكون دقيقة.</div>
+  </div>
+</section>
+
+<!-- 6. REDUNDANCY -->
+<section id="redundancy">
+  <div class="step-tag"><span class="n">6</span> الموثوقية</div>
+  <h2>الموثوقية والاحتياط (Redundancy)</h2>
+  <p class="lead">في الأنظمة المهمّة، الفشل ممنوع. الاحتياط يعني إن لكل نقطة حرجة بديلاً يشتغل فوراً لو فشل الأصلي. كلما زادت أهمية الحدث، زادت حاجتك للاحتياط.</p>
+
+  <h3 class="sub-h">نقاط الفشل الحرجة وحلولها</h3>
+  <div class="tbl-wrap">
+  <table>
+    <tr><th>نقطة الفشل</th><th>الخطر</th><th>الحل الاحتياطي</th></tr>
+    <tr><td>الطاقة</td><td>انقطاع الكهرباء يطفّئ كل شي</td><td>UPS + مصدر طاقة ثانٍ (Dual PSU)</td></tr>
+    <tr><td>الشبكة</td><td>فشل سويتش يقطع صوت الشبكة</td><td>مسار شبكة ثانٍ (Dante Redundancy)</td></tr>
+    <tr><td>المعالج (Core)</td><td>فشله يوقف كل المعالجة</td><td>معالج احتياطي (Redundant Core)</td></tr>
+    <tr><td>اللاسلكي</td><td>تداخل يقطع ميك مهم</td><td>تنسيق ترددات + هوائيات احتياطية</td></tr>
+  </table>
+  </div>
+
+  <div class="note">
+    <div class="label">مبدأ Dante Redundancy</div>
+    شبكتان منفصلتان (Primary و Secondary) تحملان نفس الصوت. لو فشلت إحداهما، الأخرى تكمّل بدون انقطاع مسموع. هذا قياسي في البثّ المباشر والأحداث الكبيرة.
+  </div>
+
+  <h3 class="sub-h">متى تحتاج احتياطاً؟</h3>
+  <ul class="bullets">
+    <li><strong>احتياط ضروري:</strong> بثّ مباشر، حفل كبير، حدث لا يتكرّر، مستشفى، طوارئ. أي فشل = كارثة. هنا الاحتياط ليس رفاهية.</li>
+    <li><strong>احتياط اختياري:</strong> غرفة اجتماعات عادية، لافتات متجر. الفشل مزعج لكن ليس كارثياً، ويمكن إصلاحه سريعاً. توازن بين التكلفة والحاجة.</li>
+  </ul>
+
+  <div class="quiz">
+    <div class="q-label">سؤال سريع</div>
+    <div class="q-text">في بثّ مباشر، لماذا نستخدم شبكتي Dante (أساسية واحتياطية)؟</div>
+    <div class="opts">
+      <div class="opt" data-correct="1" onclick="pickOpt(this,true)">لو فشلت شبكة، الأخرى تكمّل الصوت بدون انقطاع</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">لمضاعفة سرعة الصوت</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">لتوصيل ضعف عدد الميكات</div>
+    </div>
+    <div class="q-fb">صح. الاحتياط هدفه استمرارية الصوت حتى لو فشل أحد المسارات فجأة.</div>
+  </div>
+</section>
+
+<!-- 7. COMMISSIONING -->
+<section id="commissioning">
+  <div class="step-tag"><span class="n">7</span> التسليم</div>
+  <h2>التسليم النهائي وحل المشاكل</h2>
+  <p class="lead">قبل تسليم النظام للعميل، تتأكّد إن كل شي يعمل كما يجب. هذه عملية التسليم (Commissioning) — فحص منهجي لكل وظيفة. ومعها مهارة تشخيص الأعطال بمنطق.</p>
+
+  <h3 class="sub-h">قائمة فحص التسليم (Commissioning Checklist)</h3>
+  <div class="chklist">
+    <div class="chk"><span class="cb">☑</span> كل جهاز يستلم طاقة ويعمل، والتبريد يدور</div>
+    <div class="chk"><span class="cb">☑</span> كل الكيبلات موسومة على الطرفين ومطابقة لجدول الكيبلات</div>
+    <div class="chk"><span class="cb">☑</span> الصوت يمرّ من كل ميك للسماعات بوضوح وبدون ضجيج</div>
+    <div class="chk"><span class="cb">☑</span> مستويات الإشارة (Gain Structure) صحيحة بدون تشويه</div>
+    <div class="chk"><span class="cb">☑</span> كل المستقبلات اللاسلكية منسّقة وبدون تداخل</div>
+    <div class="chk"><span class="cb">☑</span> الفيديو يعرض من كل مصدر على كل شاشة</div>
+    <div class="chk"><span class="cb">☑</span> اجتماع تجريبي Teams/Zoom كامل ناجح (صوت+صورة)</div>
+    <div class="chk"><span class="cb">☑</span> شاشات MagicInfo تعرض الجدول الصحيح</div>
+    <div class="chk"><span class="cb">☑</span> الاحتياط مُختبر (افصل الأساسي وتأكّد البديل يشتغل)</div>
+    <div class="chk"><span class="cb">☑</span> توثيق As-Built كامل ومُسلّم للعميل</div>
+  </div>
+
+  <h3 class="sub-h">منطق تشخيص الأعطال</h3>
+  <p>لما يصير عطل، لا تخمّن عشوائياً. اتبع الإشارة خطوة خطوة:</p>
+  <ol class="steps">
+    <li><strong>حدّد العَرَض بدقّة:</strong> «لا صوت من ميك 3» أوضح من «الصوت خربان». كن محدّداً.</li>
+    <li><strong>قسّم المسار (Divide):</strong> اختبر نص الطريق. الإشارة توصل للمعالج؟ لو نعم، المشكلة بعده. لو لا، قبله.</li>
+    <li><strong>افحص الأبسط أولاً:</strong> طاقة؟ كيبل؟ كتم (Mute)؟ مستوى صفر؟ معظم الأعطال أشياء بسيطة.</li>
+    <li><strong>غيّر متغيّراً واحداً:</strong> لا تبدّل عشرة أشياء مرة. غيّر واحداً واختبر، عشان تعرف السبب الحقيقي.</li>
+    <li><strong>وثّق الحل:</strong> سجّل المشكلة وحلّها — يفيدك لو تكرّرت ويفيد من يجي بعدك.</li>
+  </ol>
+
+  <div class="analogy">
+    <div class="label">قاعدة «نص الطريق»</div>
+    بدل تفحص كل نقطة من المصدر للوجهة (10 نقاط)، افحص النقطة الوسطى أولاً. توصلها الإشارة؟ المشكلة في النصف الثاني. لا؟ في النصف الأول. كل اختبار يقصّ الاحتمالات للنصف — أسرع طريقة للوصول للعطل.
+  </div>
+
+  <div class="quiz">
+    <div class="q-label">سؤال سريع</div>
+    <div class="q-text">«لا صوت من ميك 2». ما الخطوة الأذكى أولاً؟</div>
+    <div class="opts">
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">تبدّل كل الكيبلات والأجهزة مرة واحدة</div>
+      <div class="opt" data-correct="1" onclick="pickOpt(this,true)">تفحص هل تصل إشارة الميك للمعالج (تقسيم المسار) + تتأكّد مو مكتوم</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">تعيد تركيب النظام من الصفر</div>
+    </div>
+    <div class="q-fb">صح. التشخيص المنطقي يقسّم المسار ويفحص الأبسط أولاً بدل التخمين العشوائي.</div>
+  </div>
+</section>
+
+<!-- 8. CAPSTONE SIM -->
+<section id="sim">
+  <div class="step-tag"><span class="n">8</span> محاكي ختامي</div>
+  <h2>محاكي: صمّم النظام الكامل</h2>
+  <p class="lead">هذا التحدّي الأخير في المسار كله. اختر نوع القاعة، ثم جمّع النظام الصحيح بإضافة المكوّنات المناسبة. المحاكي يصحّح اختيارك بناءً على كل ما تعلّمته في المستويات الخمسة.</p>
+
+  <div class="sim">
+    <div class="sim-head"><span class="dot"></span><span class="sim-title">SYSTEM DESIGNER — جمّع النظام حسب القاعة</span></div>
+    <div class="sim-sub">اختر القاعة، ثم اضغط المكوّنات لإضافتها أو إزالتها، ثم قيّم تصميمك.</div>
+
+    <div class="ctrl-row">
+      <label>نوع القاعة</label>
+      <select id="venueSel" onchange="render()" style="flex:1;background:var(--bg);border:1px solid var(--line2);border-radius:8px;padding:9px 12px;color:var(--ink);font-family:var(--sans);font-size:.9rem">
+        <option value="boardroom">💼 قاعة اجتماعات تنفيذية (6 أشخاص)</option>
+        <option value="auditorium">🎤 قاعة محاضرات (500 شخص)</option>
+        <option value="worship">⛪ دار عبادة + بثّ + لافتات</option>
+        <option value="broadcast">📡 استوديو بثّ (موثوقية قصوى)</option>
+      </select>
+    </div>
+
+    <div class="panel" id="venueNeed" style="margin-top:4px"></div>
+
+    <div style="margin-top:12px;font-size:.82rem;color:var(--ink-faint);font-family:var(--mono)">أضف المكوّنات:</div>
+    <div class="comp-grid" id="compGrid"></div>
+
+    <div style="text-align:center;margin-top:14px">
+      <button class="btn" onclick="checkSystem()">قيّم تصميمي</button>
+      <button class="btn ghost" onclick="clearSystem()">ابدأ من جديد</button>
+    </div>
+
+    <div class="panel sys-result" id="sysResult" style="margin-top:14px;display:none"></div>
+  </div>
+</section>
+
+<!-- ===== GLOSSARY ===== -->
+<section id="glossary">
+  <div class="step-tag"><span class="n">📖</span> مرجع</div>
+  <h2>مصطلحات المستوى</h2>
+  <div class="tbl-wrap">
+  <table>
+    <tr><th>المصطلح</th><th>المعنى</th></tr>
+    <tr><td>Digital Signage</td><td>اللافتات الرقمية — شاشات تعرض محتوى متغيّراً يُدار عن بُعد</td></tr>
+    <tr><td>MagicInfo</td><td>نظام سامسونج لإدارة وجدولة محتوى اللافتات الرقمية</td></tr>
+    <tr><td>CMS</td><td>نظام إدارة المحتوى المركزي — منه تدير كل الشاشات</td></tr>
+    <tr><td>Player (RM/SBB)</td><td>المشغّل — مدمج بالشاشة (RM) أو صندوق منفصل (SBB)</td></tr>
+    <tr><td>SoC</td><td>System on Chip — معالج مدمج داخل الشاشة يشغّل المحتوى</td></tr>
+    <tr><td>Region</td><td>منطقة في الشاشة تعرض محتوى مستقلاً عن باقي المناطق</td></tr>
+    <tr><td>Playlist</td><td>قائمة تشغيل — تسلسل محتويات بمدد محدّدة</td></tr>
+    <tr><td>Schedule</td><td>جدولة — ربط قائمة تشغيل بأوقات وأيام ومجموعة شاشات</td></tr>
+    <tr><td>As-Built</td><td>التوثيق النهائي للنظام كما رُكّب فعلاً</td></tr>
+    <tr><td>Rack Elevation</td><td>مخطّط يوضّح ترتيب الأجهزة داخل الكبينة</td></tr>
+    <tr><td>Cable Schedule</td><td>جدول بكل الكيبلات: المصدر، الوجهة، النوع</td></tr>
+    <tr><td>Redundancy</td><td>الاحتياط — بديل لكل نقطة حرجة يعمل عند الفشل</td></tr>
+    <tr><td>Dante Redundancy</td><td>شبكتا صوت متوازيتان للحماية من فشل الشبكة</td></tr>
+    <tr><td>Commissioning</td><td>التسليم — فحص منهجي لكل وظيفة قبل تسليم العميل</td></tr>
+    <tr><td>Divide &amp; Conquer</td><td>تشخيص بتقسيم المسار لتضييق موقع العطل</td></tr>
+  </table>
+  </div>
+</section>
+
+<!-- ===== SYMBOLS ===== -->
+<section id="symbols">
+  <div class="step-tag"><span class="n">🔣</span> رموز</div>
+  <h2>رموز ومفاهيم سريعة</h2>
+  <div class="sym-grid">
+    <div class="sym"><div class="ico">📺</div><div class="nm">شاشة لافتات</div></div>
+    <div class="sym"><div class="ico">🖧</div><div class="nm">خادم CMS</div></div>
+    <div class="sym"><div class="ico">▶️</div><div class="nm">مشغّل Player</div></div>
+    <div class="sym"><div class="ico">🗓️</div><div class="nm">جدولة</div></div>
+    <div class="sym"><div class="ico">🏷️</div><div class="nm">تسمية</div></div>
+    <div class="sym"><div class="ico">📐</div><div class="nm">As-Built</div></div>
+    <div class="sym"><div class="ico">🔁</div><div class="nm">احتياط</div></div>
+    <div class="sym"><div class="ico">🔋</div><div class="nm">UPS</div></div>
+    <div class="sym"><div class="ico">✅</div><div class="nm">قائمة تسليم</div></div>
+    <div class="sym"><div class="ico">🔍</div><div class="nm">تشخيص</div></div>
+  </div>
+</section>
+
+<!-- ===== EXAM ===== -->
+<section id="exam">
+  <div class="step-tag"><span class="n">✓</span> قيّم نفسك</div>
+  <h2>الاختبار النهائي — المستوى 5</h2>
+  <p>عشر أسئلة. تحتاج <strong>7 صحيحة</strong> على الأقل لإتمام المسار كاملاً والحصول على شهادة الإنجاز.</p>
+  <div class="exam" id="examBox">
+    <div class="exam-head"><div class="ico">🏆</div><div style="font-family:var(--mono);color:var(--amber-bright);letter-spacing:1px">SIGNAGE &amp; INTEGRATION · FINAL</div></div>
+
+    <div class="exq">
+      <div class="qn">سؤال 1 / 10</div>
+      <div class="qt">ما هي المكوّنات الثلاثة الأساسية لأي نظام لافتات رقمية؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="1" onclick="examPick(this,0,true)">شاشة + مشغّل + خادم إدارة</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,0,false)">كاميرا + ميك + سماعة</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,0,false)">سويتش + راوتر + كيبل</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 2 / 10</div>
+      <div class="qt">ما الفرق بين مشغّل RM ومشغّل SBB في سامسونج؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="1" onclick="examPick(this,1,true)">RM مدمج داخل الشاشة، SBB صندوق منفصل</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,1,false)">RM للصوت، SBB للصورة</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,1,false)">لا فرق بينهما</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 3 / 10</div>
+      <div class="qt">في MagicInfo، ما دور الخادم (Server)؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="0" onclick="examPick(this,2,false)">يعرض المحتوى على الشاشة مباشرة</div>
+        <div class="opt" data-correct="1" onclick="examPick(this,2,true)">يدير ويوزّع المحتوى ويراقب كل الشاشات مركزياً</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,2,false)">يكبّر الصوت</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 4 / 10</div>
+      <div class="qt">ما فائدة وضع الشاشات في «مجموعات» (Groups)؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="1" onclick="examPick(this,3,true)">تجدول لكل المجموعة مرة واحدة بدل شاشة شاشة</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,3,false)">تزيد دقّة الشاشات</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,3,false)">تقلّل استهلاك الطاقة</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 5 / 10</div>
+      <div class="qt">قاعة محاضرات لـ500 شخص بمتحدّثين متنقّلين تحتاج أساساً:</div>
+      <div class="opts">
+        <div class="opt" data-correct="0" onclick="examPick(this,4,false)">شاشة Tap واحدة فقط</div>
+        <div class="opt" data-correct="1" onclick="examPick(this,4,true)">معالج + مكبّرات + مستقبلات لاسلكية + توزيع هوائيات</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,4,false)">مشغّل MagicInfo فقط</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 6 / 10</div>
+      <div class="qt">لماذا نوسم الكيبل باسم المصدر والوجهة على الطرفين؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="1" onclick="examPick(this,5,true)">لتتبّع مساره فوراً عند الصيانة بدون فكّ كل شي</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,5,false)">للزينة فقط</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,5,false)">لزيادة جودة الإشارة</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 7 / 10</div>
+      <div class="qt">ما هو توثيق الـAs-Built؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="0" onclick="examPick(this,6,false)">الخطّة الأولية قبل التركيب</div>
+        <div class="opt" data-correct="1" onclick="examPick(this,6,true)">توثيق النظام كما رُكّب فعلاً (مخطّطات، كيبلات، IP)</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,6,false)">قائمة أسعار الأجهزة</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 8 / 10</div>
+      <div class="qt">مبدأ Dante Redundancy يعني:</div>
+      <div class="opts">
+        <div class="opt" data-correct="1" onclick="examPick(this,7,true)">شبكتان متوازيتان، لو فشلت واحدة تكمّل الأخرى</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,7,false)">مضاعفة عدد الميكات</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,7,false)">حذف الكيبلات الزائدة</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 9 / 10</div>
+      <div class="qt">ما الهدف من عملية التسليم (Commissioning)؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="0" onclick="examPick(this,8,false)">بيع أجهزة إضافية</div>
+        <div class="opt" data-correct="1" onclick="examPick(this,8,true)">فحص منهجي لكل وظيفة للتأكّد أن النظام يعمل قبل التسليم</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,8,false)">تغيير تصميم الكبينة</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 10 / 10</div>
+      <div class="qt">عند عطل، ما أذكى منهج للتشخيص؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="1" onclick="examPick(this,9,true)">تقسيم المسار وفحص النقطة الوسطى لتضييق الاحتمالات</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,9,false)">تبديل كل الأجهزة دفعة واحدة</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,9,false)">إعادة بناء النظام من الصفر</div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:22px">
+      <button class="btn" onclick="gradeExam('examBox',10)">احسب النتيجة</button>
+    </div>
+    <div class="exam-result"></div>
+  </div>
+</section>
+
+<!-- DONE — final, whole-track completion -->
+<section id="done">
+  <div class="done">
+    <div class="ico">🏆</div>
+    <h2>أنهيت مسار تصميم الأنظمة بالكامل!</h2>
+    <p>مبروك! أكملت المستويات الخمسة: من تشريح الكبينة، للصوت والـDSP، للاسلكي والـRF، للفيديو والتحكّم، ووصولاً للافتات والتكامل والتسليم الاحترافي. الآن عندك صورة كاملة عن كيف يُبنى نظام صوت وصورة احترافي من الصفر للتسليم.</p>
+    <div class="cert-line">🎓 أتممت المسارات الثلاثة: الكهرباء · الشبكات · تصميم الأنظمة</div>
+    <a href="../index.html" class="next-btn" id="nextBtn">← العودة لكل المسارات</a>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ===== L5 capstone: system designer =====
+var COMPONENTS = [
+  {id:'core',     name:'معالج Q-SYS Core'},
+  {id:'amp',      name:'مكبّرات L-Acoustics'},
+  {id:'speakers', name:'سماعات موزّعة'},
+  {id:'wireless', name:'مستقبلات لاسلكية'},
+  {id:'antenna',  name:'توزيع هوائيات UA845'},
+  {id:'rally',    name:'Logitech Rally + Tap'},
+  {id:'switch',   name:'سويتش شبكة PoE'},
+  {id:'signage',  name:'شاشات MagicInfo'},
+  {id:'camera',   name:'كاميرا بثّ'},
+  {id:'redundancy',name:'احتياط (UPS + مكرّر)'}
+];
+
+var VENUES = {
+  boardroom: {
+    need:'اجتماعات Teams بسيطة وعالية الجودة لـ6 أشخاص. لا تحتاج لاسلكياً أو معالجاً كبيراً.',
+    required:['rally','switch'], bonus:['signage'], avoid:['antenna','amp','redundancy']
+  },
+  auditorium: {
+    need:'صوت قوي لـ500 شخص + متحدّثون متنقّلون + عرض كبير. يحتاج النظام الصوتي الكامل.',
+    required:['core','amp','speakers','wireless','antenna'], bonus:['signage'], avoid:[]
+  },
+  worship: {
+    need:'صوت متوازن + بثّ مباشر + لافتات نصوص. نظام هجين صوت وفيديو ولافتات.',
+    required:['core','amp','speakers','wireless','camera','signage'], bonus:['switch','redundancy'], avoid:[]
+  },
+  broadcast: {
+    need:'موثوقية قصوى + صوت احترافي + احتياط كامل. الفشل ممنوع تماماً.',
+    required:['core','amp','wireless','redundancy'], bonus:['camera','switch'], avoid:[]
+  }
+};
+
+var chosen = {};
+
+function nameOf(id){
+  for(var i=0;i<COMPONENTS.length;i++){ if(COMPONENTS[i].id===id) return COMPONENTS[i].name; }
+  return id;
+}
+
+function render(){
+  var v = document.getElementById('venueSel').value;
+  document.getElementById('venueNeed').innerHTML =
+    '<span style="font-size:.8rem;color:var(--ink-faint);font-family:var(--mono)">الحاجة</span><br>' + VENUES[v].need;
+  var grid = document.getElementById('compGrid');
+  grid.innerHTML = '';
+  for(var i=0;i<COMPONENTS.length;i++){
+    var c = COMPONENTS[i];
+    var el = document.createElement('div');
+    el.className = 'comp' + (chosen[c.id] ? ' on' : '');
+    el.textContent = c.name;
+    (function(id){ el.onclick = function(){ toggle(id); }; })(c.id);
+    grid.appendChild(el);
+  }
+  var res = document.getElementById('sysResult');
+  res.style.display = 'none';
+  res.innerHTML = '';
+}
+
+function toggle(id){
+  if(chosen[id]) delete chosen[id]; else chosen[id] = true;
+  render();
+}
+
+function clearSystem(){
+  chosen = {};
+  render();
+}
+
+function checkSystem(){
+  var v = document.getElementById('venueSel').value;
+  var spec = VENUES[v];
+  var missing = [], wrong = [], gotBonus = [];
+  for(var i=0;i<spec.required.length;i++){ if(!chosen[spec.required[i]]) missing.push(spec.required[i]); }
+  var av = spec.avoid || [];
+  for(var j=0;j<av.length;j++){ if(chosen[av[j]]) wrong.push(av[j]); }
+  var bn = spec.bonus || [];
+  for(var k=0;k<bn.length;k++){ if(chosen[bn[k]]) gotBonus.push(bn[k]); }
+
+  var res = document.getElementById('sysResult');
+  res.style.display = 'block';
+  var html = '';
+
+  function names(arr){ return arr.map(nameOf).join('، '); }
+
+  if(missing.length===0 && wrong.length===0){
+    res.style.borderColor = 'var(--cyan)';
+    html += '<div style="font-size:1.05rem;color:var(--cyan-bright);font-weight:600;margin-bottom:6px">✅ تصميم ممتاز!</div>';
+    html += '<p style="margin:0;color:var(--ink-dim)">اخترت كل المكوّنات الأساسية لهذه القاعة بشكل صحيح.</p>';
+    if(gotBonus.length){
+      html += '<p style="margin:8px 0 0;color:var(--cyan)">⭐ إضافات ذكية: ' + names(gotBonus) + '</p>';
+    }
+  } else {
+    res.style.borderColor = 'var(--amber)';
+    html += '<div style="font-size:1.05rem;color:var(--amber-bright);font-weight:600;margin-bottom:6px">📋 يحتاج مراجعة</div>';
+    if(missing.length){
+      html += '<p style="margin:0 0 6px;color:var(--ink-dim)">❌ ينقص النظام مكوّنات أساسية: <strong>' + names(missing) + '</strong></p>';
+    }
+    if(wrong.length){
+      html += '<p style="margin:0;color:var(--ink-dim)">⚠️ مكوّنات غير ضرورية لهذه القاعة: <strong>' + names(wrong) + '</strong> — تزيد التكلفة بلا فائدة.</p>';
+    }
+  }
+  res.innerHTML = html;
+}
+
+render();
+</script>
+<footer>
+<p>هذه المادة تعليمية لمساعدة فنيي الصوت والصورة على فهم تصميم الأنظمة، وليست بديلاً عن التدريب المعتمد من الشركات المصنّعة أو عن قراءة الكتيّبات الرسمية للأجهزة.</p>
+<p>أسماء الأجهزة والعلامات التجارية (QSC، Q-SYS، Shure، L-Acoustics، Logitech، Samsung، وغيرها) مذكورة لأغراض تعليمية فقط وهي ملك لأصحابها.</p>
+<p style="margin-top:14px;font-family:var(--mono);color:var(--copper)">مسار تصميم الأنظمة والكبائن · المستوى 5 من 5</p>
+</footer>
+<script>
+// progress rail
+(function(){
+  var rf=document.getElementById('railFill');
+  function upd(){
+    var h=document.documentElement;
+    var sc=h.scrollTop||document.body.scrollTop;
+    var max=(h.scrollHeight-h.clientHeight)||1;
+    rf.style.width=(sc/max*100)+'%';
+  }
+  window.addEventListener('scroll',upd,{passive:true});
+  window.addEventListener('resize',upd);upd();
+})();
+// mini quiz
+function pickOpt(el,correct){
+  var box=el.closest('.quiz');
+  if(box.dataset.done)return;
+  box.dataset.done='1';
+  var opts=box.querySelectorAll('.opt');
+  opts.forEach(function(o){o.classList.add('disabled')});
+  var fb=box.querySelector('.q-fb');
+  if(correct){
+    el.classList.add('correct');
+    fb.classList.add('show','good');
+  }else{
+    el.classList.add('wrong');
+    opts.forEach(function(o){if(o.dataset.correct==='1')o.classList.add('correct')});
+    fb.classList.add('show','bad');
+  }
+}
+// final exam
+function gradeExam(id,total){
+  var ex=document.getElementById(id);
+  var qs=ex.querySelectorAll('.exq');
+  var score=0,answered=0;
+  qs.forEach(function(q){
+    if(q.dataset.ans){
+      answered++;
+      if(q.dataset.ans==='1')score++;
+    }
+  });
+  if(answered<total){
+    alert('أجب عن كل الأسئلة أولاً — أجبت عن '+answered+' من '+total);
+    return;
+  }
+  var res=ex.querySelector('.exam-result');
+  var pass=score>=Math.ceil(total*0.7);
+  res.className='exam-result show '+(pass?'pass':'fail');
+  var msg=pass
+    ? 'ممتاز! اجتزت اختبار هذا المستوى. تقدر تكمل للمستوى التالي.'
+    : 'قريب! راجع الأقسام اللي أخطأت فيها وأعد المحاولة — تحتاج '+Math.ceil(total*0.7)+' إجابات صحيحة على الأقل.';
+  res.innerHTML='<div class="score">'+score+' / '+total+'</div><p>'+msg+'</p>';
+  if(pass){
+    var nb=document.getElementById('nextBtn');
+    if(nb){nb.classList.remove('locked');nb.removeAttribute('aria-disabled');}
+  }
+  res.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function examPick(el,qi,correct){
+  var q=el.closest('.exq');
+  if(q.dataset.locked)return;
+  q.dataset.locked='1';
+  q.dataset.ans=correct?'1':'0';
+  var opts=q.querySelectorAll('.opt');
+  opts.forEach(function(o){o.classList.add('disabled')});
+  if(correct){el.classList.add('correct');}
+  else{el.classList.add('wrong');opts.forEach(function(o){if(o.dataset.correct==='1')o.classList.add('correct')});}
+}
+</script>
+</body>
+</html>

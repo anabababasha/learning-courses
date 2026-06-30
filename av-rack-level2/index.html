@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>المستوى 2: الصوت والمعالجة الرقمية (DSP) — تصميم الأنظمة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0f12;
+  --bg2:#13161b;
+  --panel:#181c22;
+  --panel2:#1e232b;
+  --line:#2a313b;
+  --line2:#363f4b;
+  --ink:#e8ebef;
+  --ink-dim:#a8b1bd;
+  --ink-faint:#6c7682;
+  --copper:#c87f4a;
+  --copper-bright:#e0975c;
+  --cyan:#3fb8c4;
+  --cyan-bright:#5fd6e2;
+  --amber:#e0a23c;
+  --amber-bright:#f3bd5e;
+  --green:#5fbf72;
+  --red:#d65f5f;
+  --blue:#5a8fd6;
+  --purple:#9a7fc8;
+  --radius:14px;
+  --radius-sm:9px;
+  --maxw:880px;
+  --shadow:0 8px 30px rgba(0,0,0,.4);
+  --mono:'IBM Plex Mono',monospace;
+  --sans:'IBM Plex Sans Arabic',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--sans);
+  background:var(--bg);
+  color:var(--ink);
+  line-height:1.85;
+  font-weight:400;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+/* progress rail */
+.rail{position:fixed;top:0;right:0;left:0;height:4px;background:rgba(255,255,255,.04);z-index:100}
+.rail-fill{height:100%;width:0;background:linear-gradient(90deg,var(--copper),var(--amber),var(--cyan));box-shadow:0 0 12px rgba(224,162,60,.5);transition:width .08s linear}
+/* breadcrumb */
+.crumb{position:sticky;top:4px;z-index:90;background:rgba(13,15,18,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:11px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.crumb a{color:var(--ink-dim);text-decoration:none;font-size:.82rem;transition:color .2s}
+.crumb a:hover{color:var(--cyan-bright)}
+.crumb .sep{color:var(--ink-faint);font-size:.7rem}
+.badge{background:linear-gradient(135deg,var(--copper),var(--amber));color:#1a1206;font-weight:700;font-size:.74rem;padding:4px 11px;border-radius:30px;font-family:var(--mono);letter-spacing:.3px;white-space:nowrap}
+.crumb .home{margin-inline-start:auto;font-weight:600}
+/* layout */
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px}
+section{padding:46px 0;border-bottom:1px solid rgba(42,49,59,.5)}
+section:last-of-type{border-bottom:none}
+/* hero */
+.hero{padding:64px 0 50px;text-align:center;position:relative}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(224,162,60,.10),transparent 70%);pointer-events:none}
+.eyebrow{font-family:var(--mono);color:var(--amber-bright);font-size:.8rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;font-weight:500}
+h1{font-size:clamp(2rem,6vw,3.1rem);font-weight:700;line-height:1.25;margin-bottom:18px;background:linear-gradient(120deg,#fff 20%,var(--amber-bright) 60%,var(--copper));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sub{font-size:clamp(1rem,2.5vw,1.18rem);color:var(--ink-dim);max-width:620px;margin:0 auto 26px;font-weight:300}
+.chips{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:26px}
+.chip{background:var(--panel);border:1px solid var(--line2);border-radius:30px;padding:7px 16px;font-size:.82rem;color:var(--ink-dim);display:flex;align-items:center;gap:7px}
+.chip b{color:var(--amber-bright);font-family:var(--mono);font-weight:600}
+.prereq{background:linear-gradient(135deg,rgba(63,184,196,.08),rgba(90,143,214,.05));border:1px solid rgba(63,184,196,.25);border-radius:var(--radius-sm);padding:14px 18px;max-width:560px;margin:0 auto 30px;font-size:.9rem;color:var(--ink-dim)}
+.prereq a{color:var(--cyan-bright);font-weight:600;text-decoration:none}
+.prereq a:hover{text-decoration:underline}
+/* toc */
+.toc{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px;max-width:560px;margin:0 auto;text-align:right}
+.toc h3{font-size:.78rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-faint);margin-bottom:14px;font-family:var(--mono)}
+.toc ol{list-style:none;counter-reset:toc}
+.toc li{counter-increment:toc;margin:9px 0}
+.toc a{color:var(--ink);text-decoration:none;display:flex;align-items:baseline;gap:11px;font-size:.96rem;transition:color .2s}
+.toc a:hover{color:var(--amber-bright)}
+.toc a::before{content:counter(toc,decimal-leading-zero);font-family:var(--mono);color:var(--copper);font-size:.8rem;font-weight:600;min-width:24px}
+.scrollcue{text-align:center;margin-top:34px;color:var(--ink-faint);font-size:.8rem;animation:bob 2s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
+/* section headers */
+.step-tag{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:.76rem;color:var(--amber-bright);letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;font-weight:500}
+.step-tag .n{background:linear-gradient(135deg,var(--copper),var(--amber));color:#1a1206;width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-weight:700;font-size:.82rem}
+h2{font-size:clamp(1.5rem,4vw,2rem);font-weight:700;margin-bottom:16px;color:#fff;line-height:1.3}
+h3.sub-h{font-size:1.15rem;font-weight:600;color:var(--amber-bright);margin:26px 0 12px}
+p{margin-bottom:15px;color:var(--ink-dim)}
+p strong,li strong{color:var(--ink);font-weight:600}
+.lead{font-size:1.08rem;color:var(--ink)}
+ul.bullets,ol.steps{margin:14px 0 18px;padding-inline-start:8px;list-style:none}
+ul.bullets li,ol.steps li{position:relative;padding-inline-start:26px;margin-bottom:11px;color:var(--ink-dim)}
+ul.bullets li::before{content:"";position:absolute;right:6px;top:12px;width:7px;height:7px;border-radius:2px;background:var(--copper)}
+ol.steps{counter-reset:st}
+ol.steps li{counter-increment:st}
+ol.steps li::before{content:counter(st);position:absolute;right:0;top:1px;font-family:var(--mono);color:var(--amber-bright);font-weight:600;font-size:.85rem;background:var(--panel2);width:22px;height:22px;border-radius:6px;display:grid;place-items:center}
+/* analogy / callout boxes */
+.analogy{background:linear-gradient(135deg,rgba(200,127,74,.09),rgba(224,162,60,.04));border-inline-start:3px solid var(--copper);border-radius:var(--radius-sm);padding:16px 20px;margin:18px 0}
+.analogy .label{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--copper-bright);margin-bottom:7px;font-weight:600}
+.note{background:rgba(63,184,196,.07);border-inline-start:3px solid var(--cyan);border-radius:var(--radius-sm);padding:14px 18px;margin:16px 0;font-size:.93rem}
+.note .label{font-family:var(--mono);font-size:.72rem;letter-spacing:1px;color:var(--cyan-bright);margin-bottom:6px;font-weight:600;text-transform:uppercase}
+.warn{background:rgba(214,95,95,.08);border-inline-start:3px solid var(--red);border-radius:var(--radius-sm);padding:14px 18px;margin:16px 0;font-size:.93rem}
+.warn .label{font-family:var(--mono);font-size:.72rem;letter-spacing:1px;color:#e88;margin-bottom:6px;font-weight:600;text-transform:uppercase}
+.pro{background:rgba(95,191,114,.07);border-inline-start:3px solid var(--green);border-radius:var(--radius-sm);padding:14px 18px;margin:16px 0;font-size:.93rem}
+.pro .label{font-family:var(--mono);font-size:.72rem;letter-spacing:1px;color:#7d9;margin-bottom:6px;font-weight:600;text-transform:uppercase}
+/* generic card / panel */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin:20px 0}
+.panel-h{font-size:.78rem;font-family:var(--mono);text-transform:uppercase;letter-spacing:1px;color:var(--ink-faint);margin-bottom:14px}
+/* simulator shell */
+.sim{background:linear-gradient(160deg,var(--panel2),var(--panel));border:1px solid var(--line2);border-radius:var(--radius);padding:24px;margin:24px 0;box-shadow:var(--shadow)}
+.sim-head{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.sim-head .dot{width:9px;height:9px;border-radius:50%;background:var(--amber);box-shadow:0 0 8px var(--amber)}
+.sim-title{font-family:var(--mono);font-size:.82rem;letter-spacing:.5px;color:var(--amber-bright);text-transform:uppercase;font-weight:600}
+.sim-sub{font-size:.86rem;color:var(--ink-faint);margin-bottom:18px}
+.ctrl-row{display:flex;align-items:center;gap:14px;margin:14px 0;flex-wrap:wrap}
+.ctrl-row label{min-width:120px;font-size:.9rem;color:var(--ink-dim)}
+input[type=range]{-webkit-appearance:none;appearance:none;flex:1;min-width:140px;height:6px;border-radius:5px;background:var(--line2);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--amber-bright),var(--copper));cursor:pointer;box-shadow:0 0 10px rgba(224,162,60,.6);border:2px solid #1a1206}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--amber-bright);cursor:pointer;border:2px solid #1a1206}
+.readout{font-family:var(--mono);font-size:1.05rem;color:var(--cyan-bright);min-width:74px;text-align:center;background:var(--bg);border:1px solid var(--line2);border-radius:7px;padding:5px 10px;font-weight:600}
+.btn{background:linear-gradient(135deg,var(--copper),var(--amber));color:#1a1206;border:none;border-radius:8px;padding:10px 20px;font-family:var(--sans);font-weight:600;font-size:.92rem;cursor:pointer;transition:transform .15s,box-shadow .2s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 5px 16px rgba(224,162,60,.35)}
+.btn:active{transform:translateY(0)}
+.btn.ghost{background:transparent;border:1px solid var(--line2);color:var(--ink-dim)}
+.btn.ghost:hover{border-color:var(--cyan);color:var(--cyan-bright);box-shadow:none}
+.btn.sm{padding:7px 14px;font-size:.84rem}
+.toggle-grid{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+.tog{background:var(--bg);border:1px solid var(--line2);border-radius:8px;padding:9px 16px;cursor:pointer;font-size:.88rem;color:var(--ink-dim);transition:all .2s;user-select:none}
+.tog.on{background:linear-gradient(135deg,rgba(95,191,114,.2),rgba(95,191,114,.08));border-color:var(--green);color:#9ee5ab}
+.tog.off{opacity:.7}
+/* rack visual (RU stack) */
+.rackbox{background:#0a0c0f;border:2px solid var(--line2);border-radius:8px;padding:8px;margin:14px 0;display:flex;flex-direction:column;gap:3px}
+.ru{height:34px;border-radius:5px;display:flex;align-items:center;padding:0 12px;font-size:.82rem;font-family:var(--mono);position:relative;transition:all .25s;cursor:default}
+.ru .ru-rails{position:absolute;inset:0;pointer-events:none;border-radius:5px;border-inline-start:6px solid rgba(0,0,0,.4);border-inline-end:6px solid rgba(0,0,0,.4)}
+.ru.empty{background:repeating-linear-gradient(45deg,#111418,#111418 8px,#0d1014 8px,#0d1014 16px);color:var(--ink-faint);border:1px dashed var(--line2)}
+.ru.amp{background:linear-gradient(90deg,#1c2128,#23292f);color:var(--ink);border:1px solid var(--line2)}
+.ru.dsp{background:linear-gradient(90deg,#1a2530,#1e2d3a);color:#bfe3ea;border:1px solid rgba(63,184,196,.4)}
+.ru.rf{background:linear-gradient(90deg,#2a2030,#33283c);color:#e0cdf0;border:1px solid rgba(154,127,200,.4)}
+.ru.net{background:linear-gradient(90deg,#2a2618,#332f1c);color:#f0e3b8;border:1px solid rgba(224,162,60,.4)}
+.ru.pwr{background:linear-gradient(90deg,#2a1818,#331c1c);color:#f0c8c8;border:1px solid rgba(214,95,95,.4)}
+.ru.video{background:linear-gradient(90deg,#182a22,#1c3329);color:#c8f0d8;border:1px solid rgba(95,191,114,.4)}
+.ru .tag{margin-inline-start:auto;font-size:.68rem;opacity:.7}
+.ru.heavy{box-shadow:inset 0 0 0 1px rgba(214,95,95,.3)}
+/* meters */
+.meter{height:12px;background:var(--bg);border-radius:7px;overflow:hidden;border:1px solid var(--line2);margin:8px 0}
+.meter-fill{height:100%;border-radius:7px;transition:width .3s,background .3s}
+.gauge-label{display:flex;justify-content:space-between;font-size:.8rem;color:var(--ink-faint);font-family:var(--mono);margin-bottom:4px}
+.status{display:inline-flex;align-items:center;gap:7px;font-size:.85rem;font-family:var(--mono);padding:5px 12px;border-radius:30px;font-weight:600}
+.status.ok{background:rgba(95,191,114,.15);color:#8fe6a0}
+.status.bad{background:rgba(214,95,95,.15);color:#f0a0a0}
+.status.warn-s{background:rgba(224,162,60,.15);color:#f3cf8e}
+/* tables */
+.tbl-wrap{overflow-x:auto;margin:18px 0;border-radius:var(--radius-sm);border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:.9rem;min-width:480px}
+th,td{padding:12px 14px;text-align:right;border-bottom:1px solid var(--line)}
+th{background:var(--panel2);color:var(--amber-bright);font-weight:600;font-family:var(--mono);font-size:.8rem;letter-spacing:.3px;text-transform:uppercase}
+td{color:var(--ink-dim)}
+tr:last-child td{border-bottom:none}
+td code,p code,li code{font-family:var(--mono);background:var(--bg);color:var(--cyan-bright);padding:2px 7px;border-radius:5px;font-size:.85em;border:1px solid var(--line2)}
+.gloss td:first-child{color:var(--amber-bright);font-weight:600;font-family:var(--mono);white-space:nowrap}
+/* symbols grid */
+.sym-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin:20px 0}
+.sym{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-sm);padding:16px;text-align:center;transition:border-color .2s}
+.sym:hover{border-color:var(--copper)}
+.sym .ico{font-size:1.8rem;margin-bottom:8px;color:var(--amber-bright)}
+.sym .nm{font-size:.82rem;color:var(--ink);font-weight:600;margin-bottom:3px}
+.sym .ds{font-size:.74rem;color:var(--ink-faint)}
+/* mini quiz */
+.quiz{background:var(--panel);border:1px solid var(--line2);border-radius:var(--radius);padding:20px 22px;margin:22px 0}
+.quiz .q-label{font-family:var(--mono);font-size:.72rem;color:var(--cyan-bright);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;font-weight:600}
+.quiz .q-text{font-size:1rem;color:var(--ink);font-weight:500;margin-bottom:14px}
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:12px 16px;cursor:pointer;font-size:.92rem;color:var(--ink-dim);transition:all .18s;text-align:right}
+.opt:hover{border-color:var(--copper);color:var(--ink)}
+.opt.correct{background:rgba(95,191,114,.14);border-color:var(--green);color:#9ee5ab}
+.opt.wrong{background:rgba(214,95,95,.12);border-color:var(--red);color:#f0a0a0}
+.opt.disabled{pointer-events:none;opacity:.85}
+.q-fb{margin-top:12px;font-size:.9rem;padding:11px 15px;border-radius:8px;display:none}
+.q-fb.show{display:block}
+.q-fb.good{background:rgba(95,191,114,.1);color:#9ee5ab;border-inline-start:3px solid var(--green)}
+.q-fb.bad{background:rgba(214,95,95,.1);color:#f0a0a0;border-inline-start:3px solid var(--red)}
+/* final exam */
+.exam{background:linear-gradient(160deg,var(--panel2),var(--bg2));border:1px solid var(--line2);border-radius:var(--radius);padding:26px;margin:26px 0}
+.exam-head{text-align:center;margin-bottom:22px}
+.exam-head .ico{font-size:2rem;margin-bottom:8px}
+.exq{border-top:1px solid var(--line);padding:18px 0}
+.exq:first-of-type{border-top:none}
+.exq .qn{font-family:var(--mono);color:var(--copper);font-size:.8rem;font-weight:600;margin-bottom:7px}
+.exq .qt{font-size:.98rem;color:var(--ink);font-weight:500;margin-bottom:13px}
+.exam-result{text-align:center;padding:24px;border-radius:var(--radius);margin-top:20px;display:none}
+.exam-result.show{display:block}
+.exam-result.pass{background:linear-gradient(135deg,rgba(95,191,114,.15),rgba(63,184,196,.08));border:1px solid var(--green)}
+.exam-result.fail{background:linear-gradient(135deg,rgba(214,95,95,.12),rgba(224,162,60,.06));border:1px solid var(--amber)}
+.exam-result .score{font-family:var(--mono);font-size:2.4rem;font-weight:700;margin:8px 0}
+.exam-result.pass .score{color:#8fe6a0}
+.exam-result.fail .score{color:var(--amber-bright)}
+/* completion card */
+.done{background:linear-gradient(160deg,rgba(224,162,60,.1),rgba(63,184,196,.06));border:1px solid var(--line2);border-radius:var(--radius);padding:32px;margin:30px 0;text-align:center}
+.done .ico{font-size:2.6rem;margin-bottom:12px}
+.done h2{font-size:1.5rem;margin-bottom:10px}
+.done p{max-width:480px;margin:0 auto 20px}
+.next-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--copper),var(--amber));color:#1a1206;text-decoration:none;font-weight:700;padding:14px 28px;border-radius:10px;font-size:1rem;transition:transform .15s,box-shadow .2s}
+.next-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(224,162,60,.4)}
+.next-btn.locked{background:var(--panel2);color:var(--ink-faint);cursor:not-allowed;border:1px solid var(--line2)}
+.back-link{display:inline-block;margin-top:16px;color:var(--ink-dim);text-decoration:none;font-size:.9rem}
+.back-link:hover{color:var(--cyan-bright)}
+/* footer */
+footer{background:var(--bg2);border-top:1px solid var(--line);padding:30px 20px;text-align:center;margin-top:20px}
+footer p{font-size:.82rem;color:var(--ink-faint);max-width:560px;margin:0 auto 8px}
+/* diagram helpers */
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;margin:20px 0}
+.flow-node{background:var(--panel2);border:1px solid var(--line2);border-radius:9px;padding:11px 16px;font-size:.85rem;text-align:center;min-width:84px;transition:all .25s}
+.flow-node.active{border-color:var(--amber);box-shadow:0 0 14px rgba(224,162,60,.4);color:var(--amber-bright)}
+.flow-node.err{border-color:var(--red);box-shadow:0 0 14px rgba(214,95,95,.4);color:#f0a0a0}
+.flow-arrow{color:var(--copper);font-size:1.2rem}
+.svg-box{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-sm);padding:18px;margin:18px 0;text-align:center}
+svg{max-width:100%;height:auto}
+.tag-pill{display:inline-block;font-family:var(--mono);font-size:.72rem;padding:3px 9px;border-radius:20px;background:var(--panel2);border:1px solid var(--line2);color:var(--ink-dim);margin:2px}
+@media (max-width:560px){
+  .ctrl-row label{min-width:90px;font-size:.84rem}
+  section{padding:38px 0}
+  .sim{padding:18px}
+  .ru{height:30px;font-size:.74rem}
+}
+/* L5 capstone components */
+.flow-node .ds{display:block;font-size:.72rem;color:var(--ink-faint);margin-top:3px;font-weight:400}
+.flow-node .nm{display:block;font-weight:600;color:var(--ink)}
+.scn{background:var(--panel);border:1px solid var(--line);border-inline-start:3px solid var(--amber);border-radius:var(--radius-sm);padding:16px 18px;margin:16px 0}
+.scn-h{font-size:1.02rem;font-weight:700;color:var(--ink);margin-bottom:8px;display:flex;align-items:center;gap:9px}
+.scn-ico{font-size:1.3rem}
+.scn-need{color:var(--cyan-bright)!important}
+.scn p{margin:6px 0;color:var(--ink-dim);font-size:.92rem;line-height:1.7}
+.scn-tags{margin-top:10px}
+.chklist{margin:16px 0;display:flex;flex-direction:column;gap:9px}
+.chk{display:flex;align-items:flex-start;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:11px 14px;color:var(--ink-dim);font-size:.9rem;line-height:1.6}
+.chk .cb{color:var(--cyan-bright);font-size:1.05rem;flex-shrink:0;line-height:1.4}
+.comp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px;margin:10px 0}
+.comp{background:var(--bg);border:1px solid var(--line2);border-radius:8px;padding:11px 12px;font-size:.85rem;color:var(--ink-dim);text-align:center;cursor:pointer;transition:all .18s;user-select:none}
+.comp:hover{border-color:var(--copper);color:var(--ink)}
+.comp.on{background:linear-gradient(135deg,rgba(224,162,60,.18),rgba(200,127,74,.12));border-color:var(--amber);color:var(--amber-bright);font-weight:600;box-shadow:0 0 12px rgba(224,162,60,.25)}
+.cert-line{font-family:var(--mono);font-size:.9rem;color:var(--cyan-bright);background:var(--bg);border:1px solid var(--line2);border-radius:8px;padding:12px 16px;margin:16px auto;max-width:480px}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+<div class="rail"><div class="rail-fill" id="railFill"></div></div>
+<!-- ===== BREADCRUMB ===== -->
+<nav class="crumb">
+  <span class="badge">المستوى 2 من 5</span>
+  <span class="sep">•</span>
+  <a href="../index.html">الرئيسية</a>
+  <span class="sep">›</span>
+  <a href="../av-rack-fundamentals/index.html">المستوى 1</a>
+  <span class="sep">›</span>
+  <span style="color:var(--ink-faint);font-size:.82rem">كور الصوت والـ DSP</span>
+  <a href="../index.html" class="home">كل المسارات ←</a>
+</nav>
+
+<!-- ===== HERO ===== -->
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">مسار تصميم الأنظمة · المستوى الثاني</div>
+    <h1>كور الصوت والمعالجة الرقمية</h1>
+    <p class="sub">دماغ الراك الحديث. هنا نفهم معالج الـ DSP (مثل QSC Q-SYS Core)، كيف يتدفّق الصوت عبر الشبكة بدل الكوابل، والأمبليفايرات الذكية مثل L-Acoustics، وبنية الإشارة من الميك للسماعة.</p>
+    <div class="chips">
+      <span class="chip">⏱️ <b>~35</b> دقيقة</span>
+      <span class="chip">🧩 <b>7</b> أقسام</span>
+      <span class="chip">🎛️ <b>3</b> محاكيات</span>
+      <span class="chip">📝 اختبار <b>10</b> أسئلة</span>
+    </div>
+    <div class="prereq">
+      💡 يفترض إنك أنهيت <a href="../av-rack-fundamentals/index.html">المستوى 1</a>، ومرتاح مع مفاهيم الشبكات (IP، السويتش، الـ PoE) من <a href="../networking-fundamentals/index.html">مسار الشبكات</a> — رح نستخدمها هنا بكثرة.
+    </div>
+    <nav class="toc">
+      <h3>محتوى المستوى</h3>
+      <ol>
+        <li><a href="#dsp">ما هو معالج الـ DSP / الكور؟</a></li>
+        <li><a href="#qsys">عائلة QSC Q-SYS وإطارات الـ I/O</a></li>
+        <li><a href="#network-audio">الصوت عبر الشبكة: Dante و Q-LAN</a></li>
+        <li><a href="#amps">الأمبليفايرات الذكية (L-Acoustics A12X)</a></li>
+        <li><a href="#gain">بنية الكسب (Gain Structure)</a></li>
+        <li><a href="#signal">محاكي: تتبّع مسار الإشارة</a></li>
+        <li><a href="#exam">الاختبار النهائي</a></li>
+      </ol>
+    </nav>
+    <div class="scrollcue">انزل للأسفل لتبدأ ↓</div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- 1. DSP -->
+<section id="dsp">
+  <div class="step-tag"><span class="n">1</span> دماغ النظام</div>
+  <h2>ما هو معالج الـ DSP / الكور؟</h2>
+  <p class="lead"><strong>DSP</strong> اختصار Digital Signal Processor — معالج إشارة رقمية. هو الكمبيوتر المتخصّص اللي ياخذ كل مصادر الصوت، يعالجها (مساواة، مزج، تأخير، كبت صدى)، ويوجّهها للمخارج الصحيحة.</p>
+  <p>في الأنظمة الحديثة، الجهاز المركزي يُسمّى <strong>الكور (Core)</strong>. بدل ما يكون عندك ميكسر تناظري ضخم وعشرات الكوابل، الكور يسوّي كل المعالجة والتوجيه برمجياً، وتتحكّم فيه من برنامج على الكمبيوتر أو شاشة لمس.</p>
+  <div class="analogy">
+    <div class="label">شبّهها بـ</div>
+    الكور مثل «راوتر» الشبكة بس للصوت: كل المصادر تدخل فيه، يقرّر وين يروح كل صوت، ويطبّق «قواعد» على الطريق. أنت تبرمج هذي القواعد مرة، وهو ينفّذها تلقائياً.
+  </div>
+  <h3 class="sub-h">وش يسوّي الكور بالضبط؟</h3>
+  <ul class="bullets">
+    <li><strong>التوجيه (Routing):</strong> أي مدخل يروح لأي مخرج — مصفوفة افتراضية بالكامل.</li>
+    <li><strong>المعالجة (Processing):</strong> EQ، ضواغط، تأخير، كبت الصدى الصوتي (AEC) للاجتماعات.</li>
+    <li><strong>المزج (Mixing):</strong> دمج عدّة مصادر بمستويات محكومة.</li>
+    <li><strong>المنطق (Logic):</strong> «لو ضُغط هذا الزر، شغّل هذا المشهد» — أتمتة الغرفة.</li>
+    <li><strong>التحكّم (Control):</strong> واجهات لمس مخصّصة (UCI) للمستخدم النهائي.</li>
+  </ul>
+  <div class="note">
+    <div class="label">من مسار التعلّم</div>
+    إذا درست Q-SYS من قبل، تعرف إن البرمجة تتم بالـ <strong>Block Controller</strong> (منطق بصري) أو بـ <strong>Lua scripting</strong> للمهام المتقدّمة. الكور هو الجهاز اللي ينفّذ هذا الكود.
+  </div>
+  <div class="quiz">
+    <div class="q-label">سؤال سريع</div>
+    <div class="q-text">ما الوظيفة الأساسية لمعالج الـ DSP في الراك؟</div>
+    <div class="opts">
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">تخزين الملفات الصوتية فقط</div>
+      <div class="opt" data-correct="1" onclick="pickOpt(this,true)">معالجة وتوجيه ومزج الصوت رقمياً بين المداخل والمخارج</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">تكبير الصوت كأمبليفاير</div>
+    </div>
+    <div class="q-fb">صح. الكور يعالج ويوجّه ويمزج — التكبير شغل الأمبليفاير المنفصل (رح نوصله بعد قليل).</div>
+  </div>
+</section>
+
+<!-- 2. QSYS -->
+<section id="qsys">
+  <div class="step-tag"><span class="n">2</span> منصّة متكاملة</div>
+  <h2>عائلة QSC Q-SYS وإطارات الـ I/O</h2>
+  <p class="lead">Q-SYS منصّة من شركة QSC تجمع الصوت والفيديو والتحكّم في نظام واحد يعمل على الشبكة. الكور يجي بأحجام مختلفة حسب حجم المشروع.</p>
+  <div class="tbl-wrap">
+  <table>
+    <tr><th>الفئة</th><th>أمثلة</th><th>الاستخدام النموذجي</th></tr>
+    <tr><td>كور صغير</td><td>Core Nano</td><td>غرف اجتماعات صغيرة، عدد قنوات محدود</td></tr>
+    <tr><td>كور متوسط</td><td>Core 8 Flex / 110f</td><td>غرف متوسطة، مرونة في I/O</td></tr>
+    <tr><td>كور كبير</td><td>Core 510i / فئات أعلى</td><td>قاعات، مبانٍ كاملة، مئات القنوات</td></tr>
+  </table>
+  </div>
+  <h3 class="sub-h">إطارات المدخلات/المخرجات (I/O Frames)</h3>
+  <p>الكور وحده ما يكفي إذا تحتاج توصيل أجهزة تناظرية (ميكات، سماعات تقليدية). هنا يجي دور <strong>إطار الـ I/O</strong> — جهاز يتركّب في الراك ويتصل بالكور عبر الشبكة، ويوفّر مداخل ومخارج فيزيائية (XLR, Phoenix).</p>
+  <div class="analogy">
+    <div class="label">شبّهها بـ</div>
+    الكور هو وحدة المعالجة المركزية (CPU)، وإطارات الـ I/O مثل منافذ USB موزّعة في المبنى — تركّبها قريب من الأجهزة، وكلها تتكلّم مع الكور عبر كيبل شبكة واحد.
+  </div>
+  <div class="rackbox">
+    <div class="ru rf">واجهة تحكّم / شاشة لمس <span class="tag">فوق</span></div>
+    <div class="ru net">سويتش شبكة (Q-LAN)</div>
+    <div class="ru dsp">Q-SYS Core (الدماغ)</div>
+    <div class="ru dsp">إطار I/O — مداخل ميك ومخارج</div>
+    <div class="ru amp heavy">أمبليفاير شبكي</div>
+    <div class="ru pwr heavy">منظّم الطاقة <span class="tag">تحت</span></div>
+  </div>
+  <div class="quiz">
+    <div class="q-label">سؤال سريع</div>
+    <div class="q-text">إذا احتجت توصيل ميكروفونات تناظرية (XLR) بنظام Q-SYS، أي جهاز تضيف؟</div>
+    <div class="opts">
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">كور أكبر فقط</div>
+      <div class="opt" data-correct="1" onclick="pickOpt(this,true)">إطار I/O يوفّر مداخل فيزيائية ويتصل بالكور عبر الشبكة</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">سويتش شبكة إضافي</div>
+    </div>
+    <div class="q-fb">صح. إطار الـ I/O يجسر العالم التناظري مع شبكة الكور الرقمية.</div>
+  </div>
+</section>
+
+<!-- 3. NETWORK AUDIO -->
+<section id="network-audio">
+  <div class="step-tag"><span class="n">3</span> الصوت يمشي على كيبل شبكة</div>
+  <h2>الصوت عبر الشبكة: Dante و Q-LAN</h2>
+  <p class="lead">أكبر تحوّل في الصوت الاحترافي: بدل كيبل منفصل لكل قناة، تمشي <strong>مئات القنوات على كيبل شبكة واحد (Cat6)</strong>. هذا اسمه «الصوت عبر IP» أو Audio-over-IP.</p>
+  <h3 class="sub-h">البروتوكولات الشائعة</h3>
+  <div class="tbl-wrap">
+  <table>
+    <tr><th>البروتوكول</th><th>الجهة</th><th>ملاحظة</th></tr>
+    <tr><td>Dante</td><td>Audinate</td><td>الأكثر انتشاراً في الصناعة، يربط أجهزة من شركات مختلفة</td></tr>
+    <tr><td>Q-LAN</td><td>QSC</td><td>بروتوكول Q-SYS الأصلي للصوت بين الكور وأجهزته</td></tr>
+    <tr><td>AES67</td><td>معيار مفتوح</td><td>«لغة مشتركة» تخلّي Dante و Q-LAN وغيرهم يتفاهمون</td></tr>
+  </table>
+  </div>
+  <div class="note">
+    <div class="label">من مسار التعلّم</div>
+    إذا عندك شهادة <strong>Dante Level 1</strong>، تعرف إن كل جهاز Dante له اسم على الشبكة، وتربط القنوات في برنامج <strong>Dante Controller</strong> بسحب وإفلات — مرسل (Transmitter) لمستقبل (Receiver).
+  </div>
+  <h3 class="sub-h">ليش هذا مهم في تصميم الراك؟</h3>
+  <ul class="bullets">
+    <li><strong>أقل كوابل:</strong> كيبل شبكة واحد بدل 64 كيبل صوت — راك أنظف وأخف.</li>
+    <li><strong>مرونة التوجيه:</strong> تغيّر مسار أي قناة برمجياً بدون ما تفصل كيبل.</li>
+    <li><strong>المسافات:</strong> الصوت الرقمي ما يتدهور مع المسافة مثل التناظري.</li>
+    <li><strong>يحتاج سويتش مُدار:</strong> شبكة الصوت تحتاج سويتش يدعم QoS و IGMP — رجعنا لمفاهيم السويتش المُدار من مسار الشبكات.</li>
+  </ul>
+  <div class="warn">
+    <div class="label">انتبه</div>
+    شبكة الصوت يجب أن تكون <strong>معزولة أو ذات أولوية</strong> عن شبكة البيانات العادية. ازدحام الشبكة = تقطيع في الصوت. لهذا السويتش وإعداداته جزء من تصميم الراك مو شي ثانوي.
+  </div>
+  <div class="sim" id="netSim">
+    <div class="sim-head"><span class="dot"></span><span class="sim-title">مقارنة: تناظري مقابل شبكي</span></div>
+    <div class="sim-sub">حرّك عدد القنوات وشوف الفرق في عدد الكوابل بين النظامين.</div>
+    <div class="ctrl-row">
+      <label>عدد القنوات</label>
+      <input type="range" id="netCh" min="2" max="64" value="16" step="2">
+      <span class="readout" id="netChV">16</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px">
+      <div class="panel" style="margin:0;padding:16px;text-align:center">
+        <div style="font-size:.8rem;color:var(--ink-faint);font-family:var(--mono);margin-bottom:8px">تناظري</div>
+        <div class="readout" id="netAnalog" style="font-size:1.6rem;min-width:auto">16</div>
+        <div style="font-size:.78rem;color:var(--red);margin-top:6px">كيبل صوت</div>
+      </div>
+      <div class="panel" style="margin:0;padding:16px;text-align:center">
+        <div style="font-size:.8rem;color:var(--ink-faint);font-family:var(--mono);margin-bottom:8px">شبكي (Dante)</div>
+        <div class="readout" id="netDigital" style="font-size:1.6rem;min-width:auto;color:var(--green)">1</div>
+        <div style="font-size:.78rem;color:var(--green);margin-top:6px">كيبل شبكة</div>
+      </div>
+    </div>
+  </div>
+  <div class="quiz">
+    <div class="q-label">سؤال سريع</div>
+    <div class="q-text">شبكة الصوت Dante في الراك تحتاج أي نوع سويتش؟</div>
+    <div class="opts">
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">أي سويتش رخيص غير مُدار</div>
+      <div class="opt" data-correct="1" onclick="pickOpt(this,true)">سويتش مُدار يدعم QoS و IGMP لإعطاء الصوت أولوية</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">راوتر منزلي عادي</div>
+    </div>
+    <div class="q-fb">صح. السويتش المُدار يضمن إن الصوت ما يتقطّع بسبب ازدحام الشبكة.</div>
+  </div>
+</section>
+
+<!-- 4. AMPS -->
+<section id="amps">
+  <div class="step-tag"><span class="n">4</span> العضلات</div>
+  <h2>الأمبليفايرات الذكية (L-Acoustics A12X)</h2>
+  <p class="lead">الكور يعالج إشارة ضعيفة، لكن السماعات تحتاج طاقة كبيرة. الأمبليفاير ياخذ الإشارة المعالجة ويكبّرها لتحريك السماعات. الأمبليفايرات الحديثة «ذكية» — فيها معالجة مدمجة وتتصل بالشبكة.</p>
+  <p>في الراكات الاحترافية تشوف وحدات مثل <strong>L-Acoustics A12X</strong> (Amplified Controller) — مو مجرد أمبليفاير، بل وحدة تجمع التكبير + معالجة DSP مخصّصة لسماعات الشركة + اتصال شبكي للمراقبة.</p>
+  <h3 class="sub-h">ليش «أمبليفاير ذكي» مو عادي؟</h3>
+  <ul class="bullets">
+    <li><strong>معالجة مدمجة:</strong> EQ وتأخير وحماية مضبوطة لكل موديل سماعة بالضبط (Presets).</li>
+    <li><strong>مراقبة عبر الشبكة:</strong> تشوف حرارة وحمل كل قناة من الكمبيوتر — تكتشف العطل قبل ما يصير.</li>
+    <li><strong>حماية السماعة:</strong> يمنع الإشارة الخطرة اللي تحرق السماعة.</li>
+    <li><strong>كفاءة طاقة:</strong> تصميم Class-D يقلّل الحرارة والوزن — مهم لتوازن الراك (المستوى 1).</li>
+  </ul>
+  <div class="analogy">
+    <div class="label">شبّهها بـ</div>
+    الأمبليفاير الذكي مثل مدرّب شخصي للسماعة: مو بس يعطيها «قوة»، بل يعرف حدودها بالضبط، يحميها من الإصابة، ويبلّغك لو في مشكلة — كل هذا تلقائياً.
+  </div>
+  <div class="sim" id="ampSim">
+    <div class="sim-head"><span class="dot"></span><span class="sim-title">محاكي حمل الأمبليفاير</span></div>
+    <div class="sim-sub">حرّك مستوى التشغيل وراقب حرارة وحمل الأمبليفاير — الأمبليفاير الذكي يحمي نفسه عند الخطر.</div>
+    <div class="ctrl-row">
+      <label>مستوى التشغيل</label>
+      <input type="range" id="ampLevel" min="0" max="100" value="40" step="1">
+      <span class="readout" id="ampLevelV">40%</span>
+    </div>
+    <div class="gauge-label"><span>الحمل على القناة</span><span id="ampLoadV">40%</span></div>
+    <div class="meter"><div class="meter-fill" id="ampLoad" style="width:40%;background:var(--green)"></div></div>
+    <div class="gauge-label" style="margin-top:10px"><span>الحرارة</span><span id="ampHeatV">36°C</span></div>
+    <div class="meter"><div class="meter-fill" id="ampHeat" style="width:30%;background:var(--green)"></div></div>
+    <div id="ampStatus" class="status ok" style="margin-top:12px">✓ تشغيل آمن</div>
+  </div>
+  <div class="quiz">
+    <div class="q-label">سؤال سريع</div>
+    <div class="q-text">ما الفرق بين الأمبليفاير الذكي (مثل A12X) والأمبليفاير التقليدي؟</div>
+    <div class="opts">
+      <div class="opt" data-correct="1" onclick="pickOpt(this,true)">الذكي فيه معالجة مدمجة، حماية للسماعة، ومراقبة عبر الشبكة</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">الذكي أصغر حجماً فقط</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">لا فرق، الاسم تسويقي</div>
+    </div>
+    <div class="q-fb">صح. الأمبليفاير الذكي يدمج التكبير مع DSP وحماية ومراقبة شبكية.</div>
+  </div>
+</section>
+
+<!-- 5. GAIN -->
+<section id="gain">
+  <div class="step-tag"><span class="n">5</span> الفن الخفي</div>
+  <h2>بنية الكسب (Gain Structure)</h2>
+  <p class="lead">أهم مفهوم يفرّق المبتدئ عن المحترف: <strong>كل مرحلة في مسار الإشارة لها مستوى مثالي</strong>. لو رفعت أو خفّضت في المكان الغلط، تحصل ضجيج أو تشويه (Distortion).</p>
+  <p>الفكرة: ترفع الإشارة لمستوى صحّي <strong>مبكراً</strong> (عند المصدر/الميك)، وتحافظ عليه نظيفاً عبر المراحل، وتترك التكبير النهائي للأمبليفاير. هذا يعطيك أقل ضجيج وأوضح صوت.</p>
+  <div class="analogy">
+    <div class="label">شبّهها بـ</div>
+    مثل تمرير كأس ماء بين عدّة أشخاص: لو الأول صبّه ناقص، الكل بعده يحاول يكمّله ويسكب على الطريق (ضجيج). لو صبّه زيادة، يطفح من البداية (تشويه). الصح: املأه صح من أول شخص.
+  </div>
+  <div class="warn">
+    <div class="label">القاعدة</div>
+    <strong>الضجيج يتراكم، والتشويه لا يُصلَح.</strong> إشارة دخلت مشوّهة من الميك ما تقدر تصلّحها لاحقاً مهما عالجت. اضبط الكسب صح عند المصدر أول شي.
+  </div>
+  <div class="flow">
+    <div class="flow-node">ميك</div><div class="flow-arrow">←</div>
+    <div class="flow-node">Preamp/كسب</div><div class="flow-arrow">←</div>
+    <div class="flow-node">معالجة الكور</div><div class="flow-arrow">←</div>
+    <div class="flow-node">أمبليفاير</div><div class="flow-arrow">←</div>
+    <div class="flow-node">سماعة</div>
+  </div>
+  <div class="quiz">
+    <div class="q-label">سؤال سريع</div>
+    <div class="q-text">إشارة الميك دخلت مشوّهة (Clipping). هل تقدر تصلّحها بالمعالجة لاحقاً؟</div>
+    <div class="opts">
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">نعم، الـ EQ يصلّحها</div>
+      <div class="opt" data-correct="1" onclick="pickOpt(this,true)">لا، التشويه لا يُصلَح — يجب ضبط الكسب صح عند المصدر</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">نعم، الأمبليفاير ينظّفها</div>
+    </div>
+    <div class="q-fb">صح. التشويه دمار دائم للإشارة. بنية الكسب الصحيحة تبدأ من المصدر.</div>
+  </div>
+</section>
+
+<!-- 6. SIGNAL -->
+<section id="signal">
+  <div class="step-tag"><span class="n">6</span> طبّق بنفسك</div>
+  <h2>محاكي: تتبّع مسار الإشارة</h2>
+  <p class="lead">رتّب مراحل مسار الصوت بالترتيب الصحيح من المصدر للسماعة. لو وضعت مرحلة في المكان الغلط، رح تشوف وين تنكسر الإشارة.</p>
+  <div class="sim" id="chainSim">
+    <div class="sim-head"><span class="dot"></span><span class="sim-title">بانِ سلسلة الإشارة</span></div>
+    <div class="sim-sub">اضغط على المراحل بالترتيب الصحيح (من المصدر للمخرج). الترتيب الخاطئ يوقف الإشارة.</div>
+    <div class="flow" id="chainFlow" style="margin-top:6px"></div>
+    <div class="toggle-grid" id="chainPool" style="margin-top:16px"></div>
+    <div class="ctrl-row" style="margin-top:8px">
+      <button class="btn ghost sm" onclick="resetChain()">إعادة</button>
+      <span id="chainMsg" style="color:var(--ink-faint);font-size:.88rem">اختر المرحلة الأولى</span>
+    </div>
+  </div>
+  <div class="pro">
+    <div class="label">الترتيب الصحيح</div>
+    مصدر (ميك) ← مدخل/كسب ← معالجة الكور (DSP) ← توجيه/مزج ← أمبليفاير ← سماعة. هذا المسار هو أساس أي نظام صوت، تناظري كان أو شبكي.
+  </div>
+</section>
+
+<!-- GLOSSARY -->
+<section id="gloss">
+  <div class="step-tag"><span class="n">★</span> مرجع</div>
+  <h2>قاموس المصطلحات</h2>
+  <div class="tbl-wrap">
+  <table class="gloss">
+    <tr><th>المصطلح</th><th>المعنى</th></tr>
+    <tr><td>DSP</td><td>معالج إشارة رقمية</td></tr>
+    <tr><td>Core</td><td>الجهاز المركزي اللي يعالج ويوجّه الصوت (مثل Q-SYS Core)</td></tr>
+    <tr><td>I/O Frame</td><td>إطار يوفّر مداخل/مخارج فيزيائية متصلة بالكور عبر الشبكة</td></tr>
+    <tr><td>Dante</td><td>بروتوكول صوت عبر IP من Audinate</td></tr>
+    <tr><td>Q-LAN</td><td>بروتوكول صوت Q-SYS الأصلي</td></tr>
+    <tr><td>AES67</td><td>معيار مفتوح يربط بروتوكولات الصوت ببعض</td></tr>
+    <tr><td>AEC</td><td>كبت الصدى الصوتي (مهم للاجتماعات)</td></tr>
+    <tr><td>Gain Structure</td><td>ضبط المستوى الصحيح في كل مرحلة</td></tr>
+    <tr><td>Clipping</td><td>تشويه ناتج عن تجاوز الإشارة للحد الأقصى</td></tr>
+    <tr><td>Class-D</td><td>تصميم أمبليفاير عالي الكفاءة قليل الحرارة</td></tr>
+  </table>
+  </div>
+  <h3 class="sub-h">رموز ومنافذ شائعة</h3>
+  <div class="sym-grid">
+    <div class="sym"><div class="ico">🎤</div><div class="nm">مدخل ميك</div><div class="ds">XLR / Mic In</div></div>
+    <div class="sym"><div class="ico">🔊</div><div class="nm">مخرج سماعة</div><div class="ds">Speaker Out</div></div>
+    <div class="sym"><div class="ico">🌐</div><div class="nm">شبكة الصوت</div><div class="ds">Dante / Q-LAN</div></div>
+    <div class="sym"><div class="ico">⚙️</div><div class="nm">معالجة</div><div class="ds">DSP Block</div></div>
+    <div class="sym"><div class="ico">📊</div><div class="nm">مؤشر المستوى</div><div class="ds">Level Meter</div></div>
+    <div class="sym"><div class="ico">🔗</div><div class="nm">توجيه</div><div class="ds">Routing Matrix</div></div>
+  </div>
+</section>
+
+<!-- EXAM -->
+<section id="exam">
+  <div class="step-tag"><span class="n">✓</span> قيّم نفسك</div>
+  <h2>الاختبار النهائي — المستوى 2</h2>
+  <p>عشر أسئلة. تحتاج <strong>7 صحيحة</strong> على الأقل لفتح المستوى الثالث.</p>
+  <div class="exam" id="examBox">
+    <div class="exam-head"><div class="ico">🧠</div><div style="font-family:var(--mono);color:var(--amber-bright);letter-spacing:1px">AUDIO CORE · FINAL</div></div>
+
+    <div class="exq">
+      <div class="qn">سؤال 1 / 10</div>
+      <div class="qt">ماذا يعني اختصار DSP؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="0" onclick="examPick(this,0,false)">Digital Sound Player</div>
+        <div class="opt" data-correct="1" onclick="examPick(this,0,true)">Digital Signal Processor (معالج إشارة رقمية)</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,0,false)">Direct Speaker Power</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 2 / 10</div>
+      <div class="qt">ما الجهاز المركزي في نظام Q-SYS؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="1" onclick="examPick(this,1,true)">الكور (Core)</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,1,false)">السماعة</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,1,false)">الميكروفون</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 3 / 10</div>
+      <div class="qt">إذا احتجت مداخل XLR تناظرية في نظام شبكي، أي جهاز تضيف؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="0" onclick="examPick(this,2,false)">أمبليفاير أكبر</div>
+        <div class="opt" data-correct="1" onclick="examPick(this,2,true)">إطار I/O</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,2,false)">UPS</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 4 / 10</div>
+      <div class="qt">أي بروتوكول صوت عبر IP هو الأكثر انتشاراً ويربط أجهزة شركات مختلفة؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="1" onclick="examPick(this,3,true)">Dante</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,3,false)">HDMI</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,3,false)">USB</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 5 / 10</div>
+      <div class="qt">كم كيبل شبكة تحتاج لنقل 64 قناة صوت عبر Dante؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="0" onclick="examPick(this,4,false)">64 كيبل</div>
+        <div class="opt" data-correct="1" onclick="examPick(this,4,true)">كيبل واحد</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,4,false)">8 كوابل</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 6 / 10</div>
+      <div class="qt">شبكة الصوت Dante تحتاج سويتش...</div>
+      <div class="opts">
+        <div class="opt" data-correct="1" onclick="examPick(this,5,true)">مُدار يدعم QoS و IGMP</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,5,false)">منزلي رخيص</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,5,false)">بدون أي إعدادات</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 7 / 10</div>
+      <div class="qt">ما الذي يميّز أمبليفاير L-Acoustics A12X الذكي؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="0" onclick="examPick(this,6,false)">أنه تناظري بالكامل</div>
+        <div class="opt" data-correct="1" onclick="examPick(this,6,true)">يجمع التكبير مع DSP وحماية للسماعة ومراقبة شبكية</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,6,false)">أنه بلا تبريد</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 8 / 10</div>
+      <div class="qt">القاعدة الذهبية في بنية الكسب: ارفع الإشارة لمستوى صحّي...</div>
+      <div class="opts">
+        <div class="opt" data-correct="1" onclick="examPick(this,7,true)">مبكراً عند المصدر، وحافظ عليه نظيفاً</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,7,false)">في آخر مرحلة فقط</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,7,false)">المستوى لا يهم</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 9 / 10</div>
+      <div class="qt">إشارة دخلت مشوّهة (Clipping) — هل تُصلَح لاحقاً؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="0" onclick="examPick(this,8,false)">نعم بالـ EQ</div>
+        <div class="opt" data-correct="1" onclick="examPick(this,8,true)">لا، التشويه دمار دائم</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,8,false)">نعم بزيادة الكسب</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 10 / 10</div>
+      <div class="qt">ما الترتيب الصحيح لمسار الإشارة؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="1" onclick="examPick(this,9,true)">ميك ← كسب ← معالجة الكور ← أمبليفاير ← سماعة</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,9,false)">سماعة ← أمبليفاير ← ميك ← كور</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,9,false)">أمبليفاير ← ميك ← سماعة ← كور</div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:22px">
+      <button class="btn" onclick="gradeExam('examBox',10)">احسب النتيجة</button>
+    </div>
+    <div class="exam-result"></div>
+  </div>
+</section>
+
+<!-- DONE -->
+<section id="done">
+  <div class="done">
+    <div class="ico">🎚️</div>
+    <h2>أنهيت المستوى الثاني</h2>
+    <p>الحين تفهم دماغ الراك: الكور، إطارات الـ I/O، الصوت عبر الشبكة، الأمبليفايرات الذكية، وبنية الكسب. المستوى الثالث ينتقل للعالم اللاسلكي — أنظمة Shure والـ RF.</p>
+    <a href="../av-rack-level3/index.html" class="next-btn locked" id="nextBtn" aria-disabled="true">المستوى 3: الكبينة اللاسلكية و RF ←</a>
+    <br><a href="../index.html" class="back-link">← رجوع لكل المسارات</a>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ===== L2 simulators =====
+// network vs analog cable count
+(function(){
+  var ch=document.getElementById('netCh'),v=document.getElementById('netChV'),a=document.getElementById('netAnalog'),d=document.getElementById('netDigital');
+  function upd(){var n=+ch.value;v.textContent=n;a.textContent=n;d.textContent=Math.ceil(n/64);}
+  ch.addEventListener('input',upd);upd();
+})();
+// amp load
+(function(){
+  var l=document.getElementById('ampLevel'),lv=document.getElementById('ampLevelV'),load=document.getElementById('ampLoad'),loadv=document.getElementById('ampLoadV'),heat=document.getElementById('ampHeat'),heatv=document.getElementById('ampHeatV'),st=document.getElementById('ampStatus');
+  function upd(){
+    var p=+l.value;lv.textContent=p+'%';
+    var ld=p; // load tracks level
+    var protect=p>92;
+    if(protect)ld=92; // smart amp limits
+    loadv.textContent=ld+'%';load.style.width=ld+'%';
+    var t=Math.round(30+p*0.55);heatv.textContent=t+'°C';heat.style.width=Math.min(100,(t-30)/55*100)+'%';
+    if(p<=70){load.style.background='var(--green)';heat.style.background='var(--green)';st.className='status ok';st.textContent='✓ تشغيل آمن';}
+    else if(p<=92){load.style.background='var(--amber)';heat.style.background='var(--amber)';st.className='status warn-s';st.textContent='⚠ حمل عالٍ — اقتراب من الحد';}
+    else{load.style.background='var(--red)';heat.style.background='var(--red)';st.className='status bad';st.textContent='✗ الأمبليفاير الذكي حدّ الإشارة لحماية السماعة';}
+  }
+  l.addEventListener('input',upd);upd();
+})();
+// signal chain builder
+(function(){
+  window._chainCorrect=['ميك','كسب','معالجة الكور','مزج/توجيه','أمبليفاير','سماعة'];
+  window._chainState=[];
+  window.resetChain=function(){window._chainState=[];renderChain();};
+  function renderChain(){
+    var flow=document.getElementById('chainFlow');var pool=document.getElementById('chainPool');var msg=document.getElementById('chainMsg');
+    flow.innerHTML='';
+    window._chainState.forEach(function(s,i){
+      if(i>0){var ar=document.createElement('span');ar.className='flow-arrow';ar.textContent='←';flow.appendChild(ar);}
+      var n=document.createElement('div');n.className='flow-node active';n.textContent=s;flow.appendChild(n);
+    });
+    if(window._chainState.length===0){var ph=document.createElement('span');ph.style.color='var(--ink-faint)';ph.style.fontSize='.85rem';ph.textContent='(فارغ — ابدأ بالاختيار)';flow.appendChild(ph);}
+    pool.innerHTML='';
+    var remaining=window._chainCorrect.filter(function(c){return window._chainState.indexOf(c)<0;});
+    // shuffle remaining for challenge (stable-ish)
+    remaining.forEach(function(c){
+      var b=document.createElement('div');b.className='tog';b.textContent=c;
+      b.onclick=function(){
+        var expected=window._chainCorrect[window._chainState.length];
+        if(c===expected){window._chainState.push(c);renderChain();}
+        else{
+          b.classList.add('off');b.style.borderColor='var(--red)';b.style.color='#f0a0a0';
+          msg.textContent='✗ هذي مو المرحلة الصحيحة هنا — المتوقّع: '+expected;
+          setTimeout(function(){renderChain();},1200);
+        }
+      };
+      pool.appendChild(b);
+    });
+    if(window._chainState.length===window._chainCorrect.length){msg.textContent='✓ ممتاز! مسار إشارة صحيح من المصدر للسماعة';}
+    else if(window._chainState.length>0){msg.textContent='المرحلة التالية الصحيحة؟';}
+  }
+  renderChain();
+})();
+</script>
+<footer>
+<p>هذه المادة تعليمية لمساعدة فنيي الصوت والصورة على فهم تصميم الأنظمة، وليست بديلاً عن التدريب المعتمد من الشركات المصنّعة أو عن قراءة الكتيّبات الرسمية للأجهزة.</p>
+<p>أسماء الأجهزة والعلامات التجارية (QSC، Q-SYS، Shure، L-Acoustics، Logitech، Samsung، وغيرها) مذكورة لأغراض تعليمية فقط وهي ملك لأصحابها.</p>
+<p style="margin-top:14px;font-family:var(--mono);color:var(--copper)">مسار تصميم الأنظمة والكبائن · المستوى 2 من 5</p>
+</footer>
+<script>
+// progress rail
+(function(){
+  var rf=document.getElementById('railFill');
+  function upd(){
+    var h=document.documentElement;
+    var sc=h.scrollTop||document.body.scrollTop;
+    var max=(h.scrollHeight-h.clientHeight)||1;
+    rf.style.width=(sc/max*100)+'%';
+  }
+  window.addEventListener('scroll',upd,{passive:true});
+  window.addEventListener('resize',upd);upd();
+})();
+// mini quiz
+function pickOpt(el,correct){
+  var box=el.closest('.quiz');
+  if(box.dataset.done)return;
+  box.dataset.done='1';
+  var opts=box.querySelectorAll('.opt');
+  opts.forEach(function(o){o.classList.add('disabled')});
+  var fb=box.querySelector('.q-fb');
+  if(correct){
+    el.classList.add('correct');
+    fb.classList.add('show','good');
+  }else{
+    el.classList.add('wrong');
+    opts.forEach(function(o){if(o.dataset.correct==='1')o.classList.add('correct')});
+    fb.classList.add('show','bad');
+  }
+}
+// final exam
+function gradeExam(id,total){
+  var ex=document.getElementById(id);
+  var qs=ex.querySelectorAll('.exq');
+  var score=0,answered=0;
+  qs.forEach(function(q){
+    if(q.dataset.ans){
+      answered++;
+      if(q.dataset.ans==='1')score++;
+    }
+  });
+  if(answered<total){
+    alert('أجب عن كل الأسئلة أولاً — أجبت عن '+answered+' من '+total);
+    return;
+  }
+  var res=ex.querySelector('.exam-result');
+  var pass=score>=Math.ceil(total*0.7);
+  res.className='exam-result show '+(pass?'pass':'fail');
+  var msg=pass
+    ? 'ممتاز! اجتزت اختبار هذا المستوى. تقدر تكمل للمستوى التالي.'
+    : 'قريب! راجع الأقسام اللي أخطأت فيها وأعد المحاولة — تحتاج '+Math.ceil(total*0.7)+' إجابات صحيحة على الأقل.';
+  res.innerHTML='<div class="score">'+score+' / '+total+'</div><p>'+msg+'</p>';
+  if(pass){
+    var nb=document.getElementById('nextBtn');
+    if(nb){nb.classList.remove('locked');nb.removeAttribute('aria-disabled');}
+  }
+  res.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function examPick(el,qi,correct){
+  var q=el.closest('.exq');
+  if(q.dataset.locked)return;
+  q.dataset.locked='1';
+  q.dataset.ans=correct?'1':'0';
+  var opts=q.querySelectorAll('.opt');
+  opts.forEach(function(o){o.classList.add('disabled')});
+  if(correct){el.classList.add('correct');}
+  else{el.classList.add('wrong');opts.forEach(function(o){if(o.dataset.correct==='1')o.classList.add('correct')});}
+}
+</script>
+</body>
+</html>

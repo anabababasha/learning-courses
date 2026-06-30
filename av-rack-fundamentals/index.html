@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>المستوى 1: تشريح الكبينة — تصميم الأنظمة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0f12;
+  --bg2:#13161b;
+  --panel:#181c22;
+  --panel2:#1e232b;
+  --line:#2a313b;
+  --line2:#363f4b;
+  --ink:#e8ebef;
+  --ink-dim:#a8b1bd;
+  --ink-faint:#6c7682;
+  --copper:#c87f4a;
+  --copper-bright:#e0975c;
+  --cyan:#3fb8c4;
+  --cyan-bright:#5fd6e2;
+  --amber:#e0a23c;
+  --amber-bright:#f3bd5e;
+  --green:#5fbf72;
+  --red:#d65f5f;
+  --blue:#5a8fd6;
+  --purple:#9a7fc8;
+  --radius:14px;
+  --radius-sm:9px;
+  --maxw:880px;
+  --shadow:0 8px 30px rgba(0,0,0,.4);
+  --mono:'IBM Plex Mono',monospace;
+  --sans:'IBM Plex Sans Arabic',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--sans);
+  background:var(--bg);
+  color:var(--ink);
+  line-height:1.85;
+  font-weight:400;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+/* progress rail */
+.rail{position:fixed;top:0;right:0;left:0;height:4px;background:rgba(255,255,255,.04);z-index:100}
+.rail-fill{height:100%;width:0;background:linear-gradient(90deg,var(--copper),var(--amber),var(--cyan));box-shadow:0 0 12px rgba(224,162,60,.5);transition:width .08s linear}
+/* breadcrumb */
+.crumb{position:sticky;top:4px;z-index:90;background:rgba(13,15,18,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:11px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.crumb a{color:var(--ink-dim);text-decoration:none;font-size:.82rem;transition:color .2s}
+.crumb a:hover{color:var(--cyan-bright)}
+.crumb .sep{color:var(--ink-faint);font-size:.7rem}
+.badge{background:linear-gradient(135deg,var(--copper),var(--amber));color:#1a1206;font-weight:700;font-size:.74rem;padding:4px 11px;border-radius:30px;font-family:var(--mono);letter-spacing:.3px;white-space:nowrap}
+.crumb .home{margin-inline-start:auto;font-weight:600}
+/* layout */
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px}
+section{padding:46px 0;border-bottom:1px solid rgba(42,49,59,.5)}
+section:last-of-type{border-bottom:none}
+/* hero */
+.hero{padding:64px 0 50px;text-align:center;position:relative}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(224,162,60,.10),transparent 70%);pointer-events:none}
+.eyebrow{font-family:var(--mono);color:var(--amber-bright);font-size:.8rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;font-weight:500}
+h1{font-size:clamp(2rem,6vw,3.1rem);font-weight:700;line-height:1.25;margin-bottom:18px;background:linear-gradient(120deg,#fff 20%,var(--amber-bright) 60%,var(--copper));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sub{font-size:clamp(1rem,2.5vw,1.18rem);color:var(--ink-dim);max-width:620px;margin:0 auto 26px;font-weight:300}
+.chips{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:26px}
+.chip{background:var(--panel);border:1px solid var(--line2);border-radius:30px;padding:7px 16px;font-size:.82rem;color:var(--ink-dim);display:flex;align-items:center;gap:7px}
+.chip b{color:var(--amber-bright);font-family:var(--mono);font-weight:600}
+.prereq{background:linear-gradient(135deg,rgba(63,184,196,.08),rgba(90,143,214,.05));border:1px solid rgba(63,184,196,.25);border-radius:var(--radius-sm);padding:14px 18px;max-width:560px;margin:0 auto 30px;font-size:.9rem;color:var(--ink-dim)}
+.prereq a{color:var(--cyan-bright);font-weight:600;text-decoration:none}
+.prereq a:hover{text-decoration:underline}
+/* toc */
+.toc{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px;max-width:560px;margin:0 auto;text-align:right}
+.toc h3{font-size:.78rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-faint);margin-bottom:14px;font-family:var(--mono)}
+.toc ol{list-style:none;counter-reset:toc}
+.toc li{counter-increment:toc;margin:9px 0}
+.toc a{color:var(--ink);text-decoration:none;display:flex;align-items:baseline;gap:11px;font-size:.96rem;transition:color .2s}
+.toc a:hover{color:var(--amber-bright)}
+.toc a::before{content:counter(toc,decimal-leading-zero);font-family:var(--mono);color:var(--copper);font-size:.8rem;font-weight:600;min-width:24px}
+.scrollcue{text-align:center;margin-top:34px;color:var(--ink-faint);font-size:.8rem;animation:bob 2s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
+/* section headers */
+.step-tag{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:.76rem;color:var(--amber-bright);letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;font-weight:500}
+.step-tag .n{background:linear-gradient(135deg,var(--copper),var(--amber));color:#1a1206;width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-weight:700;font-size:.82rem}
+h2{font-size:clamp(1.5rem,4vw,2rem);font-weight:700;margin-bottom:16px;color:#fff;line-height:1.3}
+h3.sub-h{font-size:1.15rem;font-weight:600;color:var(--amber-bright);margin:26px 0 12px}
+p{margin-bottom:15px;color:var(--ink-dim)}
+p strong,li strong{color:var(--ink);font-weight:600}
+.lead{font-size:1.08rem;color:var(--ink)}
+ul.bullets,ol.steps{margin:14px 0 18px;padding-inline-start:8px;list-style:none}
+ul.bullets li,ol.steps li{position:relative;padding-inline-start:26px;margin-bottom:11px;color:var(--ink-dim)}
+ul.bullets li::before{content:"";position:absolute;right:6px;top:12px;width:7px;height:7px;border-radius:2px;background:var(--copper)}
+ol.steps{counter-reset:st}
+ol.steps li{counter-increment:st}
+ol.steps li::before{content:counter(st);position:absolute;right:0;top:1px;font-family:var(--mono);color:var(--amber-bright);font-weight:600;font-size:.85rem;background:var(--panel2);width:22px;height:22px;border-radius:6px;display:grid;place-items:center}
+/* analogy / callout boxes */
+.analogy{background:linear-gradient(135deg,rgba(200,127,74,.09),rgba(224,162,60,.04));border-inline-start:3px solid var(--copper);border-radius:var(--radius-sm);padding:16px 20px;margin:18px 0}
+.analogy .label{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--copper-bright);margin-bottom:7px;font-weight:600}
+.note{background:rgba(63,184,196,.07);border-inline-start:3px solid var(--cyan);border-radius:var(--radius-sm);padding:14px 18px;margin:16px 0;font-size:.93rem}
+.note .label{font-family:var(--mono);font-size:.72rem;letter-spacing:1px;color:var(--cyan-bright);margin-bottom:6px;font-weight:600;text-transform:uppercase}
+.warn{background:rgba(214,95,95,.08);border-inline-start:3px solid var(--red);border-radius:var(--radius-sm);padding:14px 18px;margin:16px 0;font-size:.93rem}
+.warn .label{font-family:var(--mono);font-size:.72rem;letter-spacing:1px;color:#e88;margin-bottom:6px;font-weight:600;text-transform:uppercase}
+.pro{background:rgba(95,191,114,.07);border-inline-start:3px solid var(--green);border-radius:var(--radius-sm);padding:14px 18px;margin:16px 0;font-size:.93rem}
+.pro .label{font-family:var(--mono);font-size:.72rem;letter-spacing:1px;color:#7d9;margin-bottom:6px;font-weight:600;text-transform:uppercase}
+/* generic card / panel */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin:20px 0}
+.panel-h{font-size:.78rem;font-family:var(--mono);text-transform:uppercase;letter-spacing:1px;color:var(--ink-faint);margin-bottom:14px}
+/* simulator shell */
+.sim{background:linear-gradient(160deg,var(--panel2),var(--panel));border:1px solid var(--line2);border-radius:var(--radius);padding:24px;margin:24px 0;box-shadow:var(--shadow)}
+.sim-head{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.sim-head .dot{width:9px;height:9px;border-radius:50%;background:var(--amber);box-shadow:0 0 8px var(--amber)}
+.sim-title{font-family:var(--mono);font-size:.82rem;letter-spacing:.5px;color:var(--amber-bright);text-transform:uppercase;font-weight:600}
+.sim-sub{font-size:.86rem;color:var(--ink-faint);margin-bottom:18px}
+.ctrl-row{display:flex;align-items:center;gap:14px;margin:14px 0;flex-wrap:wrap}
+.ctrl-row label{min-width:120px;font-size:.9rem;color:var(--ink-dim)}
+input[type=range]{-webkit-appearance:none;appearance:none;flex:1;min-width:140px;height:6px;border-radius:5px;background:var(--line2);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--amber-bright),var(--copper));cursor:pointer;box-shadow:0 0 10px rgba(224,162,60,.6);border:2px solid #1a1206}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--amber-bright);cursor:pointer;border:2px solid #1a1206}
+.readout{font-family:var(--mono);font-size:1.05rem;color:var(--cyan-bright);min-width:74px;text-align:center;background:var(--bg);border:1px solid var(--line2);border-radius:7px;padding:5px 10px;font-weight:600}
+.btn{background:linear-gradient(135deg,var(--copper),var(--amber));color:#1a1206;border:none;border-radius:8px;padding:10px 20px;font-family:var(--sans);font-weight:600;font-size:.92rem;cursor:pointer;transition:transform .15s,box-shadow .2s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 5px 16px rgba(224,162,60,.35)}
+.btn:active{transform:translateY(0)}
+.btn.ghost{background:transparent;border:1px solid var(--line2);color:var(--ink-dim)}
+.btn.ghost:hover{border-color:var(--cyan);color:var(--cyan-bright);box-shadow:none}
+.btn.sm{padding:7px 14px;font-size:.84rem}
+.toggle-grid{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+.tog{background:var(--bg);border:1px solid var(--line2);border-radius:8px;padding:9px 16px;cursor:pointer;font-size:.88rem;color:var(--ink-dim);transition:all .2s;user-select:none}
+.tog.on{background:linear-gradient(135deg,rgba(95,191,114,.2),rgba(95,191,114,.08));border-color:var(--green);color:#9ee5ab}
+.tog.off{opacity:.7}
+/* rack visual (RU stack) */
+.rackbox{background:#0a0c0f;border:2px solid var(--line2);border-radius:8px;padding:8px;margin:14px 0;display:flex;flex-direction:column;gap:3px}
+.ru{height:34px;border-radius:5px;display:flex;align-items:center;padding:0 12px;font-size:.82rem;font-family:var(--mono);position:relative;transition:all .25s;cursor:default}
+.ru .ru-rails{position:absolute;inset:0;pointer-events:none;border-radius:5px;border-inline-start:6px solid rgba(0,0,0,.4);border-inline-end:6px solid rgba(0,0,0,.4)}
+.ru.empty{background:repeating-linear-gradient(45deg,#111418,#111418 8px,#0d1014 8px,#0d1014 16px);color:var(--ink-faint);border:1px dashed var(--line2)}
+.ru.amp{background:linear-gradient(90deg,#1c2128,#23292f);color:var(--ink);border:1px solid var(--line2)}
+.ru.dsp{background:linear-gradient(90deg,#1a2530,#1e2d3a);color:#bfe3ea;border:1px solid rgba(63,184,196,.4)}
+.ru.rf{background:linear-gradient(90deg,#2a2030,#33283c);color:#e0cdf0;border:1px solid rgba(154,127,200,.4)}
+.ru.net{background:linear-gradient(90deg,#2a2618,#332f1c);color:#f0e3b8;border:1px solid rgba(224,162,60,.4)}
+.ru.pwr{background:linear-gradient(90deg,#2a1818,#331c1c);color:#f0c8c8;border:1px solid rgba(214,95,95,.4)}
+.ru.video{background:linear-gradient(90deg,#182a22,#1c3329);color:#c8f0d8;border:1px solid rgba(95,191,114,.4)}
+.ru .tag{margin-inline-start:auto;font-size:.68rem;opacity:.7}
+.ru.heavy{box-shadow:inset 0 0 0 1px rgba(214,95,95,.3)}
+/* meters */
+.meter{height:12px;background:var(--bg);border-radius:7px;overflow:hidden;border:1px solid var(--line2);margin:8px 0}
+.meter-fill{height:100%;border-radius:7px;transition:width .3s,background .3s}
+.gauge-label{display:flex;justify-content:space-between;font-size:.8rem;color:var(--ink-faint);font-family:var(--mono);margin-bottom:4px}
+.status{display:inline-flex;align-items:center;gap:7px;font-size:.85rem;font-family:var(--mono);padding:5px 12px;border-radius:30px;font-weight:600}
+.status.ok{background:rgba(95,191,114,.15);color:#8fe6a0}
+.status.bad{background:rgba(214,95,95,.15);color:#f0a0a0}
+.status.warn-s{background:rgba(224,162,60,.15);color:#f3cf8e}
+/* tables */
+.tbl-wrap{overflow-x:auto;margin:18px 0;border-radius:var(--radius-sm);border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:.9rem;min-width:480px}
+th,td{padding:12px 14px;text-align:right;border-bottom:1px solid var(--line)}
+th{background:var(--panel2);color:var(--amber-bright);font-weight:600;font-family:var(--mono);font-size:.8rem;letter-spacing:.3px;text-transform:uppercase}
+td{color:var(--ink-dim)}
+tr:last-child td{border-bottom:none}
+td code,p code,li code{font-family:var(--mono);background:var(--bg);color:var(--cyan-bright);padding:2px 7px;border-radius:5px;font-size:.85em;border:1px solid var(--line2)}
+.gloss td:first-child{color:var(--amber-bright);font-weight:600;font-family:var(--mono);white-space:nowrap}
+/* symbols grid */
+.sym-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin:20px 0}
+.sym{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-sm);padding:16px;text-align:center;transition:border-color .2s}
+.sym:hover{border-color:var(--copper)}
+.sym .ico{font-size:1.8rem;margin-bottom:8px;color:var(--amber-bright)}
+.sym .nm{font-size:.82rem;color:var(--ink);font-weight:600;margin-bottom:3px}
+.sym .ds{font-size:.74rem;color:var(--ink-faint)}
+/* mini quiz */
+.quiz{background:var(--panel);border:1px solid var(--line2);border-radius:var(--radius);padding:20px 22px;margin:22px 0}
+.quiz .q-label{font-family:var(--mono);font-size:.72rem;color:var(--cyan-bright);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;font-weight:600}
+.quiz .q-text{font-size:1rem;color:var(--ink);font-weight:500;margin-bottom:14px}
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:12px 16px;cursor:pointer;font-size:.92rem;color:var(--ink-dim);transition:all .18s;text-align:right}
+.opt:hover{border-color:var(--copper);color:var(--ink)}
+.opt.correct{background:rgba(95,191,114,.14);border-color:var(--green);color:#9ee5ab}
+.opt.wrong{background:rgba(214,95,95,.12);border-color:var(--red);color:#f0a0a0}
+.opt.disabled{pointer-events:none;opacity:.85}
+.q-fb{margin-top:12px;font-size:.9rem;padding:11px 15px;border-radius:8px;display:none}
+.q-fb.show{display:block}
+.q-fb.good{background:rgba(95,191,114,.1);color:#9ee5ab;border-inline-start:3px solid var(--green)}
+.q-fb.bad{background:rgba(214,95,95,.1);color:#f0a0a0;border-inline-start:3px solid var(--red)}
+/* final exam */
+.exam{background:linear-gradient(160deg,var(--panel2),var(--bg2));border:1px solid var(--line2);border-radius:var(--radius);padding:26px;margin:26px 0}
+.exam-head{text-align:center;margin-bottom:22px}
+.exam-head .ico{font-size:2rem;margin-bottom:8px}
+.exq{border-top:1px solid var(--line);padding:18px 0}
+.exq:first-of-type{border-top:none}
+.exq .qn{font-family:var(--mono);color:var(--copper);font-size:.8rem;font-weight:600;margin-bottom:7px}
+.exq .qt{font-size:.98rem;color:var(--ink);font-weight:500;margin-bottom:13px}
+.exam-result{text-align:center;padding:24px;border-radius:var(--radius);margin-top:20px;display:none}
+.exam-result.show{display:block}
+.exam-result.pass{background:linear-gradient(135deg,rgba(95,191,114,.15),rgba(63,184,196,.08));border:1px solid var(--green)}
+.exam-result.fail{background:linear-gradient(135deg,rgba(214,95,95,.12),rgba(224,162,60,.06));border:1px solid var(--amber)}
+.exam-result .score{font-family:var(--mono);font-size:2.4rem;font-weight:700;margin:8px 0}
+.exam-result.pass .score{color:#8fe6a0}
+.exam-result.fail .score{color:var(--amber-bright)}
+/* completion card */
+.done{background:linear-gradient(160deg,rgba(224,162,60,.1),rgba(63,184,196,.06));border:1px solid var(--line2);border-radius:var(--radius);padding:32px;margin:30px 0;text-align:center}
+.done .ico{font-size:2.6rem;margin-bottom:12px}
+.done h2{font-size:1.5rem;margin-bottom:10px}
+.done p{max-width:480px;margin:0 auto 20px}
+.next-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--copper),var(--amber));color:#1a1206;text-decoration:none;font-weight:700;padding:14px 28px;border-radius:10px;font-size:1rem;transition:transform .15s,box-shadow .2s}
+.next-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(224,162,60,.4)}
+.next-btn.locked{background:var(--panel2);color:var(--ink-faint);cursor:not-allowed;border:1px solid var(--line2)}
+.back-link{display:inline-block;margin-top:16px;color:var(--ink-dim);text-decoration:none;font-size:.9rem}
+.back-link:hover{color:var(--cyan-bright)}
+/* footer */
+footer{background:var(--bg2);border-top:1px solid var(--line);padding:30px 20px;text-align:center;margin-top:20px}
+footer p{font-size:.82rem;color:var(--ink-faint);max-width:560px;margin:0 auto 8px}
+/* diagram helpers */
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;margin:20px 0}
+.flow-node{background:var(--panel2);border:1px solid var(--line2);border-radius:9px;padding:11px 16px;font-size:.85rem;text-align:center;min-width:84px;transition:all .25s}
+.flow-node.active{border-color:var(--amber);box-shadow:0 0 14px rgba(224,162,60,.4);color:var(--amber-bright)}
+.flow-node.err{border-color:var(--red);box-shadow:0 0 14px rgba(214,95,95,.4);color:#f0a0a0}
+.flow-arrow{color:var(--copper);font-size:1.2rem}
+.svg-box{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-sm);padding:18px;margin:18px 0;text-align:center}
+svg{max-width:100%;height:auto}
+.tag-pill{display:inline-block;font-family:var(--mono);font-size:.72rem;padding:3px 9px;border-radius:20px;background:var(--panel2);border:1px solid var(--line2);color:var(--ink-dim);margin:2px}
+@media (max-width:560px){
+  .ctrl-row label{min-width:90px;font-size:.84rem}
+  section{padding:38px 0}
+  .sim{padding:18px}
+  .ru{height:30px;font-size:.74rem}
+}
+/* L5 capstone components */
+.flow-node .ds{display:block;font-size:.72rem;color:var(--ink-faint);margin-top:3px;font-weight:400}
+.flow-node .nm{display:block;font-weight:600;color:var(--ink)}
+.scn{background:var(--panel);border:1px solid var(--line);border-inline-start:3px solid var(--amber);border-radius:var(--radius-sm);padding:16px 18px;margin:16px 0}
+.scn-h{font-size:1.02rem;font-weight:700;color:var(--ink);margin-bottom:8px;display:flex;align-items:center;gap:9px}
+.scn-ico{font-size:1.3rem}
+.scn-need{color:var(--cyan-bright)!important}
+.scn p{margin:6px 0;color:var(--ink-dim);font-size:.92rem;line-height:1.7}
+.scn-tags{margin-top:10px}
+.chklist{margin:16px 0;display:flex;flex-direction:column;gap:9px}
+.chk{display:flex;align-items:flex-start;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:11px 14px;color:var(--ink-dim);font-size:.9rem;line-height:1.6}
+.chk .cb{color:var(--cyan-bright);font-size:1.05rem;flex-shrink:0;line-height:1.4}
+.comp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px;margin:10px 0}
+.comp{background:var(--bg);border:1px solid var(--line2);border-radius:8px;padding:11px 12px;font-size:.85rem;color:var(--ink-dim);text-align:center;cursor:pointer;transition:all .18s;user-select:none}
+.comp:hover{border-color:var(--copper);color:var(--ink)}
+.comp.on{background:linear-gradient(135deg,rgba(224,162,60,.18),rgba(200,127,74,.12));border-color:var(--amber);color:var(--amber-bright);font-weight:600;box-shadow:0 0 12px rgba(224,162,60,.25)}
+.cert-line{font-family:var(--mono);font-size:.9rem;color:var(--cyan-bright);background:var(--bg);border:1px solid var(--line2);border-radius:8px;padding:12px 16px;margin:16px auto;max-width:480px}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+<div class="rail"><div class="rail-fill" id="railFill"></div></div>
+<!-- ===== BREADCRUMB ===== -->
+<nav class="crumb">
+  <span class="badge">المستوى 1 من 5</span>
+  <span class="sep">•</span>
+  <a href="../index.html">الرئيسية</a>
+  <span class="sep">›</span>
+  <span style="color:var(--ink-faint);font-size:.82rem">تشريح الكبينة</span>
+  <a href="../index.html" class="home">كل المسارات ←</a>
+</nav>
+
+<!-- ===== HERO ===== -->
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">مسار تصميم الأنظمة · المستوى الأول</div>
+    <h1>تشريح الكبينة (الراك)</h1>
+    <p class="sub">قبل ما تركّب أي جهاز، لازم تفهم اللغة الفيزيائية للراك: الوحدات، الوزن، الهواء، الطاقة، والكوابل. هذا الأساس اللي يبني عليه كل شي بعده.</p>
+    <div class="chips">
+      <span class="chip">⏱️ <b>~30</b> دقيقة</span>
+      <span class="chip">🧩 <b>8</b> أقسام</span>
+      <span class="chip">🎛️ <b>4</b> محاكيات</span>
+      <span class="chip">📝 اختبار <b>10</b> أسئلة</span>
+    </div>
+    <div class="prereq">
+      💡 هذا المسار متقدّم ويفترض إنك أنهيت <a href="../electricity-fundamentals/index.html">مسار الكهرباء</a> و<a href="../networking-fundamentals/index.html">مسار الشبكات</a>. رح نشير لمفاهيم منهم بدون ما نعيد شرحها من الصفر.
+    </div>
+    <nav class="toc">
+      <h3>محتوى المستوى</h3>
+      <ol>
+        <li><a href="#ru">وحدة الراك (RU) والمقاس القياسي 19"</a></li>
+        <li><a href="#weight">توزيع الوزن ومركز الثقل</a></li>
+        <li><a href="#airflow">تدفّق الهواء والتبريد</a></li>
+        <li><a href="#cable">إدارة الكوابل والوصول الخلفي</a></li>
+        <li><a href="#power">الطاقة: PDU والتكييف والتسلسل</a></li>
+        <li><a href="#cases">راك التركيب مقابل صندوق الطيران</a></li>
+        <li><a href="#builder">محاكي: ابنِ راك متوازن</a></li>
+        <li><a href="#exam">الاختبار النهائي</a></li>
+      </ol>
+    </nav>
+    <div class="scrollcue">انزل للأسفل لتبدأ ↓</div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- 1. RU -->
+<section id="ru">
+  <div class="step-tag"><span class="n">1</span> الوحدة القياسية</div>
+  <h2>وحدة الراك (RU) والمقاس 19 إنش</h2>
+  <p class="lead">الراك مو مجرد صندوق — هو نظام قياس عالمي. أي جهاز احترافي مصمّم ليتركّب في إطار عرضه <strong>19 إنش</strong> (482.6 مم) بين القضبان.</p>
+  <p>الارتفاع يُقاس بوحدة اسمها <strong>Rack Unit</strong> ويُرمز لها <code>U</code> أو <code>RU</code>. الوحدة الواحدة تساوي <strong>44.45 مم</strong> (1.75 إنش). فالجهاز اللي مكتوب عليه <code>2U</code> ياخذ ضعف ارتفاع جهاز <code>1U</code>.</p>
+  <div class="analogy">
+    <div class="label">شبّهها بـ</div>
+    رفوف المطبخ القياسية: كل رف بنفس العرض، وتقدر تركّب أي علبة طالما مقاسها يطابق الرف. الراك نفس الفكرة بس عمودي وبمسامير.
+  </div>
+  <h3 class="sub-h">المصطلحات اللي رح تسمعها كثير</h3>
+  <ul class="bullets">
+    <li><strong>العمق (Depth):</strong> المسافة من القضيب الأمامي للخلفي. الأمبليفايرات والسيرفرات تحتاج عمق كبير (حتى 1000 مم)، بينما جهاز شبكة صغير ممكن 300 مم.</li>
+    <li><strong>القضبان (Rails):</strong> الشرائح المعدنية المثقّبة اللي تتركّب عليها الأجهزة. في راك التركيب غالباً 4 قضبان (أمامي وخلفي).</li>
+    <li><strong>الخيط (Threading):</strong> نوع المسمار — إما خيط مباشر في القضيب، أو صواميل قفص (Cage Nuts) تتركّب في فتحات مربّعة.</li>
+    <li><strong>لوحات الفراغ (Blank Panels):</strong> ألواح فارغة 1U/2U تسدّ المساحات الفاضية. مو زينة — لها دور في الهواء (رح نشرحه).</li>
+  </ul>
+  <div class="sim" id="ruSim">
+    <div class="sim-head"><span class="dot"></span><span class="sim-title">مسطرة الـ RU</span></div>
+    <div class="sim-sub">حرّك المؤشر لتشوف كم سنتيمتر يساوي عدد الوحدات، وأمثلة على أجهزة بهذا الحجم.</div>
+    <div class="ctrl-row">
+      <label>عدد الوحدات</label>
+      <input type="range" id="ruRange" min="1" max="12" value="2" step="1">
+      <span class="readout" id="ruVal">2U</span>
+    </div>
+    <div class="ctrl-row">
+      <span class="readout" id="ruMm" style="min-width:110px">89 مم</span>
+      <span style="color:var(--ink-faint);font-size:.85rem" id="ruExample">مثال: ريسيفر لاسلكي رباعي مثل ULXD4Q</span>
+    </div>
+    <div class="rackbox" id="ruRack" style="margin-top:14px"></div>
+  </div>
+  <div class="quiz">
+    <div class="q-label">سؤال سريع</div>
+    <div class="q-text">جهاز مكتوب عليه 3U — كم يساوي ارتفاعه تقريباً؟</div>
+    <div class="opts">
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">44 مم</div>
+      <div class="opt" data-correct="1" onclick="pickOpt(this,true)">حوالي 133 مم (3 × 44.45)</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">300 مم</div>
+    </div>
+    <div class="q-fb">صح. كل وحدة 44.45 مم، فثلاث وحدات ≈ 133 مم. هذي طريقة سريعة تحسب بها مساحة الراك اللي تحتاجها.</div>
+  </div>
+</section>
+
+<!-- 2. WEIGHT -->
+<section id="weight">
+  <div class="step-tag"><span class="n">2</span> الجاذبية صديقتك</div>
+  <h2>توزيع الوزن ومركز الثقل</h2>
+  <p class="lead">أهم قاعدة في بناء الراك: <strong>الثقيل تحت، الخفيف فوق</strong>. الأمبليفايرات ومصادر الطاقة هي الأثقل، فمكانها أسفل الراك دائماً.</p>
+  <p>ليش؟ لأن مركز الثقل العالي يخلّي الراك سهل الانقلاب — خصوصاً وقت التحريك على العجلات. وراك الجولات (Touring) ينقلب بسهولة لو الأوزان مقلوبة. في الفيديو المشهور «أفضل مكان تشتغل فيه بدون ما تكسر ظهرك» الفكرة كلها إنك ترتّب الوزن صح من البداية.</p>
+  <div class="warn">
+    <div class="label">خطر حقيقي</div>
+    راك ممتلئ ممكن يوصل وزنه 100–200 كجم. لو الأمبليفاير فوق وفتحت الباب الأمامي وسحبت الجهاز للصيانة، عزم الدوران ممكن يقلب الراك كامل عليك.
+  </div>
+  <h3 class="sub-h">ترتيب نموذجي من تحت لفوق</h3>
+  <div class="rackbox">
+    <div class="ru rf">ريسيفرات لاسلكية (خفيفة، RF) <span class="tag">فوق</span></div>
+    <div class="ru net">سويتش شبكة + تحكّم</div>
+    <div class="ru dsp">معالج DSP / كور</div>
+    <div class="ru amp heavy">أمبليفاير 1 (ثقيل)</div>
+    <div class="ru amp heavy">أمبليفاير 2 (ثقيل)</div>
+    <div class="ru pwr heavy">منظّم/موزّع طاقة (الأثقل) <span class="tag">تحت</span></div>
+  </div>
+  <div class="sim" id="cgSim">
+    <div class="sim-head"><span class="dot"></span><span class="sim-title">محاكي مركز الثقل</span></div>
+    <div class="sim-sub">حرّك الأمبليفاير الثقيل لأعلى أو أسفل الراك وشوف كيف يتغيّر مؤشر الاستقرار.</div>
+    <div class="ctrl-row">
+      <label>موضع الأمبليفاير</label>
+      <input type="range" id="cgRange" min="1" max="6" value="6" step="1">
+      <span class="readout" id="cgPos">أسفل</span>
+    </div>
+    <div class="gauge-label"><span>مؤشر الاستقرار</span><span id="cgPct">95%</span></div>
+    <div class="meter"><div class="meter-fill" id="cgBar" style="width:95%;background:var(--green)"></div></div>
+    <div id="cgStatus" class="status ok" style="margin-top:10px">✓ مستقر — مركز الثقل منخفض</div>
+  </div>
+  <div class="quiz">
+    <div class="q-label">سؤال سريع</div>
+    <div class="q-text">عندك أمبليفاير 25 كجم وريسيفر لاسلكي 2 كجم. وين تحط كل واحد؟</div>
+    <div class="opts">
+      <div class="opt" data-correct="1" onclick="pickOpt(this,true)">الأمبليفاير أسفل الراك، الريسيفر أعلاه</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">الأمبليفاير أعلى عشان التهوية</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">ما يفرق، المهم يدخلون</div>
+    </div>
+    <div class="q-fb">صح. الثقيل تحت يخفّض مركز الثقل ويمنع الانقلاب، والخفيف فوق آمن.</div>
+  </div>
+</section>
+
+<!-- 3. AIRFLOW -->
+<section id="airflow">
+  <div class="step-tag"><span class="n">3</span> الحرارة عدوّة الإلكترونيات</div>
+  <h2>تدفّق الهواء والتبريد</h2>
+  <p class="lead">كل جهاز في الراك يطلّع حرارة. لو الحرارة محبوسة، الأجهزة تختنق وتطفّي نفسها أو تتلف. تصميم الهواء مهم بقدر أهمية الطاقة.</p>
+  <h3 class="sub-h">القاعدة الذهبية: من الأمام للخلف</h3>
+  <p>أغلب الأجهزة الاحترافية تسحب هواء <strong>بارد من الأمام</strong> وتطلّع هواء <strong>ساخن من الخلف</strong>. يعني الراك لازم يكون فيه ممر هواء بارد أمامي وممر ساخن خلفي، وما تختلط ببعض.</p>
+  <div class="analogy">
+    <div class="label">شبّهها بـ</div>
+    جسمك وقت الرياضة: تشهق هواء نقي من الأمام وتزفر حار. لو حطّيت كيس على وجهك (هواء محبوس) تختنق. الراك نفس الشي يحتاج «يتنفّس» باتجاه واحد.
+  </div>
+  <h3 class="sub-h">ليش لوحات الفراغ مهمة</h3>
+  <p>أي فتحة فاضية في الراك بدون لوحة فراغ = الهواء الساخن الخلفي يلتفّ ويرجع للأمام ويُسحب من جديد ساخناً. هذي تسمى <strong>إعادة الدوران الحراري (Recirculation)</strong> وهي قاتلة. لوحات الفراغ تسدّ هالفجوات وتجبر الهواء يمشي صح.</p>
+  <div class="sim" id="airSim">
+    <div class="sim-head"><span class="dot"></span><span class="sim-title">محاكي التبريد</span></div>
+    <div class="sim-sub">جرّب تغيّر عدد الأجهزة وفتحات الفراغ المسدودة، وراقب حرارة الراك.</div>
+    <div class="ctrl-row">
+      <label>أجهزة شغّالة</label>
+      <input type="range" id="airDev" min="1" max="8" value="4" step="1">
+      <span class="readout" id="airDevV">4</span>
+    </div>
+    <div class="ctrl-row">
+      <label>فتحات مسدودة بلوحات</label>
+      <input type="range" id="airBlank" min="0" max="6" value="3" step="1">
+      <span class="readout" id="airBlankV">3</span>
+    </div>
+    <div class="gauge-label"><span>حرارة الراك التقديرية</span><span id="airTemp">38°C</span></div>
+    <div class="meter"><div class="meter-fill" id="airBar" style="width:40%;background:var(--green)"></div></div>
+    <div id="airStatus" class="status ok" style="margin-top:10px">✓ تبريد جيد</div>
+  </div>
+  <div class="note">
+    <div class="label">نصيحة احترافية</div>
+    في الراكات الكبيرة يُضاف <strong>مروحة سقفية (Fan Top / Roof Fan)</strong> ولوحات مراوح 1U لتسريع سحب الهواء الساخن. لكن المروحة ما تعوّض عن لوحات الفراغ — لازم الاثنين معاً.
+  </div>
+  <div class="quiz">
+    <div class="q-label">سؤال سريع</div>
+    <div class="q-text">ليش نسدّ الفتحات الفارغة في الراك بلوحات فراغ؟</div>
+    <div class="opts">
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">عشان الشكل الجمالي فقط</div>
+      <div class="opt" data-correct="1" onclick="pickOpt(this,true)">نمنع الهواء الساخن من الالتفاف ورجوعه للأمام (إعادة الدوران)</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">عشان نزيد الوزن في الأعلى</div>
+    </div>
+    <div class="q-fb">صح. لوحات الفراغ تفصل الممر البارد عن الساخن وتمنع إعادة الدوران الحراري.</div>
+  </div>
+</section>
+
+<!-- 4. CABLE -->
+<section id="cable">
+  <div class="step-tag"><span class="n">4</span> الفوضى الخفية</div>
+  <h2>إدارة الكوابل والوصول</h2>
+  <p class="lead">راك مرتّب من الداخل = صيانة أسرع وأعطال أقل. الكوابل العشوائية تعيق الهواء، تصعّب تتبّع الأعطال، وتنشدّ بالغلط.</p>
+  <ul class="bullets">
+    <li><strong>حلقة الخدمة (Service Loop):</strong> تترك طول زيادة بسيط في كل كيبل عشان تقدر تسحب الجهاز للأمام للصيانة بدون ما تفصل الكيبل.</li>
+    <li><strong>التسمية (Labeling):</strong> كل كيبل يتلصق عليه ملصق من الطرفين. وقت العطل ما عندك وقت تتبّع كيبل أزرق بين عشرة كوابل زرقاء.</li>
+    <li><strong>فصل الطاقة عن الإشارة:</strong> كوابل الكهرباء تمشي بجانب وكوابل الصوت/الشبكة بجانب آخر، لتقليل التداخل (Interference) — مفهوم رجعنا له من مسار الكهرباء.</li>
+    <li><strong>الوصول الخلفي مقابل الأمامي:</strong> راكات التركيب غالباً لها باب خلفي للكوابل، وباب أمامي للأجهزة. راك الجولات أحياناً يفتح من الجهتين.</li>
+  </ul>
+  <div class="pro">
+    <div class="label">ممارسة جيدة</div>
+    استخدم قضبان إدارة كوابل أفقية (1U Cable Manager) بين الأجهزة، وربطات فيلكرو (Velcro) بدل البلاستيك — الفيلكرو يفتح ويرجع بسهولة وما يقطع عزل الكيبل.
+  </div>
+  <div class="quiz">
+    <div class="q-label">سؤال سريع</div>
+    <div class="q-text">ليش نترك «حلقة خدمة» في الكوابل؟</div>
+    <div class="opts">
+      <div class="opt" data-correct="1" onclick="pickOpt(this,true)">لنسحب الجهاز للصيانة بدون فصل الكوابل</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">لزيادة المقاومة الكهربائية</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">لأن الكوابل الطويلة أرخص</div>
+    </div>
+    <div class="q-fb">صح. الطول الزائد يعطيك حرية حركة للجهاز وقت الصيانة.</div>
+  </div>
+</section>
+
+<!-- 5. POWER -->
+<section id="power">
+  <div class="step-tag"><span class="n">5</span> قلب الراك النابض</div>
+  <h2>الطاقة: التوزيع، التكييف، التسلسل</h2>
+  <p class="lead">كل جهاز يحتاج كهرباء، والطاقة في الراك تُدار بأجهزة مخصّصة مو مجرد «مشترك» عادي. هنا نبني على ما تعلّمته في مسار الكهرباء.</p>
+  <h3 class="sub-h">الأجهزة الأساسية</h3>
+  <div class="tbl-wrap">
+  <table>
+    <tr><th>الجهاز</th><th>دوره</th></tr>
+    <tr><td>PDU</td><td>وحدة توزيع الطاقة — تأخذ مدخل كهرباء واحد وتوزّعه على عدّة مخارج للأجهزة.</td></tr>
+    <tr><td>منظّم/مكيّف (Conditioner)</td><td>ينقّي الكهرباء من الضجيج والارتفاعات المفاجئة (Surge) — مثل أجهزة Panamax/Furman الشائعة في الراكات.</td></tr>
+    <tr><td>تسلسل التشغيل (Sequencer)</td><td>يشغّل الأجهزة بالترتيب وبفواصل زمنية، فما تنطفي الكهرباء من ضغط التيار اللحظي (Inrush).</td></tr>
+    <tr><td>UPS</td><td>بطارية احتياطية تمنع انقطاع الكهرباء المفاجئ وتعطي وقت إطفاء آمن.</td></tr>
+  </table>
+  </div>
+  <div class="analogy">
+    <div class="label">شبّهها بـ</div>
+    تسلسل التشغيل مثل تشغيل سيارة: ما تشغّل المكيّف والراديو والأضواء كلها بنفس اللحظة مع المحرك — تعطي البطارية فرصة. الراك يشغّل الأمبليفايرات بآخر خطوة لتفادي صدمة التيار.
+  </div>
+  <div class="sim" id="seqSim">
+    <div class="sim-head"><span class="dot"></span><span class="sim-title">محاكي تسلسل التشغيل</span></div>
+    <div class="sim-sub">اضغط «شغّل النظام» وشاهد الأجهزة تشتغل بالترتيب الصحيح بفواصل زمنية.</div>
+    <div class="flow" id="seqFlow" style="margin-top:6px">
+      <div class="flow-node" data-step="1">المصدر</div>
+      <div class="flow-arrow">←</div>
+      <div class="flow-node" data-step="2">المعالج</div>
+      <div class="flow-arrow">←</div>
+      <div class="flow-node" data-step="3">الشبكة</div>
+      <div class="flow-arrow">←</div>
+      <div class="flow-node" data-step="4">الأمبليفاير</div>
+    </div>
+    <div class="ctrl-row" style="margin-top:16px">
+      <button class="btn" onclick="runSeq()">▶ شغّل النظام</button>
+      <button class="btn ghost sm" onclick="resetSeq()">إعادة</button>
+      <span id="seqMsg" style="color:var(--ink-faint);font-size:.85rem"></span>
+    </div>
+  </div>
+  <div class="warn">
+    <div class="label">تذكير سلامة</div>
+    الأرضي (Ground/Earth) لازم يكون موصول في كل أجهزة الراك. الراك المعدني نفسه يُؤرّض. هذا يحميك من الصعق ويقلّل ضجيج الهوم (Hum) — رجعنا لمفهوم الأرضي من مسار الكهرباء.
+  </div>
+  <div class="quiz">
+    <div class="q-label">سؤال سريع</div>
+    <div class="q-text">ليش نستخدم «تسلسل تشغيل» بدل ما نشغّل كل الأجهزة مرة وحدة؟</div>
+    <div class="opts">
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">عشان نوفّر في الكهرباء</div>
+      <div class="opt" data-correct="1" onclick="pickOpt(this,true)">لتفادي صدمة التيار اللحظي (Inrush) اللي تطفّي الكهرباء أو تتلف الأجهزة</div>
+      <div class="opt" data-correct="0" onclick="pickOpt(this,false)">عشان الأجهزة تسخن أبطأ</div>
+    </div>
+    <div class="q-fb">صح. تشغيل كل شي دفعة وحدة يسحب تياراً لحظياً كبيراً؛ التسلسل يوزّعه على خطوات.</div>
+  </div>
+</section>
+
+<!-- 6. CASES -->
+<section id="cases">
+  <div class="step-tag"><span class="n">6</span> بيئة الاستخدام</div>
+  <h2>راك التركيب مقابل صندوق الطيران</h2>
+  <p class="lead">مو كل راك واحد. نوع الراك يعتمد على وين رح يشتغل: ثابت في غرفة، أو يتنقّل بين الحفلات.</p>
+  <div class="tbl-wrap">
+  <table>
+    <tr><th>الميزة</th><th>راك التركيب (Install)</th><th>صندوق الطيران (Flight Case)</th></tr>
+    <tr><td>البيئة</td><td>غرفة معدّات ثابتة</td><td>جولات وحفلات متنقّلة</td></tr>
+    <tr><td>الحماية</td><td>إطار مفتوح أو خزانة</td><td>صندوق مبطّن مضاد للصدمات</td></tr>
+    <tr><td>العجلات</td><td>غالباً بدون</td><td>عجلات قوية + مكابح</td></tr>
+    <tr><td>الأبواب</td><td>أمامي/خلفي</td><td>أغطية أمامية وخلفية قابلة للفصل</td></tr>
+    <tr><td>التهوية</td><td>ثابتة ومحكومة</td><td>تتغيّر حسب المكان</td></tr>
+  </table>
+  </div>
+  <div class="note">
+    <div class="label">من الواقع</div>
+    شركات تأجير المعدّات (مثل اللي تشوفها في فيديوهات الراكات الاحترافية) تستخدم صناديق طيران ملوّنة الإطار لتمييز كل نظام بسرعة — أحمر للطاقة، أزرق للصوت، أخضر للشبكة مثلاً.
+  </div>
+</section>
+
+<!-- 7. BUILDER -->
+<section id="builder">
+  <div class="step-tag"><span class="n">7</span> طبّق بنفسك</div>
+  <h2>محاكي: ابنِ راك متوازن</h2>
+  <p class="lead">اسحب الأجهزة ورتّبها في الراك. المؤشرات رح تتفاعل مع ترتيبك: الوزن، الهواء، والمنطق العام. حاول توصل لراك «أخضر» في كل المؤشرات.</p>
+  <div class="sim" id="buildSim">
+    <div class="sim-head"><span class="dot"></span><span class="sim-title">منضدة بناء الراك</span></div>
+    <div class="sim-sub">اضغط على أي خانة فاضية ثم اختر جهاز، أو اضغط جهاز موجود لإزالته. رتّب من فوق لتحت.</div>
+    <div style="display:grid;grid-template-columns:1fr;gap:6px;margin-top:8px">
+      <div class="rackbox" id="buildRack"></div>
+    </div>
+    <div class="toggle-grid" id="buildPalette" style="margin-top:14px"></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:18px">
+      <div class="panel" style="margin:0;padding:14px">
+        <div class="gauge-label"><span>توازن الوزن</span><span id="bWeightV">—</span></div>
+        <div class="meter"><div class="meter-fill" id="bWeight" style="width:0%;background:var(--ink-faint)"></div></div>
+      </div>
+      <div class="panel" style="margin:0;padding:14px">
+        <div class="gauge-label"><span>التبريد</span><span id="bAirV">—</span></div>
+        <div class="meter"><div class="meter-fill" id="bAir" style="width:0%;background:var(--ink-faint)"></div></div>
+      </div>
+    </div>
+    <div id="buildVerdict" class="status warn-s" style="margin-top:14px">ابدأ بإضافة أجهزة للراك</div>
+  </div>
+</section>
+
+<!-- GLOSSARY -->
+<section id="gloss">
+  <div class="step-tag"><span class="n">★</span> مرجع</div>
+  <h2>قاموس المصطلحات</h2>
+  <div class="tbl-wrap">
+  <table class="gloss">
+    <tr><th>المصطلح</th><th>المعنى</th></tr>
+    <tr><td>RU / U</td><td>وحدة ارتفاع الراك = 44.45 مم</td></tr>
+    <tr><td>19"</td><td>عرض الإطار القياسي للأجهزة الاحترافية</td></tr>
+    <tr><td>Blank Panel</td><td>لوحة فراغ تسدّ المساحات الفاضية وتنظّم الهواء</td></tr>
+    <tr><td>Service Loop</td><td>طول كيبل زائد للصيانة بدون فصل</td></tr>
+    <tr><td>PDU</td><td>وحدة توزيع الطاقة</td></tr>
+    <tr><td>Sequencer</td><td>جهاز يشغّل المعدّات بالترتيب وبفواصل زمنية</td></tr>
+    <tr><td>Inrush</td><td>تيار لحظي كبير عند التشغيل</td></tr>
+    <tr><td>Recirculation</td><td>التفاف الهواء الساخن ورجوعه للأمام</td></tr>
+    <tr><td>Flight Case</td><td>صندوق راك متنقّل مضاد للصدمات</td></tr>
+  </table>
+  </div>
+  <h3 class="sub-h">رموز شائعة على الراك</h3>
+  <div class="sym-grid">
+    <div class="sym"><div class="ico">⏚</div><div class="nm">الأرضي</div><div class="ds">Ground / Earth</div></div>
+    <div class="sym"><div class="ico">⚡</div><div class="nm">الطاقة</div><div class="ds">Power / Mains</div></div>
+    <div class="sym"><div class="ico">🌡️</div><div class="nm">الحرارة</div><div class="ds">Thermal</div></div>
+    <div class="sym"><div class="ico">↑↓</div><div class="nm">اتجاه التركيب</div><div class="ds">This Side Up</div></div>
+    <div class="sym"><div class="ico">⊟</div><div class="nm">لوحة فراغ</div><div class="ds">Blank Panel</div></div>
+    <div class="sym"><div class="ico">⎙</div><div class="nm">العجلات/المكبح</div><div class="ds">Caster Brake</div></div>
+  </div>
+</section>
+
+<!-- EXAM -->
+<section id="exam">
+  <div class="step-tag"><span class="n">✓</span> قيّم نفسك</div>
+  <h2>الاختبار النهائي — المستوى 1</h2>
+  <p>عشر أسئلة. تحتاج <strong>7 صحيحة</strong> على الأقل لفتح المستوى الثاني.</p>
+  <div class="exam" id="examBox">
+    <div class="exam-head"><div class="ico">🎛️</div><div style="font-family:var(--mono);color:var(--amber-bright);letter-spacing:1px">RACK ANATOMY · FINAL</div></div>
+
+    <div class="exq">
+      <div class="qn">سؤال 1 / 10</div>
+      <div class="qt">كم مليمتر تساوي وحدة الراك الواحدة (1U)؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="0" onclick="examPick(this,0,false)">19 مم</div>
+        <div class="opt" data-correct="1" onclick="examPick(this,0,true)">44.45 مم</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,0,false)">100 مم</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 2 / 10</div>
+      <div class="qt">أين يجب أن توضع الأجهزة الثقيلة كالأمبليفايرات؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="0" onclick="examPick(this,1,false)">أعلى الراك</div>
+        <div class="opt" data-correct="1" onclick="examPick(this,1,true)">أسفل الراك لخفض مركز الثقل</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,1,false)">في المنتصف دائماً</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 3 / 10</div>
+      <div class="qt">ما اتجاه تدفّق الهواء في أغلب الأجهزة الاحترافية؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="1" onclick="examPick(this,2,true)">بارد من الأمام، ساخن من الخلف</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,2,false)">ساخن من الأمام، بارد من الخلف</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,2,false)">من الأسفل للأعلى فقط</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 4 / 10</div>
+      <div class="qt">ما وظيفة لوحات الفراغ (Blank Panels)؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="0" onclick="examPick(this,3,false)">زيادة الوزن</div>
+        <div class="opt" data-correct="1" onclick="examPick(this,3,true)">منع إعادة الدوران الحراري وتنظيم الهواء</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,3,false)">حمل الأجهزة الثقيلة</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 5 / 10</div>
+      <div class="qt">ماذا تسمّى وحدة توزيع الطاقة في الراك؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="0" onclick="examPick(this,4,false)">DSP</div>
+        <div class="opt" data-correct="1" onclick="examPick(this,4,true)">PDU</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,4,false)">RU</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 6 / 10</div>
+      <div class="qt">لماذا نستخدم تسلسل التشغيل (Sequencer)؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="1" onclick="examPick(this,5,true)">لتفادي صدمة التيار اللحظي عند التشغيل</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,5,false)">لتسريع الإنترنت</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,5,false)">لتبريد الأمبليفاير</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 7 / 10</div>
+      <div class="qt">ما الغرض من «حلقة الخدمة» في الكوابل؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="0" onclick="examPick(this,6,false)">زيادة المقاومة</div>
+        <div class="opt" data-correct="1" onclick="examPick(this,6,true)">سحب الجهاز للصيانة بدون فصل الكوابل</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,6,false)">توفير المال</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 8 / 10</div>
+      <div class="qt">أي نوع راك مناسب للجولات والحفلات المتنقّلة؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="0" onclick="examPick(this,7,false)">راك تركيب بإطار مفتوح</div>
+        <div class="opt" data-correct="1" onclick="examPick(this,7,true)">صندوق طيران (Flight Case) بعجلات وأغطية</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,7,false)">رف مكتبي عادي</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 9 / 10</div>
+      <div class="qt">لماذا نفصل كوابل الطاقة عن كوابل الإشارة؟</div>
+      <div class="opts">
+        <div class="opt" data-correct="1" onclick="examPick(this,8,true)">لتقليل التداخل والضجيج على الإشارة</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,8,false)">لأن الطاقة أثقل</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,8,false)">لا يوجد سبب فعلي</div>
+      </div>
+    </div>
+
+    <div class="exq">
+      <div class="qn">سؤال 10 / 10</div>
+      <div class="qt">الراك المعدني نفسه يجب أن يكون...</div>
+      <div class="opts">
+        <div class="opt" data-correct="0" onclick="examPick(this,9,false)">معزولاً تماماً عن الأرضي</div>
+        <div class="opt" data-correct="1" onclick="examPick(this,9,true)">مؤرّضاً (موصولاً بالأرضي) للسلامة وتقليل الضجيج</div>
+        <div class="opt" data-correct="0" onclick="examPick(this,9,false)">مطلياً بمادة عازلة للحرارة</div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:22px">
+      <button class="btn" onclick="gradeExam('examBox',10)">احسب النتيجة</button>
+    </div>
+    <div class="exam-result"></div>
+  </div>
+</section>
+
+<!-- DONE -->
+<section id="done">
+  <div class="done">
+    <div class="ico">🎚️</div>
+    <h2>أنهيت المستوى الأول</h2>
+    <p>الحين تفهم اللغة الفيزيائية للراك: الوحدات، الوزن، الهواء، الكوابل، والطاقة. المستوى الثاني يدخل في «دماغ» الراك — معالجات الصوت والـ DSP وأنظمة QSC.</p>
+    <a href="../av-rack-level2/index.html" class="next-btn locked" id="nextBtn" aria-disabled="true">المستوى 2: كور الصوت والـ DSP ←</a>
+    <br><a href="../index.html" class="back-link">← رجوع لكل المسارات</a>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ===== L1 simulators =====
+// RU ruler
+(function(){
+  var r=document.getElementById('ruRange'),v=document.getElementById('ruVal'),mm=document.getElementById('ruMm'),ex=document.getElementById('ruExample'),rack=document.getElementById('ruRack');
+  var examples={1:'مثال: ريسيفر لاسلكي 1U مثل ULXD4Q',2:'مثال: أمبليفاير صغير أو معالج 2U',3:'مثال: أمبليفاير قوي 3U',4:'مثال: سيرفر/كور كبير 4U',6:'مثال: مجموعة أمبليفايرات',8:'مثال: نصف راك',10:'مثال: راك كامل صغير',12:'مثال: راك متوسط'};
+  function near(n){var ks=Object.keys(examples).map(Number).sort(function(a,b){return a-b});var best=ks[0];ks.forEach(function(k){if(k<=n)best=k});return examples[best];}
+  function upd(){
+    var n=+r.value;v.textContent=n+'U';mm.textContent=Math.round(n*44.45)+' مم';ex.textContent=near(n);
+    rack.innerHTML='';for(var i=0;i<n;i++){var d=document.createElement('div');d.className='ru '+(n>=4?'amp':'dsp');d.innerHTML='<span style="opacity:.6">وحدة '+(i+1)+'</span>';d.style.height='26px';rack.appendChild(d);}
+  }
+  r.addEventListener('input',upd);upd();
+})();
+// center of gravity
+(function(){
+  var r=document.getElementById('cgRange'),pos=document.getElementById('cgPos'),bar=document.getElementById('cgBar'),pct=document.getElementById('cgPct'),st=document.getElementById('cgStatus');
+  function upd(){
+    var p=+r.value; // 1 top .. 6 bottom
+    var stability=Math.round((p/6)*100);
+    var labels={6:'أسفل',5:'قريب من الأسفل',4:'وسط-سفلي',3:'وسط-علوي',2:'قريب من الأعلى',1:'أعلى'};
+    pos.textContent=labels[p];pct.textContent=stability+'%';bar.style.width=stability+'%';
+    if(stability>=75){bar.style.background='var(--green)';st.className='status ok';st.textContent='✓ مستقر — مركز الثقل منخفض';}
+    else if(stability>=45){bar.style.background='var(--amber)';st.className='status warn-s';st.textContent='⚠ متوسط — انتبه عند التحريك';}
+    else{bar.style.background='var(--red)';st.className='status bad';st.textContent='✗ خطر انقلاب — الثقيل عالٍ جداً';}
+  }
+  r.addEventListener('input',upd);upd();
+})();
+// airflow
+(function(){
+  var dev=document.getElementById('airDev'),blank=document.getElementById('airBlank'),dv=document.getElementById('airDevV'),bv=document.getElementById('airBlankV'),temp=document.getElementById('airTemp'),bar=document.getElementById('airBar'),st=document.getElementById('airStatus');
+  function upd(){
+    var d=+dev.value,b=+blank.value;dv.textContent=d;bv.textContent=b;
+    var t=22+d*4-b*2.2; t=Math.max(24,Math.round(t));
+    var pctv=Math.min(100,Math.round((t-22)/40*100));
+    temp.textContent=t+'°C';bar.style.width=pctv+'%';
+    if(t<=38){bar.style.background='var(--green)';st.className='status ok';st.textContent='✓ تبريد جيد';}
+    else if(t<=50){bar.style.background='var(--amber)';st.className='status warn-s';st.textContent='⚠ حار — أضف لوحات فراغ أو مروحة';}
+    else{bar.style.background='var(--red)';st.className='status bad';st.textContent='✗ خطر حراري — الأجهزة قد تطفئ نفسها';}
+  }
+  dev.addEventListener('input',upd);blank.addEventListener('input',upd);upd();
+})();
+// sequence
+var seqTimer=null;
+function resetSeq(){
+  if(seqTimer){clearTimeout(seqTimer);seqTimer=null;}
+  document.querySelectorAll('#seqFlow .flow-node').forEach(function(n){n.classList.remove('active');});
+  document.getElementById('seqMsg').textContent='';
+}
+function runSeq(){
+  resetSeq();
+  var nodes=document.querySelectorAll('#seqFlow .flow-node');
+  var msg=document.getElementById('seqMsg');
+  var i=0;
+  function step(){
+    if(i<nodes.length){
+      nodes[i].classList.add('active');
+      msg.textContent='تشغيل: '+nodes[i].textContent+' ...';
+      i++;seqTimer=setTimeout(step,700);
+    }else{msg.textContent='✓ النظام جاهز — الأمبليفاير آخر شي اشتغل';}
+  }
+  step();
+}
+// rack builder
+(function(){
+  var rack=document.getElementById('buildRack'),pal=document.getElementById('buildPalette');
+  var SLOTS=6;
+  var devices=[
+    {k:'pwr',n:'طاقة/منظّم',w:5,h:3,cls:'pwr'},
+    {k:'amp',n:'أمبليفاير',w:4,h:4,cls:'amp'},
+    {k:'dsp',n:'معالج DSP',w:2,h:2,cls:'dsp'},
+    {k:'net',n:'سويتش شبكة',w:1,h:1,cls:'net'},
+    {k:'rf',n:'ريسيفر لاسلكي',w:1,h:1,cls:'rf'},
+    {k:'video',n:'جهاز فيديو',w:2,h:2,cls:'video'}
+  ];
+  var slots=new Array(SLOTS).fill(null);
+  function render(){
+    rack.innerHTML='';
+    for(var i=0;i<SLOTS;i++){
+      var d=document.createElement('div');
+      var dev=slots[i];
+      if(dev){d.className='ru '+dev.cls;d.innerHTML=dev.n+'<span class="tag">حرارة '+dev.h+' · وزن '+dev.w+'</span>';d.onclick=(function(idx){return function(){slots[idx]=null;render();score();};})(i);}
+      else{d.className='ru empty';d.textContent='— خانة فاضية (اضغط لإضافة) —';d.onclick=(function(idx){return function(){addTo(idx);};})(i);}
+      rack.appendChild(d);
+    }
+  }
+  var pendingSlot=null;
+  function addTo(idx){pendingSlot=idx;pal.scrollIntoView({behavior:'smooth',block:'center'});flashPal();}
+  function flashPal(){pal.style.outline='2px solid var(--amber)';pal.style.borderRadius='10px';setTimeout(function(){pal.style.outline='none';},900);}
+  function buildPalette(){
+    pal.innerHTML='<span style="width:100%;font-size:.82rem;color:var(--ink-faint);margin-bottom:4px">اختر جهازاً لإضافته للخانة المحددة:</span>';
+    devices.forEach(function(dev){
+      var b=document.createElement('div');b.className='tog';b.textContent=dev.n;
+      b.onclick=function(){
+        var idx=pendingSlot;
+        if(idx===null){for(var i=SLOTS-1;i>=0;i--){if(!slots[i]){idx=i;break;}}}
+        if(idx===null){return;}
+        slots[idx]=dev;pendingSlot=null;render();score();
+      };
+      pal.appendChild(b);
+    });
+  }
+  function score(){
+    var filled=slots.filter(Boolean);
+    var wV=document.getElementById('bWeight'),wT=document.getElementById('bWeightV');
+    var aV=document.getElementById('bAir'),aT=document.getElementById('bAirV');
+    var verdict=document.getElementById('buildVerdict');
+    if(filled.length===0){wV.style.width='0%';aV.style.width='0%';wT.textContent='—';aT.textContent='—';verdict.className='status warn-s';verdict.textContent='ابدأ بإضافة أجهزة للراك';return;}
+    // weight balance: heavier should be lower (higher index = lower in our top-down list)
+    var wsum=0,balanced=0,checks=0;
+    for(var i=0;i<SLOTS;i++){if(slots[i]){wsum+=slots[i].w;}}
+    for(var i=0;i<SLOTS-1;i++){
+      if(slots[i]&&slots[i+1]){checks++;if(slots[i].w<=slots[i+1].w)balanced++;}
+    }
+    var wpct=checks?Math.round(balanced/checks*100):100;
+    // air: more devices + no gaps = hotter; reward empty slots / blanks
+    var heat=filled.reduce(function(a,d){return a+d.h;},0);
+    var airpct=Math.max(0,Math.min(100,100-heat*7));
+    wV.style.width=wpct+'%';wT.textContent=wpct+'%';
+    aV.style.width=airpct+'%';aT.textContent=airpct+'%';
+    wV.style.background=wpct>=80?'var(--green)':wpct>=50?'var(--amber)':'var(--red)';
+    aV.style.background=airpct>=60?'var(--green)':airpct>=35?'var(--amber)':'var(--red)';
+    if(wpct>=80&&airpct>=55){verdict.className='status ok';verdict.textContent='✓ راك ممتاز — وزن متوازن وتبريد جيد';}
+    else if(wpct<50){verdict.className='status bad';verdict.textContent='✗ الوزن مقلوب — انقل الثقيل للأسفل';}
+    else if(airpct<35){verdict.className='status bad';verdict.textContent='✗ الراك حار جداً — قلّل الأجهزة أو اترك فراغات';}
+    else{verdict.className='status warn-s';verdict.textContent='⚠ مقبول — حاول تحسّن التوازن والتبريد';}
+  }
+  buildPalette();render();score();
+})();
+</script>
+<footer>
+<p>هذه المادة تعليمية لمساعدة فنيي الصوت والصورة على فهم تصميم الأنظمة، وليست بديلاً عن التدريب المعتمد من الشركات المصنّعة أو عن قراءة الكتيّبات الرسمية للأجهزة.</p>
+<p>أسماء الأجهزة والعلامات التجارية (QSC، Q-SYS، Shure، L-Acoustics، Logitech، Samsung، وغيرها) مذكورة لأغراض تعليمية فقط وهي ملك لأصحابها.</p>
+<p style="margin-top:14px;font-family:var(--mono);color:var(--copper)">مسار تصميم الأنظمة والكبائن · المستوى 1 من 5</p>
+</footer>
+<script>
+// progress rail
+(function(){
+  var rf=document.getElementById('railFill');
+  function upd(){
+    var h=document.documentElement;
+    var sc=h.scrollTop||document.body.scrollTop;
+    var max=(h.scrollHeight-h.clientHeight)||1;
+    rf.style.width=(sc/max*100)+'%';
+  }
+  window.addEventListener('scroll',upd,{passive:true});
+  window.addEventListener('resize',upd);upd();
+})();
+// mini quiz
+function pickOpt(el,correct){
+  var box=el.closest('.quiz');
+  if(box.dataset.done)return;
+  box.dataset.done='1';
+  var opts=box.querySelectorAll('.opt');
+  opts.forEach(function(o){o.classList.add('disabled')});
+  var fb=box.querySelector('.q-fb');
+  if(correct){
+    el.classList.add('correct');
+    fb.classList.add('show','good');
+  }else{
+    el.classList.add('wrong');
+    opts.forEach(function(o){if(o.dataset.correct==='1')o.classList.add('correct')});
+    fb.classList.add('show','bad');
+  }
+}
+// final exam
+function gradeExam(id,total){
+  var ex=document.getElementById(id);
+  var qs=ex.querySelectorAll('.exq');
+  var score=0,answered=0;
+  qs.forEach(function(q){
+    if(q.dataset.ans){
+      answered++;
+      if(q.dataset.ans==='1')score++;
+    }
+  });
+  if(answered<total){
+    alert('أجب عن كل الأسئلة أولاً — أجبت عن '+answered+' من '+total);
+    return;
+  }
+  var res=ex.querySelector('.exam-result');
+  var pass=score>=Math.ceil(total*0.7);
+  res.className='exam-result show '+(pass?'pass':'fail');
+  var msg=pass
+    ? 'ممتاز! اجتزت اختبار هذا المستوى. تقدر تكمل للمستوى التالي.'
+    : 'قريب! راجع الأقسام اللي أخطأت فيها وأعد المحاولة — تحتاج '+Math.ceil(total*0.7)+' إجابات صحيحة على الأقل.';
+  res.innerHTML='<div class="score">'+score+' / '+total+'</div><p>'+msg+'</p>';
+  if(pass){
+    var nb=document.getElementById('nextBtn');
+    if(nb){nb.classList.remove('locked');nb.removeAttribute('aria-disabled');}
+  }
+  res.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function examPick(el,qi,correct){
+  var q=el.closest('.exq');
+  if(q.dataset.locked)return;
+  q.dataset.locked='1';
+  q.dataset.ans=correct?'1':'0';
+  var opts=q.querySelectorAll('.opt');
+  opts.forEach(function(o){o.classList.add('disabled')});
+  if(correct){el.classList.add('correct');}
+  else{el.classList.add('wrong');opts.forEach(function(o){if(o.dataset.correct==='1')o.classList.add('correct')});}
+}
+</script>
+</body>
+</html>
